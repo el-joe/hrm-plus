@@ -41,6 +41,25 @@ return [
             ],
         ],
         [
+            'key' => 'recruitment',
+            'items' => [
+                ['key' => 'vacancies', 'route' => 'admin.vacancies.index', 'ability' => 'recruitment.view', 'icon' => 'briefcase', 'active' => ['admin.vacancies.*', 'admin.applications.*']],
+                ['key' => 'candidates', 'route' => 'admin.candidates.index', 'ability' => 'recruitment.view', 'icon' => 'user-plus', 'active' => ['admin.candidates.*']],
+                ['key' => 'interviews', 'route' => 'admin.interviews.index', 'ability' => 'interviews.view', 'icon' => 'calendar', 'active' => ['admin.interviews.*']],
+                ['key' => 'offers', 'route' => 'admin.offers.index', 'ability' => 'offers.view', 'icon' => 'mail', 'active' => ['admin.offers.*']],
+                ['key' => 'recruitment_stages', 'route' => 'admin.recruitment-stages.index', 'ability' => 'recruitment.manage', 'icon' => 'layers', 'active' => ['admin.recruitment-stages.*']],
+                ['key' => 'evaluation_forms', 'route' => 'admin.evaluation-forms.index', 'ability' => 'recruitment.manage', 'icon' => 'award', 'active' => ['admin.evaluation-forms.*']],
+            ],
+        ],
+        [
+            'key' => 'lifecycle',
+            'items' => [
+                ['key' => 'onboarding', 'route' => 'admin.onboarding.index', 'ability' => 'onboarding.view', 'icon' => 'log-in', 'active' => ['admin.onboarding.*']],
+                ['key' => 'offboarding', 'route' => 'admin.offboarding.index', 'ability' => 'offboarding.view', 'icon' => 'log-out', 'active' => ['admin.offboarding.*']],
+                ['key' => 'onboarding_templates', 'route' => 'admin.onboarding-templates.index', 'ability' => 'onboarding.manage', 'icon' => 'file-text', 'active' => ['admin.onboarding-templates.*']],
+            ],
+        ],
+        [
             'key' => 'structure',
             'items' => [
                 ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],
@@ -75,6 +94,8 @@ return [
     'portal' => [
         ['key' => 'home', 'route' => 'portal.home', 'ability' => null, 'icon' => 'home', 'active' => ['portal.home']],
         ['key' => 'my_profile', 'route' => 'portal.profile', 'ability' => null, 'icon' => 'user', 'active' => ['portal.profile']],
+        ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding']],
+        ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*']],
     ],
 
 ];

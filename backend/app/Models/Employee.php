@@ -361,6 +361,40 @@ class Employee extends Model
     }
 
     /**
+     * The candidate record this employee was hired from (recruitment lineage).
+     *
+     * @return BelongsTo<Candidate, $this>
+     */
+    public function candidate(): BelongsTo
+    {
+        return $this->belongsTo(Candidate::class);
+    }
+
+    /**
+     * @return BelongsTo<JobApplication, $this>
+     */
+    public function jobApplication(): BelongsTo
+    {
+        return $this->belongsTo(JobApplication::class);
+    }
+
+    /**
+     * @return HasMany<Onboarding, $this>
+     */
+    public function onboardings(): HasMany
+    {
+        return $this->hasMany(Onboarding::class)->latest('id');
+    }
+
+    /**
+     * @return HasMany<OffboardingCase, $this>
+     */
+    public function offboardingCases(): HasMany
+    {
+        return $this->hasMany(OffboardingCase::class)->latest('id');
+    }
+
+    /**
      * The contract in force today (latest started, not ended, not terminated).
      */
     public function currentContract(): ?EmployeeContract

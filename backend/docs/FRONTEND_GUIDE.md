@@ -52,6 +52,7 @@ from `localStorage('hrm-theme')`, falling back to `prefers-color-scheme` (no fla
 |---|---|---|
 | `layouts.admin` | `/admin/*` | `@extends('layouts.admin', ['breadcrumbs' => [['label' => …, 'url' => …]], 'subtitle' => …])`, sections `title`, `page-actions`, `content`, stack `scripts`. The header (breadcrumbs → title → actions) is rendered for you; "Dashboard" and the current title are added to the breadcrumb trail automatically. Pass `'pageHeader' => false` to render your own. |
 | `layouts.employee` | `/portal/*` | Same sections; `['hero' => true]` + `@section('hero')` for a brand band instead of the page header. Top nav on desktop, bottom nav on mobile. |
+| `layouts.public` | public pages without an account (career page) | Sections `title`, `content`; pass `$company`. |
 | `layouts.auth` | sign-in / password pages | Needs `$area` (`AuthArea`); sections `title`, `intro`, `content`. |
 
 ### Sidebar / portal navigation
@@ -125,6 +126,8 @@ from `app.js` and guarded by a data-attribute check.
 | `ui/dismiss.js` | `data-dismiss="[data-alert]"` | Removes the closest matching ancestor. |
 | `pages/org-chart.js` | `[data-org-chart]` (admin/structure/org-chart) | Collapse/expand branches, zoom (`--org-zoom`), find a node; the tree itself is server-rendered nested lists styled by `.org-tree` in app.css. |
 | `pages/employee-form.js` | `form[data-employee-form]`; selects with `data-depends-on="branch_id"` and options with `data-parent` | Narrows department / team / position / location lists to the chosen branch / department (admin/employees/_placement-fields). The server validates the combination anyway. |
+| `pages/pipeline-board.js` | `[data-pipeline-board]` (admin/recruitment/vacancies/_board) | Drag and drop of application cards between stage columns, and fetch submission of each card's stage form (the keyboard / no-JS alternative). Optimistic move; the card returns and a toast explains when the server refuses. |
+| `ui/print.js` | `[data-print]` | Opens the print dialog (offer letter: print / save as PDF). |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes

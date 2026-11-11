@@ -38,6 +38,25 @@ class EmployeeFileStore
         ];
     }
 
+    /**
+     * Store raw contents (e.g. a candidate's CV copied on hire) like an upload.
+     *
+     * @return array{file_path: string, file_name: string, file_mime: string, file_size: int}
+     */
+    public function storeContents(Employee $employee, string $contents, string $name, string $mime, string $folder): array
+    {
+        $extension = Str::lower(pathinfo($name, PATHINFO_EXTENSION) ?: 'bin');
+        $path = $employee->getKey().'/'.$folder.'/'.Str::uuid()->toString().'.'.$extension;
+        $this->disk()->put($path, $contents);
+
+        return [
+            'file_path' => $path,
+            'file_name' => Str::limit($this->safeName($name), 250, ''),
+            'file_mime' => $mime,
+            'file_size' => strlen($contents),
+        ];
+    }
+
     public function exists(?string $path): bool
     {
         return $path !== null && $this->disk()->exists($path);

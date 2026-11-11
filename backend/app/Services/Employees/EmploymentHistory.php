@@ -223,7 +223,7 @@ class EmploymentHistory
         $employee->save();
 
         if (! $wasTerminated && $employee->isTerminated()) {
-            $this->setEmployeeAccountStatus($employee, UserStatus::Inactive);
+            $this->deactivateLinkedAccounts($employee);
         } elseif ($wasTerminated && ! $employee->isTerminated()) {
             $this->setEmployeeAccountStatus($employee, UserStatus::Active);
         }
@@ -241,9 +241,26 @@ class EmploymentHistory
     }
 
     /**
-     * Termination switches the employee's own login off (and rehiring back on).
-     * Admin accounts linked to the profile keep their admin access; they are
-     * managed under Admin users.
+     * When a termination takes effect (today, back-dated, or on its scheduled
+     * date) EVERY login linked to the profile is switched off: the employee's
+     * own account and any admin account linked through users.employee_id
+     * (project-lead decision, Phase 4). Their API tokens are revoked too.
+     */
+    private function deactivateLinkedAccounts(Employee $employee): void
+    {
+        User::query()->where('employee_id', $employee->getKey())
+            ->where('status', '!=', UserStatus::Inactive)
+            ->get()
+            ->each(function (User $user): void {
+                $user->update(['status' => UserStatus::Inactive]);
+                $user->tokens()->delete();
+            });
+    }
+
+    /**
+     * Rehiring switches the employee's own login back on. Admin accounts
+     * disabled by the termination stay disabled: admin access is re-granted
+     * deliberately under Admin users.
      */
     private function setEmployeeAccountStatus(Employee $employee, UserStatus $status): void
     {

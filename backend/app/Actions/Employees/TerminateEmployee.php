@@ -12,8 +12,10 @@ use Illuminate\Support\Carbon;
 /**
  * Ends employment on a date (today, past or scheduled for the future). The
  * employee keeps every record (history, documents, contracts, salary); the
- * open contract is closed on the same date and their own login account is
- * switched off when the termination takes effect.
+ * open contract is closed on the same date. When the termination takes
+ * effect (now, or on its date through employees:apply-scheduled-changes),
+ * EmploymentHistory switches off every linked login: the employee account
+ * AND any admin account linked to the profile (users.employee_id).
  */
 class TerminateEmployee
 {

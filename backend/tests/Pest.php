@@ -6,7 +6,9 @@ use App\Models\EmploymentType;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RecruitmentDefaultsSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Http\UploadedFile;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -102,4 +104,21 @@ function employeePayload(array $structure, array $overrides = []): array
         'employment_type_id' => $structure['type']->id,
         ...$overrides,
     ];
+}
+
+/**
+ * Phase 4 reference data: default pipeline, "job_offer" approval workflow,
+ * the general evaluation form and the default onboarding checklist.
+ */
+function seedRecruitment(): void
+{
+    test()->seed(RecruitmentDefaultsSeeder::class);
+}
+
+/**
+ * A fake PDF upload for CV fields.
+ */
+function fakeCv(string $name = 'cv.pdf'): UploadedFile
+{
+    return UploadedFile::fake()->create($name, 120, 'application/pdf');
 }

@@ -30,6 +30,12 @@
                         {{ __('employees.actions.activate') }}
                     </x-dropdown.item>
                 @endif
+                @can('onboarding.create')
+                    <x-dropdown.item :href="route('admin.onboarding.create', ['employee' => $employee->id])" icon="log-in">{{ __('onboarding.onboarding.create') }}</x-dropdown.item>
+                @endcan
+                @can('offboarding.create')
+                    <x-dropdown.item :href="route('admin.offboarding.create', ['employee' => $employee->id])" icon="log-out">{{ __('onboarding.offboarding.create') }}</x-dropdown.item>
+                @endcan
                 @can('manage', $employee)
                     <x-dropdown.item :href="route('admin.employees.terminate', $employee)" icon="log-out" tone="danger">{{ __('employees.actions.terminate') }}</x-dropdown.item>
                 @endcan
@@ -67,6 +73,14 @@
                 </p>
             </div>
         </div>
+        @if ($employee->candidate_id)
+            <p class="mt-3 text-caption-md text-text-tertiary" data-region="recruitment-lineage">
+                {{ __('employees.profile.hired_through_recruitment') }}
+                @if ($employee->jobApplication && auth()->user()->can('view', $employee->jobApplication))
+                    · <a class="text-text-link underline" href="{{ route('admin.applications.show', $employee->jobApplication) }}">{{ __('employees.profile.open_application') }}</a>
+                @endif
+            </p>
+        @endif
         @if ($employee->isTerminated())
             <x-alert tone="danger" class="mt-4" :title="__('employees.profile.terminated_title', ['date' => $employee->termination_date?->toDateString()])">
                 {{ $employee->termination_type?->label() }}@if ($employee->termination_reason) — {{ $employee->termination_reason }}@endif

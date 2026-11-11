@@ -159,6 +159,8 @@ return [
     ],
 
     'profile' => [
+        'hired_through_recruitment' => 'Hired through recruitment',
+        'open_application' => 'Open the recruitment record',
         'sections' => 'Profile sections',
         'on_probation' => 'On probation',
         'no_title' => 'No job title',
@@ -192,7 +194,7 @@ return [
     ],
 
     'termination' => [
-        'notice' => 'Terminating keeps all records (history, documents, contracts, salary). The employee\'s own login is switched off on the last working day.',
+        'notice' => 'Terminating keeps all records (history, documents, contracts, salary). Every login linked to the employee (their own account and any linked admin account) is switched off on the last working day.',
         'details' => 'Termination',
         'details_help' => 'A future date schedules the termination.',
         'confirm' => 'Terminate the employment of :name?',

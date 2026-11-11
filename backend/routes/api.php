@@ -33,6 +33,8 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::get('documents', [V1\MeController::class, 'documents'])->name('documents.index');
             Route::get('documents/{document}', [V1\MeController::class, 'document'])->whereNumber('document')->name('documents.show');
             Route::get('documents/{document}/download', [V1\MeController::class, 'download'])->whereNumber('document')->name('documents.download');
+            Route::get('onboarding', [V1\OnboardingController::class, 'show'])->name('onboarding.show');
+            Route::post('onboarding/tasks/{task}/complete', [V1\OnboardingController::class, 'complete'])->whereNumber('task')->name('onboarding.tasks.complete');
         });
 
         Route::get('company', [V1\CompanyController::class, 'show'])->name('company.show');

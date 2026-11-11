@@ -14,3 +14,6 @@ Artisan::command('inspire', function () {
 */
 Schedule::command('employees:apply-scheduled-changes')->dailyAt('00:10')->withoutOverlapping()->onOneServer();
 Schedule::command('employees:send-expiry-reminders')->dailyAt('07:00')->withoutOverlapping()->onOneServer();
+Schedule::command('recruitment:send-interview-reminders')->hourly()->withoutOverlapping()->onOneServer();
+Schedule::command('recruitment:expire-offers')->dailyAt('00:20')->withoutOverlapping()->onOneServer();
+Schedule::command('offboarding:detect-contract-expiries')->dailyAt('06:30')->withoutOverlapping()->onOneServer();

@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\Employees;
+use App\Http\Controllers\Admin\Lifecycle;
+use App\Http\Controllers\Admin\Recruitment;
 use App\Http\Controllers\Admin\Structure;
+use App\Http\Controllers\Careers\CareerController;
 use App\Http\Controllers\CompanyLogoController;
 use App\Http\Controllers\Employee;
 use App\Http\Controllers\LocaleController;
@@ -31,6 +34,14 @@ Route::post('locale', [LocaleController::class, 'update'])->name('locale.update'
 
 // Public: shown on sign-in pages and in the mobile app.
 Route::get('company/logo', CompanyLogoController::class)->name('company.logo');
+
+// Public career page (Phase 4), only while the setting recruitment.career_page_enabled is on.
+Route::prefix('careers')->name('careers.')->middleware('careers')->group(function (): void {
+    Route::get('/', [CareerController::class, 'index'])->name('index');
+    Route::get('{reference}', [CareerController::class, 'show'])->where('reference', '[A-Z0-9-]+')->name('show');
+    Route::post('{reference}/apply', [CareerController::class, 'apply'])->where('reference', '[A-Z0-9-]+')
+        ->middleware('throttle:career-apply')->name('apply');
+});
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware('guest:admin')->group(function (): void {
@@ -136,6 +147,90 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::resource('employee-custom-fields', Employees\EmployeeCustomFieldController::class)
             ->except('show')->parameters(['employee-custom-fields' => 'custom_field'])->middleware('can:employees.manage');
 
+        // Recruitment (Phase 4). Record-level rules (permission + data scope by
+        // vacancy branch / department, salary visibility) live in the policies
+        // under App\Policies and in App\Services\Recruitment\SalaryVisibility.
+        Route::resource('vacancies', Recruitment\VacancyController::class);
+        Route::post('vacancies/{vacancy}/pipeline', [Recruitment\VacancyController::class, 'customisePipeline'])->name('vacancies.pipeline.customise');
+        Route::delete('vacancies/{vacancy}/pipeline', [Recruitment\VacancyController::class, 'resetPipeline'])->name('vacancies.pipeline.reset');
+
+        Route::resource('recruitment-stages', Recruitment\RecruitmentStageController::class)
+            ->except('show')->parameters(['recruitment-stages' => 'stage']);
+        Route::patch('recruitment-stages/{stage}/move', [Recruitment\RecruitmentStageController::class, 'move'])->name('recruitment-stages.move');
+        Route::resource('evaluation-forms', Recruitment\EvaluationFormController::class)->except('show')->middleware('can:recruitment.manage');
+
+        Route::resource('candidates', Recruitment\CandidateController::class);
+        Route::prefix('candidates/{candidate}')->name('candidates.')->scopeBindings()->group(function (): void {
+            Route::get('cv', [Recruitment\CandidateController::class, 'cv'])->name('cv');
+            Route::post('applications', [Recruitment\CandidateController::class, 'apply'])->name('apply');
+            Route::post('notes', [Recruitment\CandidateRecordController::class, 'storeNote'])->name('notes.store');
+            Route::post('attachments', [Recruitment\CandidateRecordController::class, 'storeAttachment'])->name('attachments.store');
+            Route::get('attachments/{attachment}', [Recruitment\CandidateRecordController::class, 'downloadAttachment'])->name('attachments.download');
+            Route::delete('attachments/{attachment}', [Recruitment\CandidateRecordController::class, 'destroyAttachment'])->name('attachments.destroy');
+        });
+
+        Route::prefix('applications/{application}')->name('applications.')->group(function (): void {
+            Route::get('/', [Recruitment\ApplicationController::class, 'show'])->name('show');
+            Route::patch('stage', [Recruitment\ApplicationController::class, 'move'])->name('move');
+            Route::get('hire', [Recruitment\ApplicationController::class, 'convertForm'])->name('convert');
+            Route::post('hire', [Recruitment\ApplicationController::class, 'convert'])->name('convert.store');
+            Route::get('interviews/create', [Recruitment\InterviewController::class, 'create'])->name('interviews.create');
+            Route::post('interviews', [Recruitment\InterviewController::class, 'store'])->name('interviews.store');
+            Route::get('offers/create', [Recruitment\OfferController::class, 'create'])->name('offers.create');
+            Route::post('offers', [Recruitment\OfferController::class, 'store'])->name('offers.store');
+        });
+
+        Route::get('interviews', [Recruitment\InterviewController::class, 'index'])->name('interviews.index');
+        Route::prefix('interviews/{interview}')->name('interviews.')->group(function (): void {
+            Route::get('/', [Recruitment\InterviewController::class, 'show'])->name('show');
+            Route::get('edit', [Recruitment\InterviewController::class, 'edit'])->name('edit');
+            Route::put('/', [Recruitment\InterviewController::class, 'update'])->name('update');
+            Route::patch('status', [Recruitment\InterviewController::class, 'status'])->name('status');
+            Route::post('decision', [Recruitment\InterviewController::class, 'decide'])->name('decision');
+            Route::post('scorecard', [Recruitment\InterviewController::class, 'scorecard'])->name('scorecard');
+            Route::get('cv', [Recruitment\InterviewController::class, 'cv'])->name('cv');
+        });
+
+        Route::get('offers', [Recruitment\OfferController::class, 'index'])->name('offers.index');
+        Route::prefix('offers/{offer}')->name('offers.')->group(function (): void {
+            Route::get('/', [Recruitment\OfferController::class, 'show'])->name('show');
+            Route::get('edit', [Recruitment\OfferController::class, 'edit'])->name('edit');
+            Route::put('/', [Recruitment\OfferController::class, 'update'])->name('update');
+            Route::get('letter', [Recruitment\OfferController::class, 'letter'])->name('letter');
+            Route::post('{action}', [Recruitment\OfferController::class, 'transition'])
+                ->whereIn('action', ['submit', 'send', 'accept', 'decline', 'withdraw'])->name('transition');
+            Route::post('approval/{decision}', [Recruitment\OfferController::class, 'decide'])
+                ->whereIn('decision', ['approve', 'reject'])->name('decide');
+        });
+
+        // Onboarding and offboarding (Phase 4). Scoped through the employee.
+        Route::resource('onboarding', Lifecycle\OnboardingController::class)->only(['index', 'create', 'store', 'show']);
+        Route::prefix('onboarding/{onboarding}')->name('onboarding.')->scopeBindings()->group(function (): void {
+            Route::post('tasks', [Lifecycle\OnboardingController::class, 'storeTask'])->name('tasks.store');
+            Route::patch('tasks/{task}', [Lifecycle\OnboardingController::class, 'updateTask'])->name('tasks.update');
+            Route::delete('tasks/{task}', [Lifecycle\OnboardingController::class, 'destroyTask'])->name('tasks.destroy');
+            Route::post('cancel', [Lifecycle\OnboardingController::class, 'cancel'])->name('cancel');
+        });
+
+        Route::middleware('can:onboarding.manage')->group(function (): void {
+            Route::resource('onboarding-templates', Lifecycle\OnboardingTemplateController::class);
+            Route::prefix('onboarding-templates/{onboarding_template}')->name('onboarding-templates.')->scopeBindings()->group(function (): void {
+                Route::post('tasks', [Lifecycle\OnboardingTemplateController::class, 'storeTask'])->name('tasks.store');
+                Route::get('tasks/{task}/edit', [Lifecycle\OnboardingTemplateController::class, 'editTask'])->name('tasks.edit');
+                Route::put('tasks/{task}', [Lifecycle\OnboardingTemplateController::class, 'updateTask'])->name('tasks.update');
+                Route::delete('tasks/{task}', [Lifecycle\OnboardingTemplateController::class, 'destroyTask'])->name('tasks.destroy');
+            });
+        });
+
+        Route::resource('offboarding', Lifecycle\OffboardingController::class)->only(['index', 'create', 'store', 'show', 'update']);
+        Route::prefix('offboarding/{offboarding}')->name('offboarding.')->scopeBindings()->group(function (): void {
+            Route::post('items', [Lifecycle\OffboardingController::class, 'storeItem'])->name('items.store');
+            Route::patch('items/{item}', [Lifecycle\OffboardingController::class, 'updateItem'])->name('items.update');
+            Route::post('exit-interview', [Lifecycle\OffboardingController::class, 'exitInterview'])->name('exit-interview');
+            Route::post('complete', [Lifecycle\OffboardingController::class, 'complete'])->name('complete');
+            Route::post('cancel', [Lifecycle\OffboardingController::class, 'cancel'])->name('cancel');
+        });
+
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.
         Route::resource('admin-users', Admin\AdminUserController::class);
@@ -184,5 +279,15 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
             ->whereIn('tab', Employee\ProfileController::TABS)->name('profile');
         Route::get('documents/{document}/download', Employee\DocumentDownloadController::class)
             ->whereNumber('document')->name('documents.download');
+
+        // My onboarding checklist (own tasks only).
+        Route::get('onboarding', [Employee\OnboardingController::class, 'index'])->name('onboarding');
+        Route::patch('onboarding/tasks/{task}', [Employee\OnboardingController::class, 'update'])->whereNumber('task')->name('onboarding.tasks.update');
+
+        // Interviews the employee sits on as an interviewer (InterviewPolicy).
+        Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');
+        Route::get('interviews/{interview}', [Employee\InterviewController::class, 'show'])->name('interviews.show');
+        Route::post('interviews/{interview}/scorecard', [Employee\InterviewController::class, 'scorecard'])->name('interviews.scorecard');
+        Route::get('interviews/{interview}/cv', [Employee\InterviewController::class, 'cv'])->name('interviews.cv');
     });
 });

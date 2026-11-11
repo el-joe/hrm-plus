@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -91,6 +92,26 @@ class User extends Authenticatable
     public function scopeEmployees(Builder $query): void
     {
         $query->where('account_type', AccountType::Employee);
+    }
+
+    /**
+     * The employee profile this account is linked to (employee accounts, or admins linked to a profile).
+     *
+     * @return BelongsTo<Employee, $this>
+     */
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    /**
+     * "Name · EMP-00012" for employee accounts, "Name · e-mail" otherwise; for pickers.
+     */
+    public function pickerLabel(): string
+    {
+        return $this->isEmployee() && $this->employee
+            ? $this->name.' · '.$this->employee->employee_number
+            : $this->name.' · '.$this->email;
     }
 
     public function isAdmin(): bool

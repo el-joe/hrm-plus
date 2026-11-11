@@ -15,6 +15,7 @@ import { initForms } from './ui/forms';
 import { initGlobalSearch } from './ui/global-search';
 import { initLocale } from './ui/locale';
 import { initModals } from './ui/modal';
+import { initPrint } from './ui/print';
 import { initSidebar } from './ui/sidebar';
 import { initTabs } from './ui/tabs';
 import { initTheme } from './ui/theme';
@@ -22,6 +23,7 @@ import { initToasts } from './ui/toast';
 import { initOrgChart } from './pages/org-chart';
 import { initEmployeeForm } from './pages/employee-form';
 import { initEmployeeBulk } from './pages/employee-bulk';
+import { initPipelineBoard } from './pages/pipeline-board';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -49,6 +51,7 @@ function boot() {
     initDataTables();
     initCheckGroups();
     initGlobalSearch();
+    initPrint();
 
     if (document.querySelector('[data-org-chart]')) {
         initOrgChart();
@@ -60,6 +63,10 @@ function boot() {
 
     if (document.querySelector('[data-bulk-form]')) {
         initEmployeeBulk();
+    }
+
+    if (document.querySelector('[data-pipeline-board]')) {
+        initPipelineBoard();
     }
 }
 

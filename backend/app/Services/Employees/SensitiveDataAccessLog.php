@@ -24,6 +24,11 @@ class SensitiveDataAccessLog
 
     public const EXPORT = 'sensitive_access.employee_export';
 
+    /** Recruitment salaries: vacancy range, candidate expected / current, offered salary. */
+    public const RECRUITMENT_SALARY = 'sensitive_access.recruitment_salary';
+
+    public const CANDIDATE_FILE = 'sensitive_access.candidate_file';
+
     public function __construct(private readonly AuditLogger $audit) {}
 
     /**

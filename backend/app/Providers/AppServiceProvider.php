@@ -10,6 +10,9 @@ use App\Models\ApprovalWorkflowStep;
 use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\BranchLocation;
+use App\Models\Candidate;
+use App\Models\CandidateAttachment;
+use App\Models\CandidateNote;
 use App\Models\Company;
 use App\Models\CostCenter;
 use App\Models\Department;
@@ -24,14 +27,27 @@ use App\Models\EmployeeEmergencyContact;
 use App\Models\EmployeeGroup;
 use App\Models\EmployeeSalary;
 use App\Models\EmploymentType;
+use App\Models\EvaluationForm;
+use App\Models\Interview;
+use App\Models\InterviewScorecard;
+use App\Models\JobApplication;
 use App\Models\JobGrade;
+use App\Models\JobOffer;
 use App\Models\JobTitle;
 use App\Models\LoginHistory;
+use App\Models\OffboardingCase;
+use App\Models\OffboardingItem;
+use App\Models\Onboarding;
+use App\Models\OnboardingTask;
+use App\Models\OnboardingTemplate;
+use App\Models\OnboardingTemplateTask;
 use App\Models\Position;
+use App\Models\RecruitmentStage;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Vacancy;
 use App\Policies\AdminUserPolicy;
 use App\Services\Authorization\DataScopeManager;
 use App\Support\Navigation\NavigationBuilder;
@@ -112,6 +128,22 @@ class AppServiceProvider extends ServiceProvider
             'employee_document' => EmployeeDocument::class,
             'employee_custom_field' => EmployeeCustomField::class,
             'employee_custom_field_value' => EmployeeCustomFieldValue::class,
+            'vacancy' => Vacancy::class,
+            'recruitment_stage' => RecruitmentStage::class,
+            'candidate' => Candidate::class,
+            'candidate_note' => CandidateNote::class,
+            'candidate_attachment' => CandidateAttachment::class,
+            'job_application' => JobApplication::class,
+            'evaluation_form' => EvaluationForm::class,
+            'interview' => Interview::class,
+            'interview_scorecard' => InterviewScorecard::class,
+            'job_offer' => JobOffer::class,
+            'onboarding_template' => OnboardingTemplate::class,
+            'onboarding_template_task' => OnboardingTemplateTask::class,
+            'onboarding' => Onboarding::class,
+            'onboarding_task' => OnboardingTask::class,
+            'offboarding_case' => OffboardingCase::class,
+            'offboarding_item' => OffboardingItem::class,
         ]);
     }
 
@@ -131,6 +163,11 @@ class AppServiceProvider extends ServiceProvider
         // it is not a business capability and must not be grantable to roles.
         Gate::define('viewUiKit', fn (User $user): bool => $user->isAdmin() && $user->isSuperAdmin());
 
+        // Portal navigation: shown to employees who have an onboarding / sit on interviews.
+        Gate::define('viewOwnOnboarding', fn (User $user): bool => $user->employee_id !== null
+            && Onboarding::query()->withoutGlobalScopes()->where('employee_id', $user->employee_id)->exists());
+        Gate::define('viewOwnInterviews', fn (User $user): bool => Interview::query()->withoutGlobalScopes()->assignedTo($user)->exists());
+
         Gate::before(function (User $user, string $ability): ?bool {
             return str_contains($ability, '.') && $user->isSuperAdmin() ? true : null;
         });
@@ -147,6 +184,10 @@ class AppServiceProvider extends ServiceProvider
             ->by(Str::transliterate(Str::lower((string) $request->input('email'))).'|'.$request->ip()));
 
         RateLimiter::for('password-reset', fn (Request $request): Limit => Limit::perMinute(5)->by($request->ip()));
+
+        // Public career page applications, per IP (setting recruitment.career_applications_per_hour).
+        RateLimiter::for('career-apply', fn (Request $request): Limit => Limit::perHour(max(1, (int) setting('recruitment.career_applications_per_hour')))
+            ->by($request->ip()));
     }
 
     private function configurePasswords(): void

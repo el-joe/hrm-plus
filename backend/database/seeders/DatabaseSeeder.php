@@ -15,11 +15,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RolesAndPermissionsSeeder::class);
+        $this->call(RecruitmentDefaultsSeeder::class);
 
         if (! app()->isProduction()) {
             $this->call(OrganisationStructureSeeder::class);
             $this->call(EmployeeSeeder::class);
             $this->call(DevelopmentAccountsSeeder::class);
+            $this->call(RecruitmentDemoSeeder::class);
         }
     }
 }

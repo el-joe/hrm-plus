@@ -64,3 +64,26 @@ Run `php artisan schedule:work` locally (cron `schedule:run` in production):
 `employees:apply-scheduled-changes` (00:10, future-dated transfers / terminations / salary changes) and
 `employees:send-expiry-reminders` (07:00, documents and contracts expiring within the lead time in
 Settings → Notifications).
+
+## Recruitment, onboarding and offboarding demo data (Phase 4)
+
+`RecruitmentDefaultsSeeder` (every environment) creates the default 12-stage pipeline, the `job_offer`
+approval workflow (one step: permission `offers.approve`), a "General interview evaluation" form and the
+"Standard onboarding" checklist. `RecruitmentDemoSeeder` (not in production) then adds, through the real actions:
+
+| What | Details |
+|---|---|
+| Vacancies | VAC-00001 Sales Representative Cairo, VAC-00002 Accountant (**filled**), VAC-00003 Backend Engineer (2 openings), VAC-00004 Delivery Driver Alexandria (own pipeline, not public), VAC-00005 HR Coordinator (draft). VAC-00001 and VAC-00003 are live on the career page `/careers`. |
+| Candidates | 25 (24 applications, 1 talent-pool candidate), each with a demo PDF CV on the private `recruitment_files` disk |
+| Interviews | Past ones scored by the panel; upcoming ones with **recruiter@**, **department.manager@** (admin, data-scoped to IT — still sees the interviews they sit on) and **employee2@hrmplus.test** (scores in the portal under *My interviews*) |
+| Offers | OFR-00001 accepted and hired (Accountant → new employee *Yasmine El-Sherif*, EMP-00061, no login account, onboarding 40 % done), OFR-00002 awaiting approval (approve as **hr.manager@**), OFR-00003 sent |
+| Offboarding | One resignation case (exit interview recorded, 2 items done) plus "contract end" cases opened by the contract-expiry scan |
+
+Salary fields in recruitment (vacancy range, expected / current salary, offered salary) are visible only with
+`employee_financials.view` (e.g. hr.manager@, not recruiter@); every view is written to the audit log as
+`sensitive_access.recruitment_salary`. E-mails to candidates go to the log mailer (`storage/logs/laravel.log`)
+once the queue runs (`php artisan queue:work`).
+
+Additional scheduled commands: `recruitment:send-interview-reminders` (hourly), `recruitment:expire-offers`
+(00:20) and `offboarding:detect-contract-expiries` (06:30). Phase 4 added the permissions `interviews.*` and
+`offers.*` — run `php artisan permissions:sync` on existing databases.

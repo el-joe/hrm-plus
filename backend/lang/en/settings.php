@@ -16,6 +16,8 @@ return [
         'employee_number' => 'Employee number',
         'security' => 'Security',
         'approvals' => 'Approvals',
+        'recruitment' => 'Recruitment',
+        'lifecycle' => 'Onboarding & offboarding',
     ],
     'keys' => [
         'localisation' => [
@@ -73,6 +75,20 @@ return [
         ],
         'approvals' => [
             'allow_self_approval' => 'Allow approving your own requests',
+        ],
+        'recruitment' => [
+            'career_page_enabled' => 'Public career page enabled',
+            'career_applications_per_hour' => 'Career page applications per visitor per hour',
+            'cv_max_size_kb' => 'Maximum CV size (KB)',
+            'cv_allowed_extensions' => 'Allowed CV file types',
+            'candidate_emails_enabled' => 'Send e-mails to candidates',
+            'interview_reminder_hours' => 'Interview reminder (hours before)',
+            'offer_requires_approval' => 'Job offers require approval',
+            'offer_validity_days' => 'Default offer validity (days)',
+        ],
+        'lifecycle' => [
+            'auto_start_onboarding' => 'Start onboarding automatically when a candidate is hired',
+            'contract_expiry_case_days' => 'Open offboarding cases for contracts ending within (days)',
         ],
     ],
     'options' => [

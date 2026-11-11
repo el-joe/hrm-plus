@@ -16,6 +16,8 @@ it('shows every sidebar entry to a Super Admin', function () {
     expect(sidebarKeys($sections))->toBe([
         'dashboard',
         'employees', 'employee_groups', 'employee_custom_fields',
+        'vacancies', 'candidates', 'interviews', 'offers', 'recruitment_stages', 'evaluation_forms',
+        'onboarding', 'offboarding', 'onboarding_templates',
         'company', 'org_chart', 'branches', 'departments', 'teams', 'positions', 'job_titles', 'job_grades', 'employment_types', 'cost_centers',
         'admin_users', 'roles', 'audit_logs', 'settings', 'ui_kit',
     ]);

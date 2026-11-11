@@ -49,6 +49,15 @@ return [
             'report' => false,
         ],
 
+        // Candidate CVs and attachments (recruitment); never public.
+        'recruitment_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/recruitment'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

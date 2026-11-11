@@ -99,4 +99,26 @@ return [
         'allow_self_approval' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
     ],
 
+    // Recruitment (Phase 4). The public career page is on by default outside
+    // production and must be switched on deliberately in production.
+    'recruitment' => [
+        'career_page_enabled' => ['type' => 'boolean', 'default' => env('APP_ENV', 'production') !== 'production', 'rules' => ['boolean']],
+        'career_applications_per_hour' => ['type' => 'integer', 'default' => 5, 'rules' => ['required', 'integer', 'between:1,100']],
+        'cv_max_size_kb' => ['type' => 'integer', 'default' => 5120, 'rules' => ['required', 'integer', 'between:100,20480']],
+        'cv_allowed_extensions' => [
+            'type' => 'list', 'default' => ['pdf', 'doc', 'docx'], 'rules' => ['array'],
+            'options' => ['pdf', 'doc', 'docx', 'rtf', 'odt', 'txt'],
+        ],
+        'candidate_emails_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'interview_reminder_hours' => ['type' => 'integer', 'default' => 24, 'rules' => ['required', 'integer', 'between:1,168']],
+        'offer_requires_approval' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'offer_validity_days' => ['type' => 'integer', 'default' => 7, 'rules' => ['required', 'integer', 'between:1,90']],
+    ],
+
+    // Onboarding and offboarding (Phase 4).
+    'lifecycle' => [
+        'auto_start_onboarding' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'contract_expiry_case_days' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'between:1,180']],
+    ],
+
 ];

@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-11 · Status: **Phases 0–2 complete; Phase 3 next**
+Last updated: 2026-11-11 · Status: **Phases 0–4 complete; Phase 5 next**
 
 ---
 
@@ -143,15 +143,15 @@ Must finish before any UI code is written.
 - [x] Employee number generation and custom fields *(pattern setting, race-safe `number_sequences`; typed custom field values)*
 - [x] Tests: employee CRUD, data privacy, file permissions, history preservation *(plus import/export, scopes incl. sub-departments and groups, headcount, permission sync, API, portal)*
 
-### Phase 4 — Recruitment, onboarding, offboarding · L
-- [ ] Vacancies, configurable pipeline stages, candidate records, CV upload, restricted salary fields
-- [ ] Interviews: scheduling, interviewers, evaluation forms, scores, decisions
-- [ ] Offers, email notifications, interview reminders
-- [ ] Convert candidate to employee with preserved lineage
-- [ ] Optional public career page
-- [ ] Configurable onboarding checklists and progress tracking
-- [ ] Offboarding: resignation, termination, contract expiry, exit interview, asset and document handover, account deactivation
-- [ ] Tests: recruitment workflow; end-to-end scenario 1 up to account creation
+### Phase 4 — Recruitment, onboarding, offboarding · L · **done**
+- [x] Vacancies, configurable pipeline stages, candidate records, CV upload, restricted salary fields *(bilingual vacancies scoped by branch/department, openings capped by the position's free seats; company default pipeline + per-vacancy copy, stage "meaning" categories; candidates with duplicate detection by e-mail/phone, tags, notes, attachments, CVs on the private `recruitment_files` disk; salaries only with `employee_financials.view`, every view logged; kanban board with drag and drop + keyboard/no-JS stage form, list view)*
+- [x] Interviews: scheduling, interviewers, evaluation forms, scores, decisions *(timezone-aware, in person / online / phone; panel of admin users or employee accounts (portal "My interviews"); weighted evaluation forms, bcmath aggregated scores; interviewers see only their own interviews unless `interviews.manage`)*
+- [x] Offers, email notifications, interview reminders *(offer flow draft → approval through the approval engine (`job_offer` workflow, setting) → sent → accepted/declined/expired; printable HTML offer letter — no PDF library added; queued candidate e-mails (received, stage, interview invitation/reminder, offer); `recruitment:send-interview-reminders` hourly, `recruitment:expire-offers` daily)*
+- [x] Convert candidate to employee with preserved lineage *(employees.candidate_id / job_application_id, CV copied to employee documents, vacancy filled count, headcount validated, optional login invitation, onboarding started automatically)*
+- [x] Optional public career page *(`/careers`, setting `recruitment.career_page_enabled` — on outside production; honeypot, per-IP rate limit, CV type/size from settings, returning applicants matched)*
+- [x] Configurable onboarding checklists and progress tracking *(templates matched by position / department / employment type, due offsets, HR/IT/manager/finance/employee tasks, auto-completion; employee completes own tasks in the portal and via `GET /api/v1/me/onboarding`, `POST /api/v1/me/onboarding/tasks/{task}/complete`)*
+- [x] Offboarding: resignation, termination, contract expiry, exit interview, asset and document handover, account deactivation *(handover items from pluggable providers — the Assets phase registers its own; exit interview form; completion terminates via TerminateEmployee on the last working day; termination now also disables linked admin accounts; `offboarding:detect-contract-expiries` opens contract-end cases)*
+- [x] Tests: recruitment workflow; end-to-end scenario 1 up to account creation *(and API sign-in of the new employee)*
 
 ### Phase 5 — Attendance engine · XL · critical
 - [ ] Schema: devices, device-employee mappings, raw device events, sync logs, work locations, geofences, face verification records, attendance policies, daily records, punches, corrections

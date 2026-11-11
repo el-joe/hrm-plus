@@ -52,7 +52,15 @@ return [
         'employee_financials' => ['view', 'update'],
         'employee_documents' => $crud,
         'employee_groups' => $crud,
+        // Recruitment (Phase 4). recruitment.*: vacancies, candidates, pipeline;
+        // recruitment.manage: pipeline stages and evaluation forms.
+        // interviews.view: the interviews the admin is an interviewer on;
+        // interviews.manage: every interview in scope. offers.approve/reject:
+        // the "job_offer" approval workflow. Salaries anywhere in recruitment
+        // need employee_financials.view.
         'recruitment' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'interviews' => [...$crud, 'manage'],
+        'offers' => [...$crud, 'approve', 'reject'],
         'onboarding' => [...$crud, 'manage'],
         'offboarding' => [...$crud, 'approve', 'reject', 'manage'],
         'attendance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
@@ -91,7 +99,7 @@ return [
                 'dashboard.*', 'company.*', 'branches.*', 'departments.*', 'teams.*', 'positions.*', 'job_titles.*',
                 'job_grades.*', 'employment_types.*', 'cost_centers.*', 'employees.*', 'employee_sensitive.*', 'employee_financials.view',
                 'employee_documents.*', 'employee_groups.*',
-                'recruitment.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
+                'recruitment.*', 'interviews.*', 'offers.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
                 'shifts.*', 'leaves.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
                 'performance.*', 'training.*', 'assets.*', 'hr_requests.*', 'announcements.*', 'disciplinary.*',
                 'reports.*', 'notifications.*', 'approvals.*', 'settings.view', 'admin_users.view', 'audit_logs.view',
@@ -106,6 +114,7 @@ return [
                 'employees.view', 'employees.create', 'employees.update', 'employees.export',
                 'employee_sensitive.view', 'employee_groups.view',
                 'employee_documents.view', 'employee_documents.create', 'employee_documents.update',
+                'interviews.view',
                 'onboarding.view', 'onboarding.create', 'onboarding.update',
                 'offboarding.view', 'offboarding.create', 'offboarding.update',
                 'attendance.view', 'shifts.view',
@@ -123,6 +132,7 @@ return [
             'permissions' => [
                 'dashboard.view', 'company.view', 'branches.view', 'departments.view', 'positions.view',
                 'job_titles.view', 'job_grades.view', 'employment_types.view', 'recruitment.*',
+                'interviews.*', 'offers.view', 'offers.create', 'offers.update', 'offers.delete',
                 'onboarding.view', 'onboarding.create', 'onboarding.update',
                 'reports.view', 'notifications.view',
             ],
@@ -159,7 +169,7 @@ return [
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
                 'training.view', 'assets.view', 'announcements.view', 'announcements.create',
-                'disciplinary.view', 'disciplinary.create',
+                'disciplinary.view', 'disciplinary.create', 'interviews.view',
                 'reports.view', 'reports.export', 'notifications.view',
             ],
         ],
@@ -173,7 +183,7 @@ return [
                 'leaves.view', 'leaves.approve', 'leaves.reject',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
-                'training.view', 'announcements.view', 'announcements.create',
+                'training.view', 'announcements.view', 'announcements.create', 'interviews.view',
                 'reports.view', 'notifications.view',
             ],
         ],
@@ -185,7 +195,7 @@ return [
                 'leaves.view', 'leaves.approve', 'leaves.reject',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update',
-                'notifications.view',
+                'interviews.view', 'notifications.view',
             ],
         ],
         'Finance Officer' => [

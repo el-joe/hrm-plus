@@ -16,6 +16,8 @@ return [
         'employee_number' => 'رقم الموظف',
         'security' => 'الأمان',
         'approvals' => 'الاعتمادات',
+        'recruitment' => 'التوظيف',
+        'lifecycle' => 'الانضمام وإنهاء الخدمة',
     ],
     'keys' => [
         'localisation' => [
@@ -73,6 +75,20 @@ return [
         ],
         'approvals' => [
             'allow_self_approval' => 'السماح باعتماد الشخص لطلبه',
+        ],
+        'recruitment' => [
+            'career_page_enabled' => 'تفعيل صفحة الوظائف العامة',
+            'career_applications_per_hour' => 'عدد الطلبات المسموح بها لكل زائر في الساعة',
+            'cv_max_size_kb' => 'أقصى حجم للسيرة الذاتية (كيلوبايت)',
+            'cv_allowed_extensions' => 'أنواع ملفات السيرة الذاتية المسموح بها',
+            'candidate_emails_enabled' => 'إرسال رسائل بريد للمرشحين',
+            'interview_reminder_hours' => 'التذكير بالمقابلة (ساعات قبلها)',
+            'offer_requires_approval' => 'العروض الوظيفية تتطلب اعتمادًا',
+            'offer_validity_days' => 'مدة صلاحية العرض الافتراضية (أيام)',
+        ],
+        'lifecycle' => [
+            'auto_start_onboarding' => 'بدء إجراءات الانضمام تلقائيًا عند تعيين مرشح',
+            'contract_expiry_case_days' => 'فتح ملفات إنهاء الخدمة للعقود المنتهية خلال (أيام)',
         ],
     ],
     'options' => [

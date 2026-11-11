@@ -2,6 +2,7 @@
 
 use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\EnsureAdminAccess;
+use App\Http\Middleware\EnsureCareerPageEnabled;
 use App\Http\Middleware\EnsureEmployeeApiAccount;
 use App\Http\Middleware\EnsurePortalAccess;
 use App\Http\Middleware\ForceJsonResponse;
@@ -35,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdminAccess::class,
             'portal' => EnsurePortalAccess::class,
             'api.employee' => EnsureEmployeeApiAccount::class,
+            'careers' => EnsureCareerPageEnabled::class,
         ]);
 
         $middleware->web(append: [SetLocale::class]);

@@ -71,7 +71,15 @@ return [
         // calendar overrides; schedules.approve/reject: shift changes and swaps.
         // attendance_policies.*: policy rules and their assignment.
         'attendance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        // Phase 5b. attendance_devices.view: devices, health, sync logs, mappings;
+        // create/update/delete: device configuration; manage: sync now, historical
+        // and file imports, push tokens, device-user mappings. The raw event review
+        // (map / void) and the mobile review queue use attendance.update /
+        // attendance.approve / attendance.reject. face_verification.view: the
+        // enrolment register (every view logged); delete: erase an employee's
+        // biometric data.
         'attendance_devices' => [...$crud, 'manage'],
+        'face_verification' => ['view', 'delete'],
         'shifts' => [...$crud, 'approve', 'reject', 'manage'],
         'schedules' => [...$crud, 'approve', 'reject'],
         'holidays' => $crud,
@@ -110,7 +118,7 @@ return [
                 'job_grades.*', 'employment_types.*', 'cost_centers.*', 'employees.*', 'employee_sensitive.*', 'employee_financials.view',
                 'employee_documents.*', 'employee_groups.*',
                 'recruitment.*', 'interviews.*', 'offers.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
-                'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
+                'face_verification.*', 'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
                 'performance.*', 'training.*', 'assets.*', 'hr_requests.*', 'announcements.*', 'disciplinary.*',
                 'reports.*', 'notifications.*', 'approvals.*', 'settings.view', 'admin_users.view', 'audit_logs.view',
             ],
@@ -162,7 +170,8 @@ return [
             'description' => 'Manages attendance and shifts; no access to payroll or financial data.',
             'permissions' => [
                 'dashboard.view', 'branches.view', 'departments.view', 'teams.view',
-                'employees.view', 'attendance.*', 'attendance_devices.view', 'shifts.*',
+                'employees.view', 'attendance.*', 'attendance_devices.view', 'attendance_devices.update', 'attendance_devices.manage',
+                'face_verification.view', 'shifts.*',
                 'schedules.*', 'holidays.*', 'attendance_policies.view',
                 'leaves.view', 'reports.view', 'reports.export', 'notifications.view',
             ],
@@ -175,7 +184,7 @@ return [
                 'employees.view', 'employees.update', 'employees.export',
                 'employee_documents.view',
                 'attendance.view', 'attendance.create', 'attendance.update', 'attendance.approve', 'attendance.reject', 'attendance.export',
-                'shifts.view', 'shifts.create', 'shifts.update', 'shifts.approve', 'shifts.reject',
+                'attendance_devices.view', 'shifts.view', 'shifts.create', 'shifts.update', 'shifts.approve', 'shifts.reject',
                 'schedules.view', 'schedules.create', 'schedules.update', 'schedules.approve', 'schedules.reject', 'holidays.view',
                 'leaves.view', 'leaves.approve', 'leaves.reject',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',

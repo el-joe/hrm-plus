@@ -29,6 +29,7 @@ return [
         'offboarding' => 'Offboarding',
         'attendance' => 'Attendance',
         'attendance_devices' => 'Attendance devices',
+        'face_verification' => 'Face verification (biometric data)',
         'shifts' => 'Shifts',
         'schedules' => 'Work schedules & shift changes',
         'holidays' => 'Public holidays',

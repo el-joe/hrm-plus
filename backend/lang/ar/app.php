@@ -44,6 +44,7 @@ return [
     'nav' => [
         'ui_kit' => 'مكتبة المكونات',
         'sections' => [
+            'attendance_capture' => 'تسجيل الحضور',
             'attendance' => 'الحضور والانصراف',
             'scheduling' => 'الورديات والجداول',
             'employees' => 'الموظفون',
@@ -54,6 +55,14 @@ return [
             'permissions' => 'التحكم في الوصول',
             'system' => 'النظام',
         ],
+        'attendance_dashboard' => 'لوحة الحضور',
+        'attendance_calendar' => 'تقويم الحضور',
+        'attendance_reviews' => 'مراجعة تسجيل الجوال',
+        'attendance_events' => 'الأحداث الأولية',
+        'attendance_reports' => 'تقارير الحضور',
+        'attendance_devices' => 'أجهزة الحضور',
+        'attendance_work_locations' => 'مواقع العمل للجوال',
+        'face_enrolments' => 'تسجيلات الوجه',
         'attendance_daily' => 'الحضور اليومي',
         'attendance_timesheet' => 'كشف الحضور الشهري',
         'attendance_bulk' => 'الحضور الجماعي',

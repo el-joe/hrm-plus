@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Devices\DevicePushController;
 use App\Http\Controllers\Api\V1;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 | inside the protected group below.
 |
 */
+
+// Attendance devices push their logs here (per-device bearer token, not a user token). Phase 5b.
+Route::post('v1/devices/{serial}/events', DevicePushController::class)
+    ->where('serial', '[A-Za-z0-9._-]{1,100}')->middleware('throttle:device-push')->name('api.v1.devices.events');
 
 Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function (): void {
     Route::post('auth/login', [V1\AuthController::class, 'login'])
@@ -39,6 +44,16 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::get('attendance', [V1\AttendanceController::class, 'attendance'])->name('attendance.index');
             Route::get('attendance/corrections', [V1\AttendanceController::class, 'corrections'])->name('attendance.corrections.index');
             Route::post('attendance/corrections', [V1\AttendanceController::class, 'storeCorrection'])->name('attendance.corrections.store');
+
+            // Mobile GPS / face attendance (Phase 5b).
+            Route::get('attendance/today', [V1\MobileAttendanceController::class, 'today'])->name('attendance.today');
+            Route::get('attendance/attempts', [V1\MobileAttendanceController::class, 'attempts'])->name('attendance.attempts');
+            Route::post('attendance/check-in', [V1\MobileAttendanceController::class, 'checkIn'])->middleware('throttle:attendance-checkin')->name('attendance.check-in');
+            Route::post('attendance/check-out', [V1\MobileAttendanceController::class, 'checkOut'])->middleware('throttle:attendance-checkin')->name('attendance.check-out');
+            Route::get('face', [V1\FaceController::class, 'show'])->name('face.show');
+            Route::post('face/consent', [V1\FaceController::class, 'consent'])->name('face.consent');
+            Route::delete('face/consent', [V1\FaceController::class, 'withdraw'])->name('face.withdraw');
+            Route::post('face/enrol', [V1\FaceController::class, 'enrol'])->middleware('throttle:attendance-checkin')->name('face.enrol');
         });
 
         Route::get('company', [V1\CompanyController::class, 'show'])->name('company.show');

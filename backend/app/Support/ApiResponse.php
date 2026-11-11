@@ -55,13 +55,18 @@ class ApiResponse
     /**
      * @param  array<string, list<string>>|null  $errors
      * @param  array<string, string>  $headers
+     * @param  mixed  $data  details the client needs to react (e.g. a rejected attendance attempt)
      */
-    public static function error(string $message, int $status, string $code, ?array $errors = null, array $headers = []): JsonResponse
+    public static function error(string $message, int $status, string $code, ?array $errors = null, array $headers = [], mixed $data = null): JsonResponse
     {
         $payload = ['success' => false, 'message' => $message, 'code' => $code];
 
         if ($errors !== null) {
             $payload['errors'] = $errors;
+        }
+
+        if ($data !== null) {
+            $payload['data'] = $data instanceof JsonResource ? $data->resolve() : $data;
         }
 
         return response()->json($payload, $status, $headers);

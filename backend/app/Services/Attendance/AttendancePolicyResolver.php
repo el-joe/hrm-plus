@@ -4,7 +4,9 @@ namespace App\Services\Attendance;
 
 use App\Enums\AttendanceScope;
 use App\Enums\BreakMode;
+use App\Enums\FaceVerificationMode;
 use App\Enums\MissingPunchAction;
+use App\Enums\MobileRuleAction;
 use App\Models\AttendancePolicyAssignment;
 use App\Models\AttendancePolicyVersion;
 use App\Models\Department;
@@ -110,7 +112,30 @@ class AttendancePolicyResolver
             'max_break_minutes' => null,
             'manual_entry_requires_approval' => (bool) $this->settings->get('attendance.manual_entry_requires_approval'),
             'correction_requires_approval' => true,
+            ...$this->mobileDefaults(),
         ]);
+    }
+
+    /**
+     * Mobile / face rules from the attendance settings (defaults of a new policy version).
+     *
+     * @return array<string, mixed>
+     */
+    public function mobileDefaults(): array
+    {
+        return [
+            'mobile_checkin_enabled' => true,
+            'gps_max_accuracy_meters' => (int) $this->settings->get('attendance.gps_max_accuracy_meters'),
+            'gps_accuracy_tolerance_meters' => (int) $this->settings->get('attendance.gps_accuracy_tolerance_meters'),
+            'gps_checkout_extra_meters' => 0,
+            'gps_max_time_drift_seconds' => (int) $this->settings->get('attendance.gps_max_time_drift_seconds'),
+            'gps_mock_location_action' => MobileRuleAction::Review,
+            'gps_outside_window_action' => MobileRuleAction::Review,
+            'gps_repeated_attempts_threshold' => (int) $this->settings->get('attendance.gps_repeated_attempts_threshold'),
+            'face_verification_mode' => $this->settings->get('attendance.face_verification_required') ? FaceVerificationMode::Required : FaceVerificationMode::Optional,
+            'face_max_attempts' => (int) $this->settings->get('attendance.face_verification_max_retries'),
+            'face_failure_action' => MobileRuleAction::Review,
+        ];
     }
 
     private function versionOn(int $policyId, string $day): ?AttendancePolicyVersion

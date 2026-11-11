@@ -62,12 +62,25 @@ return [
         [
             'key' => 'attendance',
             'items' => [
+                ['key' => 'attendance_dashboard', 'route' => 'admin.attendance.dashboard', 'ability' => 'attendance.view', 'icon' => 'bar-chart', 'active' => ['admin.attendance.dashboard']],
                 ['key' => 'attendance_daily', 'route' => 'admin.attendance.daily', 'ability' => 'attendance.view', 'icon' => 'clock', 'active' => ['admin.attendance.daily', 'admin.attendance.days.*']],
                 ['key' => 'attendance_timesheet', 'route' => 'admin.attendance.timesheet', 'ability' => 'attendance.view', 'icon' => 'calendar', 'active' => ['admin.attendance.timesheet']],
+                ['key' => 'attendance_calendar', 'route' => 'admin.attendance.calendar', 'ability' => 'attendance.view', 'icon' => 'layout-grid', 'active' => ['admin.attendance.calendar']],
                 ['key' => 'attendance_bulk', 'route' => 'admin.attendance.bulk.create', 'ability' => 'attendance.create', 'icon' => 'check-circle', 'active' => ['admin.attendance.bulk.*']],
                 ['key' => 'attendance_batches', 'route' => 'admin.attendance.batches.index', 'ability' => 'attendance.view', 'icon' => 'upload', 'active' => ['admin.attendance.batches.*', 'admin.attendance.import*']],
                 ['key' => 'attendance_corrections', 'route' => 'admin.attendance.corrections.index', 'ability' => 'attendance.view', 'icon' => 'pencil', 'active' => ['admin.attendance.corrections.*']],
+                ['key' => 'attendance_reviews', 'route' => 'admin.attendance.reviews.index', 'ability' => 'attendance.view', 'icon' => 'map-pin', 'active' => ['admin.attendance.reviews.*']],
+                ['key' => 'attendance_events', 'route' => 'admin.attendance.events.index', 'ability' => 'attendance.view', 'icon' => 'inbox', 'active' => ['admin.attendance.events.*']],
+                ['key' => 'attendance_reports', 'route' => 'admin.attendance.reports.index', 'ability' => 'viewAttendanceReports', 'icon' => 'file-text', 'active' => ['admin.attendance.reports.*']],
                 ['key' => 'attendance_locks', 'route' => 'admin.attendance.locks.index', 'ability' => 'attendance.manage', 'icon' => 'lock', 'active' => ['admin.attendance.locks.*']],
+            ],
+        ],
+        [
+            'key' => 'attendance_capture',
+            'items' => [
+                ['key' => 'attendance_devices', 'route' => 'admin.attendance-devices.index', 'ability' => 'attendance_devices.view', 'icon' => 'fingerprint', 'active' => ['admin.attendance-devices.*']],
+                ['key' => 'attendance_work_locations', 'route' => 'admin.attendance.work-locations.index', 'ability' => 'attendance.manage', 'icon' => 'map-pin', 'active' => ['admin.attendance.work-locations.*']],
+                ['key' => 'face_enrolments', 'route' => 'admin.attendance.face.index', 'ability' => 'face_verification.view', 'icon' => 'camera', 'active' => ['admin.attendance.face.*']],
             ],
         ],
         [

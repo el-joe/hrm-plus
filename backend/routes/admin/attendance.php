@@ -12,6 +12,26 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('attendance')->name('attendance.')->group(function (): void {
+    // Phase 5b: dashboard, calendar, reports.
+    Route::get('dashboard', Attendance\AttendanceDashboardController::class)->can('attendance.view')->name('dashboard');
+    Route::get('calendar', Attendance\AttendanceCalendarController::class)->can('attendance.view')->name('calendar');
+    Route::get('reports', [Attendance\AttendanceReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}', [Attendance\AttendanceReportController::class, 'show'])->where('report', '[a-z_]+')->name('reports.show');
+    Route::get('reports/{report}/export', [Attendance\AttendanceReportController::class, 'export'])->where('report', '[a-z_]+')->name('reports.export');
+
+    // Phase 5b: raw event review (devices, mobile, manual), mobile review queue, work locations, face register.
+    Route::get('events', [Attendance\RawEventController::class, 'index'])->can('attendance.view')->name('events.index');
+    Route::post('events/{event}/match', [Attendance\RawEventController::class, 'match'])->whereNumber('event')->can('attendance.update')->name('events.match');
+    Route::get('reviews', [Attendance\MobileReviewController::class, 'index'])->name('reviews.index');
+    Route::get('reviews/{attempt}', [Attendance\MobileReviewController::class, 'show'])->whereNumber('attempt')->name('reviews.show');
+    Route::post('reviews/{attempt}/{decision}', [Attendance\MobileReviewController::class, 'decide'])
+        ->whereNumber('attempt')->whereIn('decision', ['approve', 'reject'])->name('reviews.decide');
+    Route::get('work-locations', [Attendance\WorkLocationController::class, 'index'])->can('attendance.manage')->name('work-locations.index');
+    Route::post('work-locations', [Attendance\WorkLocationController::class, 'store'])->can('attendance.manage')->name('work-locations.store');
+    Route::delete('work-locations/{rule}', [Attendance\WorkLocationController::class, 'destroy'])->whereNumber('rule')->can('attendance.manage')->name('work-locations.destroy');
+    Route::get('face-enrolments', [Attendance\FaceEnrolmentController::class, 'index'])->name('face.index');
+    Route::delete('face-enrolments/{enrolment}', [Attendance\FaceEnrolmentController::class, 'destroy'])->whereNumber('enrolment')->name('face.destroy');
+
     Route::get('/', [Attendance\DailyAttendanceController::class, 'index'])->can('attendance.view')->name('daily');
     Route::get('export', [Attendance\DailyAttendanceController::class, 'export'])->can('attendance.export')->name('daily.export');
     Route::get('timesheet', [Attendance\TimesheetController::class, 'index'])->can('attendance.view')->name('timesheet');
@@ -48,4 +68,20 @@ Route::prefix('attendance')->name('attendance.')->group(function (): void {
     Route::post('locks', [Attendance\AttendanceLockController::class, 'store'])->can('attendance.manage')->name('locks.store');
     Route::post('locks/{lock}/unlock', [Attendance\AttendanceLockController::class, 'unlock'])->whereNumber('lock')->can('attendance.manage')->name('locks.unlock');
     Route::post('reprocess', [Attendance\AttendanceLockController::class, 'reprocess'])->can('attendance.manage')->name('reprocess');
+});
+
+// Attendance devices (Phase 5b). Record rules (branch scope, manage) in AttendanceDevicePolicy.
+Route::resource('attendance-devices', Attendance\DeviceController::class);
+Route::prefix('attendance-devices/{attendance_device}')->name('attendance-devices.')->group(function (): void {
+    Route::patch('status', [Attendance\DeviceController::class, 'status'])->name('status');
+    Route::post('sync', [Attendance\DeviceController::class, 'sync'])->middleware('throttle:10,1')->name('sync');
+    Route::post('test', [Attendance\DeviceController::class, 'test'])->middleware('throttle:10,1')->name('test');
+    Route::post('historical', [Attendance\DeviceController::class, 'historical'])->middleware('throttle:5,1')->name('historical');
+    Route::post('token', [Attendance\DeviceController::class, 'token'])->name('token');
+    Route::post('mappings', [Attendance\DeviceMappingController::class, 'store'])->name('mappings.store');
+    Route::delete('mappings/{mapping}', [Attendance\DeviceMappingController::class, 'destroy'])->whereNumber('mapping')->name('mappings.destroy');
+    Route::get('import', [Attendance\DeviceImportController::class, 'create'])->name('import');
+    Route::get('import/template', [Attendance\DeviceImportController::class, 'template'])->name('import.template');
+    Route::post('import', [Attendance\DeviceImportController::class, 'analyse'])->name('import.analyse');
+    Route::post('import/{token}', [Attendance\DeviceImportController::class, 'store'])->name('import.store');
 });

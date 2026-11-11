@@ -21,3 +21,7 @@ Schedule::command('offboarding:detect-contract-expiries')->dailyAt('06:30')->wit
 // punch), and a sweep for raw events whose processing job never ran.
 Schedule::command('attendance:process')->dailyAt('01:30')->withoutOverlapping()->onOneServer();
 Schedule::command('attendance:process --pending')->everyTenMinutes()->withoutOverlapping()->onOneServer();
+// Attendance capture (Phase 5b): pull devices that are due (honours the backoff after failures), and the
+// biometric retention purge.
+Schedule::command('attendance:sync-devices')->everyFiveMinutes()->withoutOverlapping()->onOneServer();
+Schedule::command('face:purge')->dailyAt('02:15')->withoutOverlapping()->onOneServer();

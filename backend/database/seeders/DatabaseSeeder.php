@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             $this->call(DevelopmentAccountsSeeder::class);
             $this->call(RecruitmentDemoSeeder::class);
             $this->call(AttendanceDemoSeeder::class);
+            $this->call(AttendanceCaptureDemoSeeder::class);
         }
     }
 }

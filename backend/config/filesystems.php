@@ -58,6 +58,16 @@ return [
             'report' => false,
         ],
 
+        // Face enrolment templates / images (Phase 5b). Contents are encrypted
+        // with the application key before they are written; never public.
+        'biometric_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/biometric'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

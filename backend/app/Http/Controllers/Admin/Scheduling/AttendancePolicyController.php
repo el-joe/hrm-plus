@@ -7,7 +7,9 @@ use App\Actions\Structure\ChangeStructureRecordStatus;
 use App\Actions\Structure\DeleteStructureRecord;
 use App\Enums\AttendanceScope;
 use App\Enums\BreakMode;
+use App\Enums\FaceVerificationMode;
 use App\Enums\MissingPunchAction;
+use App\Enums\MobileRuleAction;
 use App\Http\Controllers\Admin\Structure\StructureController;
 use App\Http\Requests\Admin\Scheduling\AttendancePolicyRequest;
 use App\Http\Requests\Admin\Scheduling\PolicyAssignmentRequest;
@@ -41,6 +43,9 @@ class AttendancePolicyController extends StructureController
         'rates' => ['overtime_rate_regular', 'overtime_rate_rest_day', 'overtime_rate_holiday'],
         'breaks' => ['break_mode', 'max_break_minutes'],
         'approvals' => ['manual_entry_requires_approval', 'correction_requires_approval'],
+        'mobile' => ['mobile_checkin_enabled', 'gps_max_accuracy_meters', 'gps_accuracy_tolerance_meters', 'gps_checkout_extra_meters',
+            'gps_max_time_drift_seconds', 'gps_mock_location_action', 'gps_outside_window_action', 'gps_repeated_attempts_threshold'],
+        'face' => ['face_verification_mode', 'face_max_attempts', 'face_failure_action'],
     ];
 
     public function index(Request $request): View
@@ -164,6 +169,14 @@ class AttendancePolicyController extends StructureController
             'sections' => self::SECTIONS,
             'missingPunchActions' => MissingPunchAction::cases(),
             'breakModes' => BreakMode::cases(),
+            'enumOptions' => [
+                'missing_punch_action' => MissingPunchAction::cases(),
+                'break_mode' => BreakMode::cases(),
+                'gps_mock_location_action' => MobileRuleAction::cases(),
+                'gps_outside_window_action' => MobileRuleAction::cases(),
+                'face_failure_action' => MobileRuleAction::cases(),
+                'face_verification_mode' => FaceVerificationMode::cases(),
+            ],
             'booleans' => AttendancePolicyRequest::$booleanRules,
             'decimals' => ['overtime_rate_regular', 'overtime_rate_rest_day', 'overtime_rate_holiday'],
         ];
@@ -177,7 +190,7 @@ class AttendancePolicyController extends StructureController
         $value = $version->getAttribute($rule);
 
         return match (true) {
-            $value instanceof MissingPunchAction, $value instanceof BreakMode => $value->label(),
+            $value instanceof MissingPunchAction, $value instanceof BreakMode, $value instanceof MobileRuleAction, $value instanceof FaceVerificationMode => $value->label(),
             is_bool($value) => $value ? __('schedules.common.yes') : __('schedules.common.no'),
             $value === null => '—',
             default => (string) $value,

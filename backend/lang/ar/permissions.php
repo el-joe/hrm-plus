@@ -29,6 +29,7 @@ return [
         'offboarding' => 'إنهاء الخدمة',
         'attendance' => 'الحضور والانصراف',
         'attendance_devices' => 'أجهزة الحضور',
+        'face_verification' => 'التحقق بالوجه (البيانات الحيوية)',
         'shifts' => 'الورديات',
         'schedules' => 'جداول العمل وتغيير الورديات',
         'holidays' => 'العطلات الرسمية',

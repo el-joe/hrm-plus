@@ -18,6 +18,7 @@ return [
         'approvals' => 'Approvals',
         'recruitment' => 'Recruitment',
         'lifecycle' => 'Onboarding & offboarding',
+        'face_verification' => 'Face verification',
     ],
     'keys' => [
         'localisation' => [
@@ -40,6 +41,10 @@ return [
             'face_verification_required' => 'Require face verification on mobile check-in',
             'face_verification_max_retries' => 'Face verification retries',
             'manual_entry_requires_approval' => 'Manual attendance requires approval',
+            'gps_accuracy_tolerance_meters' => 'GPS accuracy credited to the radius (metres, default for new policies)',
+            'gps_max_time_drift_seconds' => 'Allowed phone clock difference (seconds)',
+            'gps_repeated_attempts_threshold' => 'Rejected mobile attempts per hour before review',
+            'device_stale_after_hours' => 'Device without contact for (hours) needs attention',
         ],
         'payroll' => [
             'period_start_day' => 'Payroll period start day',
@@ -90,6 +95,13 @@ return [
             'auto_start_onboarding' => 'Start onboarding automatically when a candidate is hired',
             'contract_expiry_case_days' => 'Open offboarding cases for contracts ending within (days)',
         ],
+        'face_verification' => [
+            'provider' => 'Face verification provider',
+            'consent_version' => 'Consent text version',
+            'enrolment_max_age_days' => 'Re-enrol after (days)',
+            'verification_log_retention_days' => 'Keep verification results (days)',
+            'store_enrolment_image' => 'Keep an encrypted enrolment image',
+        ],
     ],
     'options' => [
         'saturday' => 'Saturday',
@@ -101,6 +113,7 @@ return [
         'friday' => 'Friday',
         'ar' => 'العربية',
         'en' => 'English',
+        'simulated' => 'Simulated (development only)',
     ],
 
 ];

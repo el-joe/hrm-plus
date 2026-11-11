@@ -83,8 +83,9 @@ class AttendanceDayController extends Controller
 
     public function voidEvent(Request $request, AttendanceRawEvent $event, RawEventRecorder $recorder, AuditLogger $audit): RedirectResponse
     {
-        abort_unless($request->user()->can('attendance.update') && $event->employee_id !== null, 403);
-        abort_if($event->employee()->doesntExist(), 404);
+        abort_unless($request->user()->can('attendance.update'), 403);
+        // Matched events: the employee must be inside the admin's scope. Unmatched ones belong to nobody yet.
+        abort_if($event->employee_id !== null && $event->employee()->doesntExist(), 404);
 
         $reason = $request->validate(['reason' => ['required', 'string', 'max:500']])['reason'];
 

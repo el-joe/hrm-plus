@@ -10,8 +10,12 @@ use App\Models\ApprovalWorkflowStep;
 use App\Models\AttendanceAdjustment;
 use App\Models\AttendanceCorrection;
 use App\Models\AttendanceDay;
+use App\Models\AttendanceDevice;
+use App\Models\AttendanceDeviceSyncLog;
+use App\Models\AttendanceDeviceUser;
 use App\Models\AttendanceManualBatch;
 use App\Models\AttendanceManualEntry;
+use App\Models\AttendanceMobileAttempt;
 use App\Models\AttendancePeriodLock;
 use App\Models\AttendancePolicy;
 use App\Models\AttendancePolicyAssignment;
@@ -19,6 +23,7 @@ use App\Models\AttendancePolicyVersion;
 use App\Models\AttendancePunch;
 use App\Models\AttendanceRawEvent;
 use App\Models\AttendanceStatus;
+use App\Models\AttendanceWorkLocationRule;
 use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\BranchLocation;
@@ -40,6 +45,9 @@ use App\Models\EmployeeGroup;
 use App\Models\EmployeeSalary;
 use App\Models\EmploymentType;
 use App\Models\EvaluationForm;
+use App\Models\FaceConsent;
+use App\Models\FaceEnrolment;
+use App\Models\FaceVerification;
 use App\Models\Holiday;
 use App\Models\Interview;
 use App\Models\InterviewScorecard;
@@ -190,6 +198,14 @@ class AppServiceProvider extends ServiceProvider
             'attendance_day' => AttendanceDay::class,
             'attendance_punch' => AttendancePunch::class,
             'attendance_adjustment' => AttendanceAdjustment::class,
+            'attendance_device' => AttendanceDevice::class,
+            'attendance_device_user' => AttendanceDeviceUser::class,
+            'attendance_device_sync_log' => AttendanceDeviceSyncLog::class,
+            'attendance_work_location_rule' => AttendanceWorkLocationRule::class,
+            'attendance_mobile_attempt' => AttendanceMobileAttempt::class,
+            'face_consent' => FaceConsent::class,
+            'face_enrolment' => FaceEnrolment::class,
+            'face_verification' => FaceVerification::class,
         ]);
     }
 
@@ -214,6 +230,10 @@ class AppServiceProvider extends ServiceProvider
             && Onboarding::query()->withoutGlobalScopes()->where('employee_id', $user->employee_id)->exists());
         Gate::define('viewOwnInterviews', fn (User $user): bool => Interview::query()->withoutGlobalScopes()->assignedTo($user)->exists());
 
+        // Attendance reports (Phase 5b): attendance staff and report viewers.
+        Gate::define('viewAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.view') || $user->can('reports.view')));
+        Gate::define('exportAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.export') || $user->can('reports.export')));
+
         Gate::before(function (User $user, string $ability): ?bool {
             return str_contains($ability, '.') && $user->isSuperAdmin() ? true : null;
         });
@@ -228,6 +248,14 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api-login', fn (Request $request): Limit => Limit::perMinute(10)
             ->by(Str::transliterate(Str::lower((string) $request->input('email'))).'|'.$request->ip()));
+
+        // Mobile check-in / check-out / face enrolment, per employee account.
+        RateLimiter::for('attendance-checkin', fn (Request $request): Limit => Limit::perMinute(12)
+            ->by('checkin|'.($request->user('sanctum')?->getAuthIdentifier() ?: $request->ip())));
+
+        // Device push, per device serial (and per IP for unknown serials).
+        RateLimiter::for('device-push', fn (Request $request): Limit => Limit::perMinute((int) config('attendance_devices.push_per_minute'))
+            ->by('device|'.$request->route('serial').'|'.$request->ip()));
 
         RateLimiter::for('password-reset', fn (Request $request): Limit => Limit::perMinute(5)->by($request->ip()));
 

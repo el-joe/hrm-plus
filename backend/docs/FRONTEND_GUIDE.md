@@ -161,11 +161,18 @@ portal). Times are stored in UTC: render with `App\Services\Attendance\Attendanc
 and minutes with `App\Support\Duration::format()`. Never compute attendance figures in Blade or JS — they come from
 `attendance_days` (written only by `AttendanceEngine`).
 
+**Attendance capture screens (Phase 5b)** — `admin/attendance/devices/*`, `events/index`, `reviews/*`, `face/index`,
+`work-locations`, `dashboard`, `calendar`, `reports/*`. Anything produced by a simulated adapter / provider MUST show
+`@include('admin.attendance._simulated')` (the "Simulated" badge). Charts: `_category-bar` is a stacked CSS bar (inline
+`inline-size` percentage per category, colours from the `status-*-dot` tokens) — no chart library. Reports are defined
+once in `App\Services\Attendance\Reports\AttendanceReports` (columns, query, row) and rendered generically by
+`reports/show`; add a report there, not in a new view. The calendar cells are server-rendered; no JS.
+
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.
 
 **Charts** — `chart/1…6` tokens are ready; no charting library is installed yet (needs approval,
-see PROJECT_PLAN.md §4).
+see PROJECT_PLAN.md §4). Until then use CSS bars (`admin/attendance/_category-bar`) and tables.
 
 ## 7. Checks before you push
 

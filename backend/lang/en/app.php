@@ -44,6 +44,7 @@ return [
     'nav' => [
         'ui_kit' => 'UI kit',
         'sections' => [
+            'attendance_capture' => 'Attendance capture',
             'attendance' => 'Attendance',
             'scheduling' => 'Shifts & schedules',
             'employees' => 'Employees',
@@ -54,6 +55,14 @@ return [
             'permissions' => 'Access control',
             'system' => 'System',
         ],
+        'attendance_dashboard' => 'Attendance dashboard',
+        'attendance_calendar' => 'Attendance calendar',
+        'attendance_reviews' => 'Mobile check-in review',
+        'attendance_events' => 'Raw events',
+        'attendance_reports' => 'Attendance reports',
+        'attendance_devices' => 'Attendance devices',
+        'attendance_work_locations' => 'Mobile work locations',
+        'face_enrolments' => 'Face enrolments',
         'attendance_daily' => 'Daily attendance',
         'attendance_timesheet' => 'Monthly timesheet',
         'attendance_bulk' => 'Bulk attendance',

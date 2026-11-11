@@ -1,0 +1,123 @@
+<?php
+
+/*
+| Mobile GPS attendance: attempts, review queue, work locations, API messages (Phase 5b).
+*/
+
+return [
+
+    'enums' => [
+        'outcomes' => ['accepted' => 'Accepted', 'rejected' => 'Rejected', 'flagged' => 'Flagged for review'],
+        'review_statuses' => ['pending' => 'Waiting for review', 'approved' => 'Approved', 'rejected' => 'Rejected'],
+        'rule_actions' => ['reject' => 'Reject', 'review' => 'Send to review'],
+        'location_scopes' => ['employee' => 'Employee', 'department' => 'Department'],
+    ],
+
+    'reasons' => [
+        'not_employed' => 'You are not employed on this date.',
+        'mobile_disabled' => 'Mobile check-in is not enabled for you.',
+        'poor_accuracy' => 'GPS accuracy is too low. Move outdoors or wait for a better fix and try again.',
+        'no_location_configured' => 'No attendance location is set up for you. Contact HR.',
+        'outside_geofence' => 'You are outside the allowed attendance location.',
+        'face_required' => 'Face verification is required.',
+        'face_retry' => 'Face verification failed. Please try again.',
+        'mock_location' => 'A mock (fake) location was detected.',
+        'outside_shift_window' => 'Outside your shift check-in / check-out window.',
+        'face_failed' => 'Face verification failed too many times.',
+        'face_not_enrolled' => 'Your face is not enrolled yet.',
+        'time_drift' => 'The phone clock differs from the server time.',
+        'repeated_attempts' => 'Several rejected attempts in the last hour.',
+    ],
+
+    'fields' => [
+        'reason' => 'Reason',
+        'reasons' => 'Reasons',
+        'location' => 'Location',
+        'coordinates' => 'Coordinates',
+        'accuracy' => 'GPS accuracy',
+        'distance' => 'Distance / allowed',
+        'within_geofence' => 'Inside the geofence',
+        'mock_location' => 'Mock location reported',
+        'server_time' => 'Server time (recorded)',
+        'device_time' => 'Phone time',
+        'time_drift' => 'Clock difference',
+        'device' => 'App / device',
+        'face' => 'Face verification',
+        'outcome' => 'Outcome',
+        'recorded' => 'Attendance record',
+    ],
+
+    'review' => [
+        'title' => 'Mobile check-in review',
+        'subtitle' => 'Suspicious mobile attempts are recorded only after review; every attempt is kept for audit.',
+        'views' => ['queue' => 'Waiting for review', 'flagged' => 'All flagged', 'accepted' => 'Accepted', 'rejected' => 'Rejected', 'all' => 'All attempts'],
+        'distance' => ':distance m of :radius m allowed (± :accuracy m)',
+        'empty' => 'No attempts match the filters',
+        'empty_queue' => 'Nothing is waiting for review.',
+        'pending_title' => 'Not recorded yet',
+        'pending_help' => 'This attempt was flagged. Approving records the punch at the time it was made; rejecting discards it. Both are audited.',
+        'location' => 'Location',
+        'time_device' => 'Time and device',
+        'no_shift_window' => 'Not inside a scheduled shift window',
+        'recorded_as' => 'Recorded as raw event #:id',
+        'not_recorded' => 'Not recorded',
+        'face_mode' => 'Mode: :mode',
+        'no_face' => 'No face verification for this attempt',
+        'recent' => 'Other attempts of the employee around this time',
+        'decision' => 'Decision',
+        'decided_by' => 'Decided by :name on :date',
+        'decide' => 'Review decision',
+        'decide_help' => 'You cannot decide on your own attempts.',
+        'note' => 'Note (optional)',
+        'reject_reason' => 'Reason for rejecting',
+        'confirm_approve' => 'Approve and record this check-in / check-out?',
+        'confirm_reject' => 'Reject this attempt? Nothing will be recorded.',
+        'approved' => 'Attempt approved and recorded.',
+        'rejected' => 'Attempt rejected.',
+        'already_decided' => 'This attempt was already decided.',
+    ],
+
+    'locations' => [
+        'title' => 'Mobile work locations',
+        'subtitle' => 'Where employees may check in from the mobile app.',
+        'default_title' => 'Default',
+        'default_help' => 'Without a rule, an employee may check in at any active location of their branch (Branches → locations, with the geofence radius). A rule for the employee replaces that; otherwise a rule for their department (or a parent department) does.',
+        'add' => 'Add rule',
+        'applies_to' => 'Applies to',
+        'period' => 'Period',
+        'anywhere' => 'Anywhere (remote work)',
+        'anywhere_help' => 'No geofence; accuracy, time, shift, mock-location and face checks still apply.',
+        'employee_help' => 'For the "employee" scope.',
+        'department_help' => 'For the "department" scope (sub-departments included).',
+        'empty' => 'No rules — every employee uses the locations of their branch.',
+        'saved' => 'Rule added.',
+        'removed' => 'Rule removed.',
+        'confirm_remove' => 'Remove this rule?',
+        'fields' => [
+            'scope_type' => 'Scope',
+            'employee_id' => 'Employee',
+            'department_id' => 'Department',
+            'branch_location_id' => 'Location',
+            'allow_anywhere' => 'Allow anywhere',
+            'effective_from' => 'From',
+            'effective_to' => 'To',
+            'note' => 'Note',
+        ],
+    ],
+
+    'api' => [
+        'accepted_in' => 'Check-in recorded.',
+        'accepted_out' => 'Check-out recorded.',
+        'flagged' => 'Sent for review. It is not recorded until HR approves it.',
+        'uuid_reused' => 'This request id was already used.',
+        'fields' => [
+            'request_uuid' => 'request id',
+            'latitude' => 'latitude',
+            'longitude' => 'longitude',
+            'accuracy' => 'accuracy',
+            'device_time' => 'device time',
+            'face' => 'face verification',
+        ],
+    ],
+
+];

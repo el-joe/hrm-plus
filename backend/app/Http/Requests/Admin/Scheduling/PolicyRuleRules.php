@@ -3,8 +3,11 @@
 namespace App\Http\Requests\Admin\Scheduling;
 
 use App\Enums\BreakMode;
+use App\Enums\FaceVerificationMode;
 use App\Enums\MissingPunchAction;
+use App\Enums\MobileRuleAction;
 use App\Models\AttendancePolicyVersion;
+use App\Services\Attendance\AttendancePolicyResolver;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +25,7 @@ trait PolicyRuleRules
      */
     public static array $booleanRules = [
         'late_count_from_shift_start', 'overtime_enabled', 'overtime_requires_approval', 'overtime_count_early_arrival',
-        'rest_day_work_is_overtime', 'manual_entry_requires_approval', 'correction_requires_approval',
+        'rest_day_work_is_overtime', 'manual_entry_requires_approval', 'correction_requires_approval', 'mobile_checkin_enabled',
     ];
 
     /**
@@ -50,6 +53,16 @@ trait PolicyRuleRules
             'overtime_rate_holiday' => $rate,
             'break_mode' => ['required', Rule::enum(BreakMode::class)],
             'max_break_minutes' => $minutes(false, 480),
+            'gps_max_accuracy_meters' => ['sometimes', 'required', 'integer', 'between:5,1000'],
+            'gps_accuracy_tolerance_meters' => ['sometimes', 'required', 'integer', 'between:0,500'],
+            'gps_checkout_extra_meters' => ['sometimes', 'required', 'integer', 'between:0,5000'],
+            'gps_max_time_drift_seconds' => ['sometimes', 'required', 'integer', 'between:30,86400'],
+            'gps_mock_location_action' => ['sometimes', 'required', Rule::enum(MobileRuleAction::class)],
+            'gps_outside_window_action' => ['sometimes', 'required', Rule::enum(MobileRuleAction::class)],
+            'gps_repeated_attempts_threshold' => ['sometimes', 'required', 'integer', 'between:1,20'],
+            'face_verification_mode' => ['sometimes', 'required', Rule::enum(FaceVerificationMode::class)],
+            'face_max_attempts' => ['sometimes', 'required', 'integer', 'between:1,10'],
+            'face_failure_action' => ['sometimes', 'required', Rule::enum(MobileRuleAction::class)],
             ...array_fill_keys(self::$booleanRules, ['sometimes', 'boolean']),
         ];
     }
@@ -62,8 +75,20 @@ trait PolicyRuleRules
     public function ruleValues(): array
     {
         $values = [];
+        // Mobile / face rules (Phase 5b) fall back to the settings defaults when a client does not send them.
+        $mobileDefaults = app(AttendancePolicyResolver::class)->mobileDefaults();
 
-        foreach (AttendancePolicyVersion::RULES as $rule) {
+        foreach (AttendancePolicyVersion::MOBILE_RULES as $rule) {
+            if (! $this->has($rule)) {
+                $values[$rule] = $mobileDefaults[$rule];
+            }
+        }
+
+        foreach ([...AttendancePolicyVersion::RULES, ...AttendancePolicyVersion::MOBILE_RULES] as $rule) {
+            if (array_key_exists($rule, $values)) {
+                continue;
+            }
+
             $values[$rule] = in_array($rule, self::$booleanRules, true)
                 ? $this->boolean($rule)
                 : ($this->filled($rule) ? $this->input($rule) : null);

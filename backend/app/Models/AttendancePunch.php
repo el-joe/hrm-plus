@@ -31,6 +31,14 @@ class AttendancePunch extends Model
     }
 
     /**
+     * @return BelongsTo<Employee, $this>
+     */
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    /**
      * @return BelongsTo<AttendanceRawEvent, $this>
      */
     public function rawEvent(): BelongsTo

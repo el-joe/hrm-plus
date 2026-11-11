@@ -116,3 +116,32 @@ Scheduled commands added: `attendance:process` (01:30, yesterday for everyone) a
 (every 10 minutes, raw events whose processing job did not run). Events recorded with `process: 'queue'` are
 calculated by `php artisan queue:work`. Phase 5a added the permissions `schedules.*`, `holidays.*` and
 `attendance_policies.*` — run `php artisan permissions:sync` on existing databases.
+
+## Attendance capture demo data (Phase 5b)
+
+`AttendanceCaptureDemoSeeder` (not in production) runs after the Phase 5a seeder, through the real services:
+
+| What | Details |
+|---|---|
+| Devices (all **simulated**) | `CAI-SIM-01` Cairo HQ, pull, most Cairo staff mapped (device user id = digits of the employee number), pulled from today's midnight; `ALX-SIM-01` Alexandria, push, one pushed batch and the same batch re-sent (duplicates); `GIZ-SIM-01` Smart Village, pull with "simulate failure" on (failed test + two failed pulls, backoff, *Needs attention*) |
+| Unmatched events | Unknown device users 9001, 9002, 9003 (Cairo, one from a logged CSV import) and 7777 (Alexandria) — map them on the device page or under *Attendance → Raw events* |
+| Work locations | One FIELD employee may check in anywhere this month; the IT department may use the Cairo HQ and Smart Village locations |
+| Face | **employee1@** consented and enrolled (simulated provider); two field employees enrolled by HR, one withdrew consent (data deleted) |
+| Mobile attempts (08:05, today or yesterday when seeded before 09:00) | employee1@ accepted check-in + a face retry at check-out; employee3@ outside the geofence (rejected), mock location (flagged, pending), phone clock off (flagged, **approved** by attendance.officer@); employee2@ poor accuracy (rejected), not enrolled (flagged, pending) |
+
+Face verification is **required** by default (setting *Attendance → require face verification*), so mobile check-in needs a
+consent + enrolment first: `POST /api/v1/me/face/consent` (`{"accepted": true, "version": "1.0"}`), then
+`POST /api/v1/me/face/enrol` (`{"token": "sim-enrol"}`). With the simulated provider the face token decides the result:
+`sim-no-match`, `sim-liveness-fail`, `sim-error`, anything else matches.
+
+Push to a device from the command line (the token is shown once on the device page → *New push token*):
+
+```bash
+curl -X POST http://hrm-plus.loc/api/v1/devices/ALX-SIM-01/events -H "Authorization: Bearer <token>" -H "Accept: application/json" \
+  -H "Content-Type: application/json" -d '{"events":[{"user_id":"36","time":"2026-11-11 08:02:00","direction":"in"}]}'
+```
+
+Scheduled commands added: `attendance:sync-devices` (every 5 minutes; pulls due devices, honours the backoff) and `face:purge`
+(02:15, biometric retention). Phase 5b added the permission module `face_verification.*` and default grants of
+`attendance_devices.*` — run `php artisan permissions:sync` on existing databases. Docs: `docs/ATTENDANCE_DEVICES.md`,
+`docs/FACE_VERIFICATION.md`.

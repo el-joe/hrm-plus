@@ -18,6 +18,7 @@ return [
         'approvals' => 'الاعتمادات',
         'recruitment' => 'التوظيف',
         'lifecycle' => 'الانضمام وإنهاء الخدمة',
+        'face_verification' => 'التحقق بالوجه',
     ],
     'keys' => [
         'localisation' => [
@@ -40,6 +41,10 @@ return [
             'face_verification_required' => 'اشتراط التحقق بالوجه عند التسجيل من الجوال',
             'face_verification_max_retries' => 'عدد محاولات التحقق بالوجه',
             'manual_entry_requires_approval' => 'الحضور اليدوي يتطلب اعتماداً',
+            'gps_accuracy_tolerance_meters' => 'دقة GPS المضافة إلى نصف القطر (م، افتراضي للسياسات الجديدة)',
+            'gps_max_time_drift_seconds' => 'فرق ساعة الهاتف المسموح (ثانية)',
+            'gps_repeated_attempts_threshold' => 'المحاولات المرفوضة في الساعة قبل المراجعة',
+            'device_stale_after_hours' => 'الجهاز بلا اتصال لمدة (ساعات) يحتاج انتباهًا',
         ],
         'payroll' => [
             'period_start_day' => 'يوم بداية فترة الرواتب',
@@ -90,6 +95,13 @@ return [
             'auto_start_onboarding' => 'بدء إجراءات الانضمام تلقائيًا عند تعيين مرشح',
             'contract_expiry_case_days' => 'فتح ملفات إنهاء الخدمة للعقود المنتهية خلال (أيام)',
         ],
+        'face_verification' => [
+            'provider' => 'مزوّد التحقق بالوجه',
+            'consent_version' => 'إصدار نص الموافقة',
+            'enrolment_max_age_days' => 'إعادة التسجيل بعد (يوم)',
+            'verification_log_retention_days' => 'الاحتفاظ بنتائج التحقق (يوم)',
+            'store_enrolment_image' => 'الاحتفاظ بصورة تسجيل مشفّرة',
+        ],
     ],
     'options' => [
         'saturday' => 'السبت',
@@ -101,6 +113,7 @@ return [
         'friday' => 'الجمعة',
         'ar' => 'العربية',
         'en' => 'English',
+        'simulated' => 'محاكاة (للتطوير فقط)',
     ],
 
 ];

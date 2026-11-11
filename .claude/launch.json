@@ -4,8 +4,22 @@
     {
       "name": "hrm-plus",
       "runtimeExecutable": "php",
-      "runtimeArgs": ["backend/artisan", "serve", "--port=8000"],
+      "runtimeArgs": [
+        "backend/artisan",
+        "serve",
+        "--port=8000"
+      ],
       "port": 8000
+    },
+    {
+      "name": "hrm-plus-8030",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "backend/artisan",
+        "serve",
+        "--port=8030"
+      ],
+      "port": 8030
     }
   ]
 }

@@ -7,6 +7,7 @@ use App\Enums\AssignmentChangeType;
 use App\Enums\EmployeeStatus;
 use App\Enums\SalaryChangeType;
 use App\Enums\UserStatus;
+use App\Events\EmployeeTerminated;
 use App\Models\Employee;
 use App\Models\EmployeeAssignment;
 use App\Models\EmployeeSalary;
@@ -224,6 +225,7 @@ class EmploymentHistory
 
         if (! $wasTerminated && $employee->isTerminated()) {
             $this->deactivateLinkedAccounts($employee);
+            EmployeeTerminated::dispatch($employee);
         } elseif ($wasTerminated && ! $employee->isTerminated()) {
             $this->setEmployeeAccountStatus($employee, UserStatus::Active);
         }

@@ -48,6 +48,20 @@ return [
         'face_verification_required' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
         'face_verification_max_retries' => ['type' => 'integer', 'default' => 3, 'rules' => ['required', 'integer', 'between:1,10']],
         'manual_entry_requires_approval' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
+        // Phase 5b: defaults of the mobile rules of new attendance-policy versions, and device monitoring.
+        'gps_accuracy_tolerance_meters' => ['type' => 'integer', 'default' => 20, 'rules' => ['required', 'integer', 'between:0,500']],
+        'gps_max_time_drift_seconds' => ['type' => 'integer', 'default' => 300, 'rules' => ['required', 'integer', 'between:30,86400']],
+        'gps_repeated_attempts_threshold' => ['type' => 'integer', 'default' => 3, 'rules' => ['required', 'integer', 'between:1,20']],
+        'device_stale_after_hours' => ['type' => 'integer', 'default' => 24, 'rules' => ['required', 'integer', 'between:1,720']],
+    ],
+
+    // Face verification (Phase 5b): provider, consent text version and biometric retention.
+    'face_verification' => [
+        'provider' => ['type' => 'string', 'default' => 'simulated', 'rules' => ['required', 'string'], 'options' => ['simulated']],
+        'consent_version' => ['type' => 'string', 'default' => '1.0', 'rules' => ['required', 'string', 'max:20']],
+        'enrolment_max_age_days' => ['type' => 'integer', 'default' => 730, 'rules' => ['required', 'integer', 'between:30,3650']],
+        'verification_log_retention_days' => ['type' => 'integer', 'default' => 365, 'rules' => ['required', 'integer', 'between:30,3650']],
+        'store_enrolment_image' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
     ],
 
     'payroll' => [

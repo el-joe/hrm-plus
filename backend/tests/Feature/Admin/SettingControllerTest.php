@@ -54,6 +54,7 @@ it('saves list settings and rejects values outside the allowed options', functio
     $valid = [
         'late_grace_minutes' => 5, 'early_leave_grace_minutes' => 5, 'overtime_minimum_minutes' => 30,
         'geofence_default_radius_meters' => 200, 'gps_max_accuracy_meters' => 40, 'face_verification_max_retries' => 3,
+        'gps_accuracy_tolerance_meters' => 20, 'gps_max_time_drift_seconds' => 300, 'gps_repeated_attempts_threshold' => 3, 'device_stale_after_hours' => 24,
     ];
 
     $this->actingAs($admin, 'admin')

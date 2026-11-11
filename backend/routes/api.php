@@ -70,6 +70,11 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::post('loans', [V1\LoanController::class, 'store'])->name('loans.store');
             Route::get('loans/{loan}', [V1\LoanController::class, 'show'])->whereNumber('loan')->name('loans.show');
             Route::post('loans/{loan}/cancel', [V1\LoanController::class, 'cancel'])->whereNumber('loan')->name('loans.cancel');
+            // Payslips (Phase 7b): own issued payslips only, every view / download logged.
+            Route::get('payslips', [V1\PayslipController::class, 'index'])->name('payslips.index');
+            Route::get('payslips/summary', [V1\PayslipController::class, 'summary'])->name('payslips.summary');
+            Route::get('payslips/{payslip}', [V1\PayslipController::class, 'show'])->whereNumber('payslip')->name('payslips.show');
+            Route::get('payslips/{payslip}/pdf', [V1\PayslipController::class, 'pdf'])->whereNumber('payslip')->name('payslips.pdf');
             Route::post('face/enrol', [V1\FaceController::class, 'enrol'])->middleware('throttle:attendance-checkin')->name('face.enrol');
         });
 

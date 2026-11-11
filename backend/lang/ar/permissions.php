@@ -39,6 +39,8 @@ return [
         'leave_policies' => 'سياسات الإجازات',
         'leave_balances' => 'أرصدة الإجازات والتسويات',
         'payroll' => 'مسيرات الرواتب',
+        'payroll_finalisation' => 'اعتماد نهائي للرواتب وعكسها',
+        'payslips' => 'قسائم الرواتب والمدفوعات',
         'salary_components' => 'مكونات الراتب',
         'salary_structures' => 'هياكل الرواتب وتعيينها',
         'allowances' => 'البدلات والمكافآت',

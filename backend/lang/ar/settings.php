@@ -64,6 +64,9 @@ return [
             'overtime_rate_multiplier' => 'معامل أجر العمل الإضافي',
             'rounding_precision' => 'منازل التقريب العشرية',
             'country_code' => 'دولة القواعد النظامية (رمز ISO، فارغ = لا شيء)',
+            'sync_calculation_limit' => 'الحساب في الخلفية عند تجاوز (موظف)',
+            'leave_encashment_component' => 'مكوّن صرف رصيد الإجازات (الرمز)',
+            'portal_show_structure' => 'إظهار هيكل الراتب في بوابة الموظف',
         ],
         'leave' => [
             'year_start_month' => 'شهر بداية سنة الإجازات',

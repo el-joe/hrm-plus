@@ -193,7 +193,8 @@ Scheduled commands added: `leave:rollover` (00:30, opens the new leave year once
 | Basic salaries | Unchanged: the 60 employees keep their `employee_salaries` history (pay basis *monthly*) |
 | Allowances | Branch ALX meal allowance + an employee override (precedence), a one-time performance bonus for department SAL-CAI approved by finance.officer@, a bulk 5 % commission batch for five Cairo sales staff, a **pending** performance bonus (approve as finance.officer@ or hr.manager@) |
 | Deductions | An approved penalty, a 4-month instalment recovery, a **pending** 2 % penalty |
-| Loans | LN-…01 **employee2@** active since June (2 instalments deducted), LN-…02 **employee1@** pending (portal), ADV-…01 **employee3@** advance repaid early, LN-…03 rejected, ADV-…02 withdrawn, LN-…04 active with a **pending reschedule** request |
+| Loans | LN-…01 **employee2@** active since June (June–August recovered before go-live, September onwards by the payroll runs), LN-…02 **employee1@** pending (portal), ADV-…01 **employee3@** advance repaid early, LN-…03 rejected, ADV-…02 withdrawn, LN-…04 active with a **pending reschedule** request (October instalment recovered by the October run) |
+| Leave encashment | Component LEAVE_ENCASH (setting `payroll.leave_encashment_component`) |
 
 Who does what: **payroll.accountant@** configures components, structures and statutory tables, files
 allowances / deductions (single, bulk, Excel import) and loans on behalf, records repayments and final settlements;
@@ -201,3 +202,30 @@ allowances / deductions (single, bulk, Excel import) and loans on behalf, record
 needs `employee_financials.view` (every view logged). Employees use the portal *My loans* or `GET/POST /api/v1/me/loans`.
 Phase 7a added the permissions `salary_components.*`, `salary_structures.*`, `allowances.*`, `deductions.*` and
 `statutory_rules.*` — run `php artisan permissions:sync` on existing databases.
+
+## Payroll runs demo data (Phase 7b)
+
+`PayrollDefaultsSeeder` (every environment) adds the approval workflow **`payroll_run`**: step 1 "HR review",
+step 2 "Finance approval", both permission `payroll.approve` — the submitter can never approve, and the same
+person cannot approve both levels. `PayrollRunDemoSeeder` (not in production) then runs, through the real actions
+and dated as if they happened then:
+
+| What | Details |
+|---|---|
+| Periods | 2026-09, 2026-10 (finalised), 2026-11 (open; pay date 27th, cut-off 25th) |
+| September | PR-2026-00001 **Cairo branch settlement** and PR-2026-00002 consolidated run of everybody else (the Cairo staff are left out as already paid) — calculated by payroll.accountant@, approved by hr.manager@ then finance.officer@, finalised by finance.officer@, all payslips paid by bank transfer `BANK-2026-09-30` |
+| October | PR-2026-00003 consolidated, finalised; payslips paid except three unpaid and one **partially paid** |
+| Correction | PADJ-2026-00001: transport allowance of October recorded in November (manual), carried by the November run |
+| Final settlement | An employee with an active loan resigns (offboarding case, last working day 2026-11-05): PR-2026-00004 prorates November to the 5th, encashes 10 annual-leave days, recovers the loan (partially — net pay is not enough, the rest stays outstanding), finalised; the case's *Final financial settlement* item is done and the case completed (employee terminated) |
+| November | PR-2026-00005 consolidated, **calculated and in review** — submit it as payroll.accountant@, approve as hr.manager@ and finance.officer@, finalise as finance.officer@ |
+
+Who does what: **payroll.accountant@** creates periods and runs (wizard: scope → population preview → calculate →
+review), records corrections, exports the register and bank file; **hr.manager@** and **finance.officer@** approve;
+only **finance.officer@** (`payroll_finalisation.manage`) finalises and reverses, and records payments
+(`payslips.manage`). Employees: portal **My payroll** and `GET /api/v1/me/payslips` (employee1@ … 3@ have payslips;
+employee3@ is in Alexandria). Every payslip view / download is in the audit log (`sensitive_access.payslip`).
+
+Background calculation: runs above `payroll.sync_calculation_limit` employees (default 150) are calculated by
+`php artisan queue:work`. Scheduled: `payroll:scan-corrections` (02:45). Phase 7b added the permissions
+`payroll_finalisation.manage` and `payslips.view / export / manage` (and grants `payroll.approve / reject` to the
+HR Manager) — run `php artisan permissions:sync` on existing databases.

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Fillable([
     'statutory_rule_set_id', 'version', 'effective_from', 'effective_to', 'employee_rate', 'employer_rate', 'salary_floor',
-    'salary_ceiling', 'annual_exemption', 'notes', 'created_by',
+    'salary_ceiling', 'annual_exemption', 'base_reductions', 'deduct_employee_insurance', 'notes', 'created_by',
 ])]
 class StatutoryRuleVersion extends Model
 {
@@ -35,6 +35,8 @@ class StatutoryRuleVersion extends Model
             'salary_floor' => 'decimal:2',
             'salary_ceiling' => 'decimal:2',
             'annual_exemption' => 'decimal:2',
+            'base_reductions' => 'array',
+            'deduct_employee_insurance' => 'boolean',
         ];
     }
 

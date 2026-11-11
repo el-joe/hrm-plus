@@ -44,9 +44,11 @@ use Illuminate\Support\Carbon;
  *   department-wide one-time bonus approved by Finance, a bulk commission
  *   batch, a pending performance bonus; deductions: an approved penalty, an
  *   instalment recovery, a pending penalty;
- * - six loans / advances: pending, active (two instalments already deducted
- *   by payroll), repaid early, rejected, withdrawn, active with a pending
- *   reschedule request.
+ * - six loans / advances: pending, active (June–August recovered before go-live,
+ *   later instalments by the payroll runs of PayrollRunDemoSeeder), repaid early,
+ *   rejected, withdrawn, active with a pending reschedule request;
+ * - statutory versions carry their calculation base (attendance / leave deductions
+ *   reduce both bases; penalties and the employee's insurance reduce taxable income).
  *
  * Sets payroll.country_code to EG so the demo statutory tables are used.
  */
@@ -103,6 +105,8 @@ class PayrollDemoSeeder extends Seeder
             ['SI_EMP', 'التأمينات الاجتماعية (حصة الموظف)', 'Social insurance (employee)', 'deduction', 'insurance', 'statutory', ['statutory_type' => 'social_insurance'], false, false],
             ['SI_ER', 'التأمينات الاجتماعية (حصة صاحب العمل)', 'Social insurance (employer)', 'employer_contribution', 'insurance', 'statutory', ['statutory_type' => 'social_insurance', 'show_on_payslip' => false], false, false],
             ['TAX', 'ضريبة الدخل', 'Income tax', 'deduction', 'tax', 'statutory', ['statutory_type' => 'income_tax'], false, false],
+            // Phase 7b: leave encashment lines (setting payroll.leave_encashment_component).
+            ['LEAVE_ENCASH', 'صرف رصيد الإجازات', 'Leave encashment', 'earning', 'leave', 'variable', [], true, false],
         ];
 
         foreach ($rows as $index => [$code, $ar, $en, $kind, $category, $type, $extra, $taxable, $insurable]) {
@@ -123,20 +127,21 @@ class PayrollDemoSeeder extends Seeder
             'type' => 'social_insurance', 'is_demo' => true, 'is_active' => true,
             'description' => 'Made-up round rates for development only. Replace with the rules confirmed by the client (blocker B7).',
         ]);
-        $save->handle($insurance, ['effective_from' => '2025-01-01', 'employee_rate' => '10', 'employer_rate' => '15', 'salary_floor' => '2000', 'salary_ceiling' => '12000', 'notes' => 'Demo'], $this->accountant);
-        $save->handle($insurance, ['effective_from' => '2026-01-01', 'employee_rate' => '10', 'employer_rate' => '15', 'salary_floor' => '2500', 'salary_ceiling' => '14000', 'notes' => 'Demo: new floor / ceiling'], $this->accountant);
+        $save->handle($insurance, ['effective_from' => '2025-01-01', 'employee_rate' => '10', 'employer_rate' => '15', 'salary_floor' => '2000', 'salary_ceiling' => '12000', 'notes' => 'Demo', 'base_reductions' => ['attendance', 'leave']], $this->accountant);
+        $save->handle($insurance, ['effective_from' => '2026-01-01', 'employee_rate' => '10', 'employer_rate' => '15', 'salary_floor' => '2500', 'salary_ceiling' => '14000', 'notes' => 'Demo: new floor / ceiling', 'base_reductions' => ['attendance', 'leave']], $this->accountant);
 
         $tax = StatutoryRuleSet::create([
             'code' => 'DEMO-TAX-EG', 'name_ar' => 'ضريبة الدخل (تجريبي)', 'name_en' => 'Income tax (demo)', 'country_code' => 'EG',
             'type' => 'income_tax', 'is_demo' => true, 'is_active' => true,
             'description' => 'Made-up round brackets for development only. Replace with the rules confirmed by the client (blocker B7).',
         ]);
-        $save->handle($tax, ['effective_from' => '2025-01-01', 'annual_exemption' => '20000', 'notes' => 'Demo', 'brackets' => [
-            ['lower_bound' => '0', 'upper_bound' => '30000', 'rate' => '0'],
-            ['lower_bound' => '30000', 'upper_bound' => '60000', 'rate' => '10'],
-            ['lower_bound' => '60000', 'upper_bound' => '120000', 'rate' => '15'],
-            ['lower_bound' => '120000', 'upper_bound' => null, 'rate' => '20'],
-        ]], $this->accountant);
+        $save->handle($tax, ['effective_from' => '2025-01-01', 'annual_exemption' => '20000', 'notes' => 'Demo',
+            'base_reductions' => ['attendance', 'leave', 'penalty'], 'deduct_employee_insurance' => true, 'brackets' => [
+                ['lower_bound' => '0', 'upper_bound' => '30000', 'rate' => '0'],
+                ['lower_bound' => '30000', 'upper_bound' => '60000', 'rate' => '10'],
+                ['lower_bound' => '60000', 'upper_bound' => '120000', 'rate' => '15'],
+                ['lower_bound' => '120000', 'upper_bound' => null, 'rate' => '20'],
+            ]], $this->accountant);
     }
 
     private function structures(): void
@@ -272,7 +277,8 @@ class PayrollDemoSeeder extends Seeder
         $amount = fn (Employee $employee, string $multiple): string => bcmul((string) $employee->basic_salary, $multiple, 2);
         $user = fn (?Employee $employee): User => User::query()->where('employee_id', $employee?->id)->first() ?? $this->accountant;
 
-        // 1. Active loan of employee2, started in June: two instalments already deducted by payroll.
+        // 1. Active loan of employee2, started in June: June–August recovered by the payroll used before
+        //    HRM Plus went live (no run in this system); from September the payroll runs recover it.
         if ($employee2 !== null) {
             $this->at('2026-05-10', function () use ($loans, $employee2, $amount, $user): void {
                 $loan = $loans->request($employee2, ['type' => 'loan', 'amount' => $amount($employee2, '2'), 'instalments' => 12, 'start_month' => '2026-06', 'reason' => 'Car repair'], LoanSource::Portal, $user($employee2));
@@ -280,7 +286,7 @@ class PayrollDemoSeeder extends Seeder
             });
             $loan = EmployeeLoan::query()->where('employee_id', $employee2->id)->latest('id')->first();
 
-            foreach ($loan->instalments()->take(2)->get() as $row) {
+            foreach ($loan->instalments()->where('due_date', '<', '2026-09-01')->get() as $row) {
                 $this->at($row->due_date->endOfMonth()->toDateString(), fn () => $instalments->markDeducted($row, (string) $row->amount, null, $this->accountant));
             }
         }
@@ -316,9 +322,8 @@ class PayrollDemoSeeder extends Seeder
             $loan = $loans->request($others[2], ['type' => 'loan', 'amount' => $amount($others[2], '1'), 'instalments' => 6, 'start_month' => '2026-10', 'reason' => 'Medical bills'], LoanSource::Admin, $this->accountant);
             $loans->decide($loan, $this->finance, true);
         });
+        // Its October instalment is recovered by the October payroll run (PayrollRunDemoSeeder).
         $active = EmployeeLoan::query()->where('employee_id', $others[2]->id)->latest('id')->first();
-        $first = $active->instalments()->first();
-        app(LoanInstalments::class)->markDeducted($first, (string) $first->amount, null, $this->accountant, CarbonImmutable::parse('2026-10-31'));
         $loans->requestChange($active->refresh(), LoanChangeType::Reschedule, [
             'new_instalment_count' => 10, 'new_start_month' => now()->addMonthNoOverflow()->format('Y-m'), 'reason' => 'Lower monthly instalment after a family change',
         ], $this->accountant);

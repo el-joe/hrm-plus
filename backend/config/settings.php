@@ -74,6 +74,12 @@ return [
         // Phase 7a. Country whose statutory rule tables (tax, social insurance) payroll applies (ISO 3166 alpha-2).
         // Empty: no statutory deduction is calculated until the client confirms the rules (blocker B7).
         'country_code' => ['type' => 'string', 'default' => '', 'rules' => ['nullable', 'string', 'size:2', 'alpha']],
+        // Phase 7b. Runs with more employees than this are calculated by a queued job (progress shown on the run).
+        'sync_calculation_limit' => ['type' => 'integer', 'default' => 150, 'rules' => ['required', 'integer', 'between:1,5000']],
+        // Earning component (code) used for leave encashment lines (days × day rate).
+        'leave_encashment_component' => ['type' => 'string', 'default' => 'LEAVE_ENCASH', 'rules' => ['nullable', 'string', 'max:40']],
+        // Show the current salary structure (lines and amounts) in the portal "My payroll" page.
+        'portal_show_structure' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
     ],
 
     // Loans and salary advances (Phase 7a): eligibility and limits checked on every request.

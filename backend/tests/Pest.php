@@ -1,18 +1,25 @@
 <?php
 
 use App\Actions\Leave\ManageLeaveRequest;
+use App\Actions\Payroll\AssignSalaryStructure;
 use App\Actions\Payroll\ManageLoan;
 use App\Actions\Payroll\ManagePayEntry;
+use App\Actions\Payroll\ManagePayrollPeriod;
+use App\Actions\Payroll\ManagePayrollRun;
 use App\Actions\Payroll\SaveSalaryStructureVersion;
+use App\Actions\Payroll\SaveStatutoryRuleVersion;
 use App\Enums\AttendanceScope;
 use App\Enums\LeaveRequestSource;
 use App\Enums\LoanSource;
 use App\Enums\PayBasis;
 use App\Enums\PayComponentKind;
+use App\Enums\PayrollRunType;
 use App\Enums\PunchDirection;
 use App\Enums\RawEventSource;
 use App\Enums\SalaryChangeType;
+use App\Enums\SalaryStructureScope;
 use App\Enums\ScheduleType;
+use App\Enums\StatutoryType;
 use App\Models\AttendanceDay;
 use App\Models\AttendancePolicy;
 use App\Models\AttendancePolicyVersion;
@@ -26,12 +33,17 @@ use App\Models\LeavePolicy;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\PayEntry;
+use App\Models\PayrollItem;
+use App\Models\PayrollItemLine;
+use App\Models\PayrollPeriod;
+use App\Models\PayrollRun;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\SalaryComponent;
 use App\Models\SalaryStructure;
 use App\Models\ScheduleAssignment;
 use App\Models\Shift;
+use App\Models\StatutoryRuleSet;
 use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Services\Attendance\AttendanceEngine;
@@ -43,6 +55,7 @@ use App\Services\Leave\LeaveAccrualService;
 use App\Services\Leave\LeaveBalanceCalculator;
 use App\Services\Payroll\Data\CalculationContext;
 use App\Services\Payroll\SalaryRates;
+use App\Services\Settings\SettingsService;
 use Carbon\CarbonImmutable;
 use Database\Seeders\AttendanceDefaultsSeeder;
 use Database\Seeders\LeaveDefaultsSeeder;
@@ -416,4 +429,129 @@ function requestLoan(Employee $employee, array $data = [], ?User $by = null, Loa
     return app(ManageLoan::class)->request($employee, [
         'type' => 'loan', 'amount' => '6000', 'instalments' => 6, 'start_month' => now()->addMonthNoOverflow()->format('Y-m'), 'reason' => 'Test', ...$data,
     ], $source, $by ?? adminWithRoles('Payroll Accountant'));
+}
+
+/*
+|--------------------------------------------------------------------------
+| Payroll run helpers (Phase 7b)
+|--------------------------------------------------------------------------
+|
+| A small but complete payroll configuration with exact numbers: 30 working
+| days a month, 8 hours a day, so a monthly salary of 6000.00 has a day rate
+| of 200.00, an hour rate of 25.00 and a minute rate of 0.416667.
+*/
+
+/**
+ * Components BASIC, HOUSING (25 % of basic), TRANSPORT (500 fixed, prorated), LATE (2.50 per
+ * minute), EARLY (minute rate × 1), ABSENCE (day rate × 1), UNPAID (day rate × 1), OVERTIME
+ * (policy multipliers), LEAVE_ENCASH, SI_EMP / SI_ER (social insurance) and TAX, one company
+ * structure "STD" with all of them, and statutory tables for EG: social insurance 10 % / 15 %,
+ * floor 2000, ceiling 12000, attendance and leave deductions reduce the insurable base; income
+ * tax 0 % to 30000, 10 % to 60000, 20 % above, no exemption, the employee's insurance and
+ * attendance deductions reduce taxable income.
+ *
+ * @param  array{statutory?: bool, structure?: bool}  $options
+ * @return array<string, SalaryComponent>
+ */
+function payrollSetup(array $options = []): array
+{
+    seedPayroll();
+    app(SettingsService::class)->set('payroll.country_code', 'EG');
+    app(SettingsService::class)->set('payroll.working_days_per_month', 30);
+    app(SettingsService::class)->set('payroll.working_hours_per_day', '8.00');
+
+    $c = [
+        'BASIC' => SalaryComponent::factory()->basic()->create(['display_order' => 1]),
+        'HOUSING' => SalaryComponent::factory()->percentage('25')->create(['code' => 'HOUSING', 'display_order' => 2]),
+        'TRANSPORT' => SalaryComponent::factory()->create(['code' => 'TRANSPORT', 'amount' => '500', 'display_order' => 3]),
+        'OVERTIME' => SalaryComponent::factory()->create(['code' => 'OVERTIME', 'category' => 'overtime', 'calculation_type' => 'overtime_hours', 'amount' => null, 'use_policy_multiplier' => true, 'display_order' => 4]),
+        'LATE' => SalaryComponent::factory()->deduction()->create(['code' => 'LATE', 'category' => 'attendance', 'calculation_type' => 'late_minutes', 'amount' => '2.50', 'display_order' => 10]),
+        'EARLY' => SalaryComponent::factory()->deduction()->create(['code' => 'EARLY', 'category' => 'attendance', 'calculation_type' => 'early_leave_minutes', 'amount' => null, 'rate' => '1', 'display_order' => 11]),
+        'ABSENCE' => SalaryComponent::factory()->deduction()->create(['code' => 'ABSENCE', 'category' => 'attendance', 'calculation_type' => 'absent_days', 'amount' => null, 'rate' => '1', 'display_order' => 12]),
+        'UNPAID' => SalaryComponent::factory()->deduction()->create(['code' => 'UNPAID', 'category' => 'leave', 'calculation_type' => 'unpaid_leave_days', 'amount' => null, 'rate' => '1', 'display_order' => 13]),
+        'LEAVE_ENCASH' => SalaryComponent::factory()->variable()->create(['code' => 'LEAVE_ENCASH', 'category' => 'leave', 'display_order' => 5]),
+        'SI_EMP' => SalaryComponent::factory()->statutory(StatutoryType::SocialInsurance)->create(['code' => 'SI_EMP', 'category' => 'insurance', 'display_order' => 20]),
+        'SI_ER' => SalaryComponent::factory()->statutory(StatutoryType::SocialInsurance)->create(['code' => 'SI_ER', 'kind' => 'employer_contribution', 'category' => 'insurance', 'show_on_payslip' => false, 'display_order' => 21]),
+        'TAX' => SalaryComponent::factory()->statutory(StatutoryType::IncomeTax)->create(['code' => 'TAX', 'category' => 'tax', 'display_order' => 22]),
+    ];
+
+    if ($options['structure'] ?? true) {
+        $lines = array_values(array_filter($c, fn (SalaryComponent $component): bool => $component->code !== 'LEAVE_ENCASH'
+            && (($options['statutory'] ?? true) || $component->calculation_type->value !== 'statutory')));
+        $structure = salaryStructure('STD', $lines);
+        app(AssignSalaryStructure::class)->handle($structure, SalaryStructureScope::Company, null, '2024-01-01', null, null);
+    }
+
+    $save = app(SaveStatutoryRuleVersion::class);
+    $insurance = StatutoryRuleSet::create(['code' => 'T-SI', 'name_ar' => 'تأمينات', 'name_en' => 'SI', 'country_code' => 'EG', 'type' => 'social_insurance', 'is_demo' => true, 'is_active' => true]);
+    $save->handle($insurance, ['effective_from' => '2025-01-01', 'employee_rate' => '10', 'employer_rate' => '15', 'salary_floor' => '2000', 'salary_ceiling' => '12000', 'base_reductions' => ['attendance', 'leave']], null);
+    $tax = StatutoryRuleSet::create(['code' => 'T-TAX', 'name_ar' => 'ضريبة', 'name_en' => 'Tax', 'country_code' => 'EG', 'type' => 'income_tax', 'is_demo' => false, 'is_active' => true]);
+    $save->handle($tax, ['effective_from' => '2025-01-01', 'annual_exemption' => '0', 'base_reductions' => ['attendance', 'leave'], 'deduct_employee_insurance' => true, 'brackets' => [
+        ['lower_bound' => '0', 'upper_bound' => '30000', 'rate' => '0'],
+        ['lower_bound' => '30000', 'upper_bound' => '60000', 'rate' => '10'],
+        ['lower_bound' => '60000', 'upper_bound' => null, 'rate' => '20'],
+    ]], null);
+
+    return $c;
+}
+
+/**
+ * The monthly payroll period of a month (created through the real action).
+ */
+function payrollPeriod(string $month = '2026-10'): PayrollPeriod
+{
+    return app(ManagePayrollPeriod::class)->monthly($month);
+}
+
+/**
+ * A processed attendance day written directly (the attendance engine is covered by its own tests).
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function payrollAttendanceDay(Employee $employee, string $date, string $status = 'present', array $attributes = []): AttendanceDay
+{
+    return AttendanceDay::query()->create([
+        'employee_id' => $employee->id, 'work_date' => $date, 'shift_key' => 0, 'branch_id' => $employee->branch_id, 'department_id' => $employee->department_id,
+        'timezone' => 'Africa/Cairo', 'status' => $status, 'scheduled_minutes' => 480, 'worked_minutes' => $status === 'absent' ? 0 : 480, ...$attributes,
+    ]);
+}
+
+/**
+ * Create a run through the real action and calculate it.
+ *
+ * @param  array<string, mixed>  $scope
+ */
+function calculatedRun(PayrollPeriod $period, array $scope = ['all' => true], ?User $by = null, PayrollRunType $type = PayrollRunType::Regular): PayrollRun
+{
+    $by ??= adminWithRoles('Payroll Accountant');
+    $runs = app(ManagePayrollRun::class);
+
+    return $runs->calculate($runs->create($period, $type, $scope, $by), $by);
+}
+
+/**
+ * Submit, approve at both levels (HR Manager, then Finance Officer) and finalise.
+ */
+function finalisedRun(PayrollRun $run, ?User $submitter = null): PayrollRun
+{
+    $runs = app(ManagePayrollRun::class);
+    $finance = adminWithRoles('Finance Officer');
+    $runs->submit($run, $submitter ?? adminWithRoles('Payroll Accountant'));
+    $runs->decide($run->refresh(), adminWithRoles('HR Manager'), true);
+    $runs->decide($run->refresh(), $finance, true);
+
+    return $runs->finalise($run->refresh(), $finance);
+}
+
+/**
+ * The calculated line of a component in an employee's item of a run (null when absent).
+ */
+function payLine(PayrollRun $run, Employee $employee, string $code): ?PayrollItemLine
+{
+    return PayrollItemLine::query()->where('payroll_run_id', $run->id)->where('employee_id', $employee->id)->where('code', $code)->first();
+}
+
+function payItem(PayrollRun $run, Employee $employee): PayrollItem
+{
+    return PayrollItem::query()->withoutGlobalScopes()->where('payroll_run_id', $run->id)->where('employee_id', $employee->id)->firstOrFail();
 }

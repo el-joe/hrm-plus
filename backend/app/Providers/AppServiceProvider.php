@@ -61,6 +61,7 @@ use App\Models\LeavePolicy;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\LoanChange;
+use App\Models\LoanInstalment;
 use App\Models\LoginHistory;
 use App\Models\OffboardingCase;
 use App\Models\OffboardingItem;
@@ -69,6 +70,13 @@ use App\Models\OnboardingTask;
 use App\Models\OnboardingTemplate;
 use App\Models\OnboardingTemplateTask;
 use App\Models\PayEntry;
+use App\Models\PayrollAdjustment;
+use App\Models\PayrollItem;
+use App\Models\PayrollItemLine;
+use App\Models\PayrollPeriod;
+use App\Models\PayrollRun;
+use App\Models\Payslip;
+use App\Models\PayslipPayment;
 use App\Models\Position;
 use App\Models\RecruitmentStage;
 use App\Models\Role;
@@ -231,6 +239,14 @@ class AppServiceProvider extends ServiceProvider
             'statutory_rule_version' => StatutoryRuleVersion::class,
             'employee_loan' => EmployeeLoan::class,
             'loan_change' => LoanChange::class,
+            'loan_instalment' => LoanInstalment::class,
+            'payroll_period' => PayrollPeriod::class,
+            'payroll_run' => PayrollRun::class,
+            'payroll_item' => PayrollItem::class,
+            'payroll_item_line' => PayrollItemLine::class,
+            'payroll_adjustment' => PayrollAdjustment::class,
+            'payslip' => Payslip::class,
+            'payslip_payment' => PayslipPayment::class,
         ]);
     }
 

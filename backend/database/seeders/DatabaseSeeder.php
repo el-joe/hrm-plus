@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             $this->call(AttendanceCaptureDemoSeeder::class);
             $this->call(LeaveDemoSeeder::class);
             $this->call(PayrollDemoSeeder::class);
+            $this->call(PayrollRunDemoSeeder::class);
         }
     }
 }

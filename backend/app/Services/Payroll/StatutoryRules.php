@@ -82,6 +82,8 @@ class StatutoryRules
                 'upper' => $bracket->upper_bound === null ? null : (string) $bracket->upper_bound,
                 'rate' => (string) $bracket->rate,
             ])->values()->all(),
+            baseReductions: array_values(array_map('strval', $version->base_reductions ?? [])),
+            deductEmployeeInsurance: (bool) $version->deduct_employee_insurance,
         );
     }
 }

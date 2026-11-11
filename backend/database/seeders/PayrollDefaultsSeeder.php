@@ -6,6 +6,7 @@ use App\Enums\ApproverType;
 use App\Models\ApprovalWorkflow;
 use App\Models\EmployeeLoan;
 use App\Models\PayEntry;
+use App\Models\PayrollRun;
 use Illuminate\Database\Seeder;
 
 /**
@@ -17,7 +18,10 @@ use Illuminate\Database\Seeder;
  * - payroll_allowance / payroll_deduction: entries of components flagged
  *   "requires approval", one level (allowances.approve / deductions.approve);
  * - loan_request: loans and advances, one level (loans.approve);
- * - loan_change: skipping an instalment or rescheduling, one level (loans.approve).
+ * - loan_change: skipping an instalment or rescheduling, one level (loans.approve);
+ * - payroll_run (Phase 7b): two levels, both payroll.approve (HR Manager and Finance
+ *   Officer by default) — the same person cannot approve both levels and the submitter
+ *   cannot approve at all (PayrollRunPolicy::decide, approval engine).
  */
 class PayrollDefaultsSeeder extends Seeder
 {
@@ -36,6 +40,15 @@ class PayrollDefaultsSeeder extends Seeder
                     'sequence' => 1, 'name' => $stepName, 'approver_type' => ApproverType::Permission, 'approver_permission' => $permission,
                 ]);
             }
+        }
+
+        $workflow = ApprovalWorkflow::query()->firstOrCreate(['key' => PayrollRun::WORKFLOW], [
+            'name' => 'Payroll run approval', 'description' => 'Calculated payroll runs (settlements) before finalisation: HR review, then Finance approval.', 'is_active' => true,
+        ]);
+
+        if ($workflow->steps()->doesntExist()) {
+            $workflow->steps()->create(['sequence' => 1, 'name' => 'HR review', 'approver_type' => ApproverType::Permission, 'approver_permission' => 'payroll.approve']);
+            $workflow->steps()->create(['sequence' => 2, 'name' => 'Finance approval', 'approver_type' => ApproverType::Permission, 'approver_permission' => 'payroll.approve']);
         }
     }
 }

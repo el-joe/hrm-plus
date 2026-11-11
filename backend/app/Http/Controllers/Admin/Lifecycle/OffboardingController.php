@@ -6,6 +6,7 @@ use App\Actions\Offboarding\ManageOffboardingCase;
 use App\Actions\Offboarding\OpenOffboardingCase;
 use App\Enums\HandoverCategory;
 use App\Enums\OffboardingStatus;
+use App\Enums\PayrollRunType;
 use App\Enums\TaskAssignee;
 use App\Enums\TerminationType;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use App\Http\Requests\Admin\Lifecycle\TaskStatusRequest;
 use App\Models\Employee;
 use App\Models\OffboardingCase;
 use App\Models\OffboardingItem;
+use App\Models\PayrollRun;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -89,6 +91,9 @@ class OffboardingController extends Controller
             'categories' => HandoverCategory::cases(),
             'assignees' => TaskAssignee::cases(),
             'questions' => config('lifecycle.exit_interview'),
+            // Phase 7b: the final settlement payroll run prepared from the "final financial settlement" item.
+            'settlementRun' => PayrollRun::query()->withoutGlobalScopes()->where('offboarding_case_id', $offboarding->id)
+                ->where('type', PayrollRunType::FinalSettlement)->latest('id')->first(),
         ]);
     }
 

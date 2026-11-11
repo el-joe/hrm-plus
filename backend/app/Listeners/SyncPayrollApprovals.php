@@ -4,17 +4,19 @@ namespace App\Listeners;
 
 use App\Actions\Payroll\ManageLoan;
 use App\Actions\Payroll\ManagePayEntry;
+use App\Actions\Payroll\ManagePayrollRun;
 use App\Events\ApprovalRequestApproved;
 use App\Events\ApprovalRequestRejected;
 use App\Models\EmployeeLoan;
 use App\Models\LoanChange;
 use App\Models\PayEntry;
+use App\Models\PayrollRun;
 use App\Models\User;
 use App\Services\Authorization\DataScopeManager;
 
 /**
  * Applies the final outcome of the payroll approval workflows: allowance /
- * deduction entries, loan requests and loan schedule changes.
+ * deduction entries, loan requests, loan schedule changes and payroll runs (Phase 7b).
  */
 class SyncPayrollApprovals
 {
@@ -23,7 +25,7 @@ class SyncPayrollApprovals
     public function handle(ApprovalRequestApproved|ApprovalRequestRejected $event): void
     {
         $approval = $event->approvalRequest;
-        $types = [(new PayEntry)->getMorphClass(), (new EmployeeLoan)->getMorphClass(), (new LoanChange)->getMorphClass()];
+        $types = [(new PayEntry)->getMorphClass(), (new EmployeeLoan)->getMorphClass(), (new LoanChange)->getMorphClass(), (new PayrollRun)->getMorphClass()];
 
         if (! in_array($approval->approvable_type, $types, true)) {
             return;
@@ -46,6 +48,11 @@ class SyncPayrollApprovals
                 $loan = EmployeeLoan::query()->withoutGlobalScopes()->find($id);
                 if ($loan !== null) {
                     app(ManageLoan::class)->applyApprovalOutcome($loan, $approved, $decidedBy, $reason);
+                }
+            } elseif ($approval->approvable_type === (new PayrollRun)->getMorphClass()) {
+                $run = PayrollRun::query()->withoutGlobalScopes()->find($id);
+                if ($run !== null) {
+                    app(ManagePayrollRun::class)->applyApprovalOutcome($run, $approved, $decidedBy, $reason);
                 }
             } else {
                 $change = LoanChange::query()->withoutGlobalScopes()->find($id);

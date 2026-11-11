@@ -42,6 +42,24 @@
             @endif
         </x-form.section>
 
+        @php($reductions = old('base_reductions', $latest?->base_reductions ?? ['attendance', 'leave']))
+        <x-form.section :title="__('payroll_runs.statutory_base.title')" :description="__('payroll_runs.statutory_base.help_'.$record->type->value)">
+            <x-form.field :label="__('payroll_runs.statutory_base.categories')" class="md:col-span-2">
+                <div class="grid gap-2 sm:grid-cols-3">
+                    @foreach (App\Enums\PayComponentCategory::cases() as $category)
+                        @continue(in_array($category, [App\Enums\PayComponentCategory::Basic, App\Enums\PayComponentCategory::Allowance, App\Enums\PayComponentCategory::Bonus, App\Enums\PayComponentCategory::Commission, App\Enums\PayComponentCategory::Overtime, App\Enums\PayComponentCategory::Insurance, App\Enums\PayComponentCategory::Tax], true))
+                        <x-form.checkbox name="base_reductions[]" :id="'reduction-'.$category->value" :value="$category->value" :label="$category->label()" :checked="in_array($category->value, $reductions, true)" />
+                    @endforeach
+                </div>
+            </x-form.field>
+            <x-form.input name="base_reductions[]" id="reduction-codes" maxlength="40" dir="ltr" :label="__('payroll_runs.statutory_base.extra_code')" :help="__('payroll_runs.statutory_base.extra_code_help')"
+                :value="collect($reductions)->reject(fn ($value) => App\Enums\PayComponentCategory::tryFrom($value) !== null)->first()" />
+            @if ($record->type === App\Enums\StatutoryType::IncomeTax)
+                <input type="hidden" name="deduct_employee_insurance" value="0">
+                <x-form.switch name="deduct_employee_insurance" value="1" :label="__('payroll_runs.statutory_base.deduct_insurance')" :checked="(bool) old('deduct_employee_insurance', $latest?->deduct_employee_insurance ?? true)" />
+            @endif
+        </x-form.section>
+
         <x-form.actions>
             <x-button variant="secondary" :href="route('admin.statutory-rules.show', $record)">{{ __('app.actions.cancel') }}</x-button>
             <x-button>{{ __('app.actions.save') }}</x-button>

@@ -314,6 +314,11 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         Route::get('loans/{loan}', [Employee\LoanController::class, 'show'])->whereNumber('loan')->name('loans.show');
         Route::post('loans/{loan}/cancel', [Employee\LoanController::class, 'cancel'])->whereNumber('loan')->name('loans.cancel');
 
+        // My payroll (own payslips only, Phase 7b): payslips by year, year summary, structure, PDF.
+        Route::get('payroll', [Employee\PayrollController::class, 'index'])->name('payroll');
+        Route::get('payroll/payslips/{payslip}', [Employee\PayrollController::class, 'show'])->whereNumber('payslip')->name('payroll.show');
+        Route::get('payroll/payslips/{payslip}/pdf', [Employee\PayrollController::class, 'pdf'])->whereNumber('payslip')->name('payroll.pdf');
+
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');
         Route::get('interviews/{interview}', [Employee\InterviewController::class, 'show'])->name('interviews.show');

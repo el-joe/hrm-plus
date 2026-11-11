@@ -133,6 +133,7 @@ from `app.js` and guarded by a data-attribute check.
 | `pages/schedule-calendar.js` | `[data-schedule-calendar]` | Opens the day override modal from a calendar cell (cells are links to the day page without JS). |
 | `pages/leave.js` | `form[data-leave-form]` (admin "request on behalf", portal "My leaves"); `#leave-reject-modal` + `[data-leave-reject]` (admin requests queue) | Offers only the day parts the chosen leave type allows (options `data-unit` / `data-units`), hides the end date for partial days and shows hours only for hourly leave, shows the attachment rule of the type. The queue's reject button opens one shared modal (reason required) instead of following its link to the request page. Works without JS (all fields visible; the server validates). |
 | `pages/payroll.js` | `select[data-switch="group"]` + `[data-show-for="a b"]` (`data-switch-group`, `data-hide-when="group:value"`); `[data-repeater]` with `[data-repeater-rows]`, `<template data-repeater-template>` (`__INDEX__`), `[data-repeater-add]`, `[data-repeater-remove]` | Payroll forms (Phase 7a): shows only the fields the chosen calculation / recurrence / target uses (hidden fields are disabled, so not submitted); adds and removes structure lines and tax brackets. A bare `data-switch` (rendered by Blade as `data-switch="data-switch"`) is the default group. Works without JS (all fields visible, a few empty rows rendered; the server keeps only what the choice uses). |
+| `pages/payroll-run.js` | `[data-payroll-progress]` (admin/payroll/runs/show while a queued calculation runs) | Polls the progress URL every 3 s, moves the bar (`inline-size` %) and reloads when the run leaves "calculating". Without JS the card shows a reload link. |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes
@@ -186,6 +187,19 @@ deductions — one set of views, `$resource` = `allowances` | `deductions`, stat
 table appears), `_approval-history`, `_target-fields` (applies-to select + one record select per target), `entries/_fields`,
 `entries/_value`, `loans/_request-fields` (shared by admin and portal), `loans/_limits`, `structures/_lines` + `_line`,
 `statutory/_bracket`. Amounts are never computed in Blade or JS: they come from `App\Services\Payroll\*` (bcmath strings).
+
+**Payroll run screens (Phase 7b)** — `admin/payroll/periods/index`, `runs/*` (index, `create` = wizard step 1,
+`preview` = step 2, `show` = review / approval / finalisation with link tabs employees · totals · approvals · history,
+`scope`), `items/show` (the per-employee breakdown), `corrections/index`, `payslips/*`, `final-settlement/create`, the
+portal `employee/payroll/*`. Partials: `runs/_wizard` (step pills: 1 scope … 5 finalise), `runs/_scope-fields` (shared
+by the wizard and "change scope": checkbox lists per dimension, native multi-selects for include / exclude),
+`runs/_status`, `runs/_warnings` (compact badges, or `full` sentences), `items/_lines` (lines with source and
+explanation sentences from `PayrollItemLine::explanationLines()`), and `payslips/_document` — the payslip in its own
+language (`dir` on the wrapper, independent of the interface language), shared by the admin and the portal. The PDF
+template `payslips/pdf` is plain tables + inline CSS for mPDF; wrap dates / references in `<bdo dir="ltr">` there
+(mPDF's bidi otherwise reorders hyphenated numbers in Arabic). Money stat grids use
+`grid-cols-1 sm:grid-cols-2 lg:grid-cols-N` (large amounts do not fit two per row at 375 px). Inside a page that sets
+`$currency`, pass `'currency' => null` to `admin.payroll._money` in table cells — includes inherit parent variables.
 
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.

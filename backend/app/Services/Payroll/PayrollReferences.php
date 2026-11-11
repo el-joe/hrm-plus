@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\DB;
 /**
  * Race-safe reference numbers of the payroll layer from number_sequences:
  * ALW-2026-00001 (allowances), DED-2026-00001 (deductions), LN-2026-00001
- * (loans), ADV-2026-00001 (advances). One sequence per kind and year. Call
- * inside the transaction that inserts the record.
+ * (loans), ADV-2026-00001 (advances), PR-2026-00001 (payroll runs, Phase 7b),
+ * PADJ-2026-00001 (post-finalisation adjustments), PS-2026-00001 (payslips).
+ * One sequence per kind and year. Call inside the transaction that inserts the record.
  */
 class PayrollReferences
 {
-    public const PREFIXES = ['earning' => 'ALW', 'deduction' => 'DED', 'loan' => 'LN', 'advance' => 'ADV'];
+    public const PREFIXES = [
+        'earning' => 'ALW', 'deduction' => 'DED', 'loan' => 'LN', 'advance' => 'ADV',
+        'run' => 'PR', 'adjustment' => 'PADJ', 'payslip' => 'PS',
+    ];
 
     public function next(string $kind): string
     {

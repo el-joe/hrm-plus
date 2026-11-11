@@ -41,6 +41,18 @@
                                 @if ($item->note)
                                     <p class="text-body-sm text-text-secondary">{{ $item->note }}</p>
                                 @endif
+                                @if ($item->itemable_type === $case->getMorphClass() && $item->itemable_id === $case->id)
+                                    @if ($settlementRun)
+                                        @can('view', $settlementRun)
+                                            <a class="text-body-sm text-text-link hover:underline" href="{{ route('admin.payroll-runs.show', $settlementRun) }}"><span dir="ltr">{{ $settlementRun->reference }}</span> · {{ $settlementRun->status->label() }}</a>
+                                        @endcan
+                                    @endif
+                                    @if (! $settlementRun || in_array($settlementRun->status->value, ['cancelled', 'reversed'], true))
+                                        @can('create', App\Models\PayrollRun::class)
+                                            <x-button size="sm" variant="secondary" icon="coins" :href="route('admin.offboarding.final-settlement.create', $case)">{{ __('payroll_runs.final_settlement.prepare') }}</x-button>
+                                        @endcan
+                                    @endif
+                                @endif
                             </div>
                             <div class="flex items-center gap-2">
                                 <x-badge :tone="$item->status->tone()">{{ $item->status === App\Enums\TaskStatus::Skipped ? __('onboarding.offboarding.waived') : $item->status->label() }}</x-badge>

@@ -64,6 +64,9 @@ return [
             'overtime_rate_multiplier' => 'Overtime rate multiplier',
             'rounding_precision' => 'Rounding decimal places',
             'country_code' => 'Statutory rules country (ISO code, empty = none)',
+            'sync_calculation_limit' => 'Calculate in the background above (employees)',
+            'leave_encashment_component' => 'Leave encashment component (code)',
+            'portal_show_structure' => 'Show the salary structure in the employee portal',
         ],
         'leave' => [
             'year_start_month' => 'Leave year start month',

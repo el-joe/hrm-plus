@@ -29,6 +29,7 @@ import { initScheduleCalendar } from './pages/schedule-calendar';
 import { initAttendanceBulk } from './pages/attendance-bulk';
 import { initLeaveForms, initLeaveReject } from './pages/leave';
 import { initPayrollForms } from './pages/payroll';
+import { initPayrollRunProgress } from './pages/payroll-run';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -96,6 +97,10 @@ function boot() {
 
     if (document.querySelector('select[data-switch], [data-repeater]')) {
         initPayrollForms();
+    }
+
+    if (document.querySelector('[data-payroll-progress]')) {
+        initPayrollRunProgress();
     }
 }
 

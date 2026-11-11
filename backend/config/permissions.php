@@ -103,8 +103,18 @@ return [
         // behalf; update: early repayment, schedule change requests, final settlement;
         // delete: cancel a pending request; approve/reject: loan and schedule-change
         // workflows. Amounts anywhere need employee_financials.view on the profile tab.
-        // payroll.*: payroll runs (Phase 7b).
+        // Payroll runs (Phase 7b). payroll.view: periods, runs, employee breakdowns and
+        // corrections in scope; create: new runs (wizard), corrections, final settlements;
+        // update: calculate / recalculate, population changes, submit for approval;
+        // delete: cancel a draft run; approve/reject: the "payroll_run" workflow (two
+        // levels, distinct approvers, never the submitter); export: register and bank
+        // files; manage: payroll periods. payroll_finalisation.manage: finalise (lock,
+        // issue payslips, deduct loans) and reverse a finalised run — kept apart from
+        // preparation on purpose. payslips.view: employees' payslips (every view logged);
+        // export: bulk PDF / payslip lists; manage: payment status (paid / partially paid).
         'payroll' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'payroll_finalisation' => ['manage'],
+        'payslips' => ['view', 'export', 'manage'],
         'salary_components' => $crud,
         'salary_structures' => $crud,
         'allowances' => [...$crud, 'approve', 'reject', 'export'],
@@ -142,7 +152,7 @@ return [
                 'job_grades.*', 'employment_types.*', 'cost_centers.*', 'employees.*', 'employee_sensitive.*', 'employee_financials.view',
                 'employee_documents.*', 'employee_groups.*',
                 'recruitment.*', 'interviews.*', 'offers.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
-                'face_verification.*', 'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'leave_types.*', 'leave_policies.*', 'leave_balances.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
+                'face_verification.*', 'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'leave_types.*', 'leave_policies.*', 'leave_balances.*', 'payroll.view', 'payroll.approve', 'payroll.reject', 'payslips.view', 'loans.view', 'loans.approve', 'loans.reject',
                 'salary_components.view', 'salary_structures.view', 'allowances.view', 'allowances.approve', 'allowances.reject',
                 'deductions.view', 'deductions.approve', 'deductions.reject', 'statutory_rules.view',
                 'performance.*', 'training.*', 'assets.*', 'hr_requests.*', 'announcements.*', 'disciplinary.*',
@@ -187,7 +197,7 @@ return [
                 'dashboard.view', 'company.view', 'branches.view', 'departments.view', 'job_grades.view',
                 'employment_types.view', 'cost_centers.view',
                 'employees.view', 'employee_sensitive.view', 'employee_financials.view', 'employee_financials.update',
-                'payroll.view', 'payroll.create', 'payroll.update', 'payroll.delete', 'payroll.export', 'payroll.manage',
+                'payroll.view', 'payroll.create', 'payroll.update', 'payroll.delete', 'payroll.export', 'payroll.manage', 'payslips.view', 'payslips.export',
                 'loans.view', 'loans.create', 'loans.update', 'loans.delete', 'loans.export',
                 'salary_components.*', 'salary_structures.*', 'statutory_rules.*',
                 'allowances.view', 'allowances.create', 'allowances.update', 'allowances.delete', 'allowances.export',
@@ -253,7 +263,8 @@ return [
             'permissions' => [
                 'dashboard.view', 'company.view', 'branches.view', 'departments.view', 'job_grades.view', 'cost_centers.view',
                 'employees.view', 'employee_financials.view',
-                'payroll.view', 'payroll.approve', 'payroll.reject', 'payroll.export',
+                'payroll.view', 'payroll.approve', 'payroll.reject', 'payroll.export', 'payroll_finalisation.manage',
+                'payslips.view', 'payslips.export', 'payslips.manage',
                 'loans.view', 'loans.approve', 'loans.reject', 'loans.export', 'leave_balances.view',
                 'salary_components.view', 'salary_structures.view', 'statutory_rules.view',
                 'allowances.view', 'allowances.approve', 'allowances.reject', 'allowances.export',

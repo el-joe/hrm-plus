@@ -17,6 +17,9 @@ use Illuminate\Validation\ValidationException;
  * Social insurance needs the employee rate (employer rate, floor, ceiling
  * optional, floor ≤ ceiling); income tax needs contiguous brackets starting
  * at 0, each upper bound above its lower bound, only the last one open.
+ * Both carry the configurable base (Phase 7b): base_reductions lists the
+ * component categories / codes whose deductions reduce the base, and income
+ * tax may deduct the employee's social insurance share (deduct_employee_insurance).
  */
 class SaveStatutoryRuleVersion
 {
@@ -24,7 +27,7 @@ class SaveStatutoryRuleVersion
 
     /**
      * @param  array{effective_from: string, employee_rate?: ?string, employer_rate?: ?string, salary_floor?: ?string, salary_ceiling?: ?string,
-     *               annual_exemption?: ?string, notes?: ?string, brackets?: list<array{lower_bound?: ?string, upper_bound?: ?string, rate?: ?string}>}  $data
+     *               annual_exemption?: ?string, notes?: ?string, base_reductions?: list<string>, deduct_employee_insurance?: bool, brackets?: list<array{lower_bound?: ?string, upper_bound?: ?string, rate?: ?string}>}  $data
      *
      * @throws ValidationException
      */
@@ -49,6 +52,8 @@ class SaveStatutoryRuleVersion
                 ...$values['version'],
                 'version' => ($latest?->version ?? 0) + 1,
                 'effective_from' => $from->toDateString(),
+                'base_reductions' => array_values(array_unique(array_filter(array_map('strval', $data['base_reductions'] ?? []), 'filled'))),
+                'deduct_employee_insurance' => $set->type === StatutoryType::IncomeTax && (bool) ($data['deduct_employee_insurance'] ?? false),
                 'notes' => $data['notes'] ?? null,
                 'created_by' => $user?->id,
             ]);

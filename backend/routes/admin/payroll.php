@@ -64,3 +64,59 @@ Route::prefix('loans/{loan}')->name('loans.')->group(function (): void {
     Route::post('changes/{change}/decide/{decision}', [Payroll\LoanController::class, 'decideChange'])->whereNumber('change')->whereIn('decision', ['approve', 'reject'])->name('changes.decide');
     Route::post('settle', [Payroll\LoanController::class, 'settle'])->name('settle');
 });
+
+/*
+| Payroll runs (Phase 7b): periods, runs / settlements (wizard, calculation, approval,
+| finalisation, reversal), employee breakdowns, corrections, payslips and payments,
+| exports, final settlements from offboarding. Authorised by PayrollPeriodPolicy,
+| PayrollRunPolicy, PayrollAdjustmentPolicy and PayslipPolicy.
+*/
+
+Route::prefix('payroll-periods')->name('payroll-periods.')->controller(Payroll\PayrollPeriodController::class)->group(function (): void {
+    Route::get('/', 'index')->name('index');
+    Route::post('/', 'store')->name('store');
+    Route::put('{payroll_period}', 'update')->name('update');
+    Route::post('{payroll_period}/close', 'close')->name('close');
+    Route::post('{payroll_period}/reopen', 'reopen')->name('reopen');
+});
+
+Route::prefix('payroll-runs')->name('payroll-runs.')->controller(Payroll\PayrollRunController::class)->group(function (): void {
+    Route::get('/', 'index')->name('index');
+    Route::get('create', 'create')->name('create');
+    Route::get('preview', 'preview')->name('preview');
+    Route::post('/', 'store')->name('store');
+    Route::get('{payroll_run}', 'show')->whereNumber('payroll_run')->name('show');
+    Route::get('{payroll_run}/scope', 'editScope')->name('scope.edit');
+    Route::put('{payroll_run}/scope', 'updateScope')->name('scope.update');
+    Route::post('{payroll_run}/refresh', 'refresh')->name('refresh');
+    Route::delete('{payroll_run}/items/{item}', 'removeItem')->whereNumber('item')->name('items.destroy');
+    Route::post('{payroll_run}/calculate', 'calculate')->name('calculate');
+    Route::get('{payroll_run}/progress', 'progress')->name('progress');
+    Route::post('{payroll_run}/submit', 'submit')->name('submit');
+    Route::post('{payroll_run}/decide/{decision}', 'decide')->whereIn('decision', ['approve', 'reject'])->name('decide');
+    Route::post('{payroll_run}/finalise', 'finalise')->name('finalise');
+    Route::post('{payroll_run}/cancel', 'cancel')->name('cancel');
+    Route::post('{payroll_run}/reverse', 'reverse')->name('reverse');
+    Route::get('{payroll_run}/export/{kind}', 'export')->whereIn('kind', ['register', 'bank'])->name('export');
+});
+Route::get('payroll-runs/{payroll_run}/items/{item}', [Payroll\PayrollItemController::class, 'show'])->whereNumber(['payroll_run', 'item'])->name('payroll-runs.items.show');
+
+Route::prefix('payroll-corrections')->name('payroll-corrections.')->controller(Payroll\PayrollCorrectionController::class)->group(function (): void {
+    Route::get('/', 'index')->name('index');
+    Route::post('/', 'store')->name('store');
+    Route::post('scan', 'scan')->name('scan');
+    Route::post('run', 'run')->name('run');
+    Route::post('{adjustment}/dismiss', 'dismiss')->whereNumber('adjustment')->name('dismiss');
+});
+
+Route::prefix('payslips')->name('payslips.')->controller(Payroll\PayslipController::class)->group(function (): void {
+    Route::get('/', 'index')->name('index');
+    Route::get('export', 'export')->name('export');
+    Route::post('mark-paid', 'markPaid')->name('mark-paid');
+    Route::get('{payslip}', 'show')->whereNumber('payslip')->name('show');
+    Route::get('{payslip}/pdf', 'pdf')->whereNumber('payslip')->name('pdf');
+    Route::post('{payslip}/payments', 'pay')->whereNumber('payslip')->name('payments.store');
+});
+
+Route::get('offboarding/{offboarding}/final-settlement', [Payroll\FinalSettlementController::class, 'create'])->name('offboarding.final-settlement.create');
+Route::post('offboarding/{offboarding}/final-settlement', [Payroll\FinalSettlementController::class, 'store'])->name('offboarding.final-settlement.store');

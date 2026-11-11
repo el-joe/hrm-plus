@@ -39,6 +39,8 @@ return [
         'leave_policies' => 'Leave policies',
         'leave_balances' => 'Leave balances & adjustments',
         'payroll' => 'Payroll runs',
+        'payroll_finalisation' => 'Payroll finalisation & reversal',
+        'payslips' => 'Payslips & payments',
         'salary_components' => 'Salary components',
         'salary_structures' => 'Salary structures & assignments',
         'allowances' => 'Allowances & bonuses',

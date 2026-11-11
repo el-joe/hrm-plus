@@ -35,6 +35,11 @@
                     @endif
                     @if ($record->is_demo) @include('admin.payroll._demo') @endif
                 </x-slot:actions>
+                <p class="mb-3 text-body-sm text-text-secondary">
+                    {{ __('payroll_runs.statutory_base.reduces') }}:
+                    {{ collect($version->base_reductions ?? [])->map(fn ($value) => App\Enums\PayComponentCategory::tryFrom($value)?->label() ?? $value)->implode(', ') ?: __('payroll.common.none') }}
+                    @if ($version->deduct_employee_insurance) · {{ __('payroll_runs.statutory_base.deduct_insurance') }} @endif
+                </p>
                 @if ($record->type === App\Enums\StatutoryType::SocialInsurance)
                     <x-detail-list>
                         <x-detail-item :label="__('payroll.fields.employee_rate')"><span dir="ltr">{{ App\Services\Payroll\PayrollMath::trim((string) $version->employee_rate) }}%</span></x-detail-item>

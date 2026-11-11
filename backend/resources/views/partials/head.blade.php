@@ -30,6 +30,7 @@
         'network_error' => __('app.ui.network_error'),
         'fix_errors' => __('app.ui.fix_errors'),
         'confirm' => __('app.ui.confirm'),
+        'payroll' => ['progress' => __('payroll_runs.runs.progress')],
         'validation' => [
             'required' => __('validation.required'),
             'email' => __('validation.email'),

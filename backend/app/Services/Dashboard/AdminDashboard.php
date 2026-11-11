@@ -2,9 +2,11 @@
 
 namespace App\Services\Dashboard;
 
+use App\Enums\PayrollRunStatus;
 use App\Enums\UserStatus;
 use App\Models\AuditLog;
 use App\Models\LoginHistory;
+use App\Models\PayrollRun;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -54,6 +56,17 @@ class AdminDashboard
                 'value' => AuditLog::query()->where('created_at', '>=', today())->count(),
                 'icon' => 'history',
                 'url' => route('admin.audit-logs.index', ['date_from' => today()->toDateString()]),
+                'hint' => null,
+            ];
+        }
+
+        if ($admin->can('payroll.view')) {
+            $stats[] = [
+                'key' => 'payroll_pending',
+                'label' => __('payroll_runs.dashboard.pending_approval'),
+                'value' => PayrollRun::query()->where('status', PayrollRunStatus::PendingApproval)->count(),
+                'icon' => 'coins',
+                'url' => route('admin.payroll-runs.index', ['status' => PayrollRunStatus::PendingApproval->value]),
                 'hint' => null,
             ];
         }

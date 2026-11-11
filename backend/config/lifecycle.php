@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Offboarding\GenericHandoverChecklist;
+use App\Services\Payroll\FinalSettlementHandover;
 use App\Services\Payroll\LoanSettlementHandover;
 
 /*
@@ -11,7 +12,8 @@ use App\Services\Payroll\LoanSettlementHandover;
 | Offboarding handover items come from "handover providers"
 | (App\Services\Offboarding\Contracts\HandoverItemProvider). Each provider
 | returns the items to add when a case is opened; the generic checklist below
-| covers documents, access and the final settlement. The Assets module (later
+| covers documents and access; the final settlement item comes from the payroll
+| provider (Phase 7b). The Assets module (later
 | phase) registers its own provider here so every asset assigned to the
 | employee becomes an "asset" item linked to that asset (offboarding_items.itemable).
 |
@@ -23,6 +25,9 @@ return [
         GenericHandoverChecklist::class,
         // Phase 7a: one finance item per open loan / advance (settle in the final pay).
         LoanSettlementHandover::class,
+        // Phase 7b: the "Final financial settlement" item, linked to the case; the final
+        // settlement payroll run is prepared from it and marks it done when finalised.
+        FinalSettlementHandover::class,
     ],
 
     /*
@@ -33,7 +38,6 @@ return [
         ['document', 'hr', 'تسليم المستندات والملفات الخاصة بالعمل', 'Hand over work documents and files'],
         ['document', 'hr', 'إصدار شهادة الخبرة وخطاب إخلاء الطرف', 'Issue experience certificate and clearance letter'],
         ['access', 'it', 'إلغاء صلاحيات الأنظمة والبريد الإلكتروني', 'Revoke system and e-mail access'],
-        ['finance', 'finance', 'التسوية المالية النهائية', 'Final financial settlement'],
     ],
 
     /*

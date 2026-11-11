@@ -30,6 +30,42 @@ class PayrollPlacement
     }
 
     /**
+     * Where the employee sat during the period: one segment per placement in force,
+     * clipped to the period (oldest first). More than one branch / department means
+     * the employee moved mid-period; the run uses the placement at the period end.
+     *
+     * @return list<array{from: string, to: string, branch_id: int, department_id: int}>
+     */
+    public function segments(Employee $employee, CarbonInterface|string $start, CarbonInterface|string $end): array
+    {
+        $from = is_string($start) ? $start : $start->format('Y-m-d');
+        $to = is_string($end) ? $end : $end->format('Y-m-d');
+        $current = $this->on($employee, $from);
+        $later = EmployeeAssignment::query()->withoutGlobalScopes()
+            ->where('employee_id', $employee->id)
+            ->whereNotNull('applied_at')->whereNull('cancelled_at')
+            ->where('effective_date', '>', $from)->where('effective_date', '<=', $to)
+            ->orderBy('effective_date')->orderBy('id')->get();
+
+        $rows = collect([$current])->filter()->concat($later)->values();
+        $segments = [];
+
+        foreach ($rows as $index => $row) {
+            $segmentFrom = $index === 0 ? $from : $row->effective_date->format('Y-m-d');
+            $next = $rows[$index + 1] ?? null;
+            $segmentTo = $next ? $next->effective_date->subDay()->format('Y-m-d') : $to;
+
+            if ($segmentTo < $segmentFrom) {
+                continue;
+            }
+
+            $segments[] = ['from' => $segmentFrom, 'to' => $segmentTo, 'branch_id' => (int) $row->branch_id, 'department_id' => (int) $row->department_id];
+        }
+
+        return $segments === [] ? [['from' => $from, 'to' => $to, 'branch_id' => (int) $employee->branch_id, 'department_id' => (int) $employee->department_id]] : $segments;
+    }
+
+    /**
      * @return list<int>
      */
     public function groupIds(Employee $employee): array

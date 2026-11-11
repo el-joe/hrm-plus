@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–6 complete (6: leave management — tests written, not run yet); Phase 7a (payroll components) done — tests written, not run; Phase 7b (runs, payslips) next**
+Last updated: 2026-11-12 · Status: **Phases 0–7 complete (6 and 7: tests written, not run yet); Phase 8 (remaining HR modules, dashboard widgets, reports centre) next**
 
 ---
 
@@ -82,7 +82,7 @@ Only B1 and B2 stop work. Everything else has a documented fallback that the spe
 | API auth | laravel/sanctum | dio, flutter_secure_storage |
 | RBAC | spatie/laravel-permission | — |
 | Excel / CSV | openspout/openspout (installed Phase 3b: streaming, no PhpSpreadsheet, supports PHP 8.3 / Laravel 13) | — |
-| Arabic PDF | mpdf/mpdf | — |
+| Arabic PDF | mpdf/mpdf (installed Phase 7b: 8.3.1, PHP 8.3 / Laravel 13; Cairo TTF in `backend/resources/fonts/cairo`, OFL) | — |
 | OpenAPI | dedoc/scramble | — |
 | Charts | Chart.js or ApexCharts (no framework) | fl_chart |
 | State / routing | — | flutter_riverpod, go_router |
@@ -178,7 +178,7 @@ Must finish before any UI code is written.
 
 **Notes for Phase 7 (payroll).** Read leave only through `App\Services\Leave\LeavePayrollFeed`: `unpaidDays($employee, $from, $to)` (bcmath days of taken leave of types flagged *deduct from payroll*, dated in the period), `unpaidBreakdown()` (per date / type / request) and `encashments()` (encashment ledger rows to pay, positive days). Amounts are days (half days 0.5; hours as a fraction of the scheduled day) — payroll applies its own day rate. A cancellation approved after a period is finalised removes the days from the feed: payroll must treat the difference as a correction of the locked period. Paid leave needs no deduction; attendance `on_leave` days are not absences.
 
-### Phase 7 — Payroll engine · XL · critical · **7a done** (components; tests written, not run), 7b next
+### Phase 7 — Payroll engine · XL · critical · **done** (7a components, 7b runs / payslips; tests written, not run)
 - [x] Salary structures and components (monthly, daily, hourly, fixed), effective-dated, with change history *(7a: component catalogue with a closed list of rule types — fixed, % of basic or of another component (chains, no cycles), variable, per late / early minute, per absent day, overtime hours × policy multiplier, per unpaid-leave day, statutory; taxable / insurable / prorate / approval / payslip order / rounding. `employee_salaries` stays the only basic-salary source and gains `pay_basis` (monthly / daily / hourly / fixed, mirrored on `employees`). Structures → versions (never edited; a new version closes the previous one) → lines with overrides; assignments to employee / job grade / department (up the tree) / branch / company, effective-dated, precedence in that order)*
 - [x] Allowance types: fixed or percentage, recurring or one-time, scoped to employee, department or branch, with start and end dates and payroll treatment *(7a: `pay_entries` kind earning — also employee group and company; precedence employee > group > department > branch > company per component; taxable / insurable / prorate overrides; approval when the component requires it (`payroll_allowance`); bulk to ticked employees (one batch) and Excel / CSV import with dry run; cancel (not started) / stop (running) — approved entries are never edited)*
 - [x] Deduction types: fixed, percentage, recurring, one-time, instalment; approval and supporting documents *(7a: same table, kind deduction; reason required; instalment plans (last instalment takes the remainder); `payroll_deduction` workflow; documents on the private disk; nullable `source` morph for disciplinary actions later)*
@@ -186,13 +186,15 @@ Must finish before any UI code is written.
 - [x] Loans and advances: request, approval, instalment schedule, automatic deduction, early repayment, settlement *(7a: portal, API `me/loans`, admin on behalf; limits in Settings → Loans; `loan_request` workflow with approved terms; schedule + append-only ledger; `LoanInstalments::dueFor()` / `markDeducted()` / `reverseDeduction()` for 7b; early repayment (last instalments first); skip / reschedule through `loan_change`; offboarding handover item + "recover in final pay")*
 - [x] Read API for the engine *(7a: `PayrollInputs::for($employee, $from, $to)` → value objects with exact DECIMAL strings + `toArray()` snapshot; `ComponentCalculator`, `SalaryRates`, `Proration`, `StatutoryCalculator`; contract in `backend/docs/PAYROLL_ENGINE.md`)*
 - [x] Tests (7a, written, NOT run): `tests/Feature/Payroll/ComponentCalculationTest.php`, `SalaryStructureTest.php`, `PayEntryTest.php`, `LoanTest.php`, `PayrollInputsTest.php`, `PayrollScreensTest.php`
-- [ ] Payroll periods (monthly and custom) and runs: draft → calculate → recalculate → review → approve → finalise → lock
-- [ ] **Settlement scoping** by branch, department, team, position, group, individuals, or whole company; per-branch or consolidated runs
-- [ ] Per-employee calculation breakdown screen
-- [ ] Post-finalisation correction and reversal workflow
-- [ ] Payslip generation, Arabic PDF, payment status, payroll export
-- [ ] Calculation snapshot storage, transactions and row locking against double processing
-- [ ] Tests: payroll, allowance, deduction, loan instalment calculations; branch settlement; payslip access; scenario 4
+- [x] Payroll periods (monthly and custom) and runs: draft → calculate → recalculate → review → approve → finalise → lock *(7b: periods follow `payroll.period_start_day`, pay date + attendance cut-off, close / reopen; `ManagePayrollRun` state machine with the run row locked on every transition; workflow `payroll_run` = HR review + Finance approval (`payroll.approve`, distinct approvers, never the submitter); finalisation needs `payroll_finalisation.manage`; every transition audited `payroll.run_*`)*
+- [x] **Settlement scoping** by branch, department, team, position, group, individuals, or whole company; per-branch or consolidated runs *(7b: `PayrollPopulation` — AND across dimensions, OR within, include / exclude lists, sub-departments, placement at the period end, "moved out" listed in the old branch's preview; population preview before creation; one pay per employee and period: preview exclusion + unique `(payroll_period_id, employee_id, pay_slot)` + period row lock)*
+- [x] Per-employee calculation breakdown screen *(7b: every line with source and explanation ("12 late minutes × 2.50 = 30.00"), inputs snapshot, attendance / leave quantities, placement segments, rule versions, warnings (negative net, missing salary, DEMO statutory, pending overtime / mobile reviews …), variance vs previous finalised pay; run review with filters and totals by component / branch / department)*
+- [x] Post-finalisation correction and reversal workflow *(7b: `PayrollCorrections` scan (daily, before every calculation, "Scan now") turns attendance / leave changes after finalisation into pending adjustments priced with the frozen rates; manual corrections; carried by the next run or a correction run, applied on finalisation; full reversal = mirror run with negative amounts, payslips void, `reverseDeduction()`, pay slots released)*
+- [x] Payslip generation, Arabic PDF, payment status, payroll export *(7b: payslips issued on finalisation; HTML + mPDF 8.3 PDF with the Cairo font (RTL, Arabic shaping), bilingual per employee locale, company logo; unpaid / partially paid / paid with payments and bulk "mark paid"; register and generic bank file (CSV / XLSX, openspout); portal *My payroll* and API `me/payslips`; every access logged)*
+- [x] Calculation snapshot storage, transactions and row locking against double processing *(7b: `PayrollCalculator` stores inputs, quantities, rule versions, lines with explanations and a SHA-256 hash per employee; run totals hash at finalisation; the run is claimed (`calculating`) before a calculation; queued job `CalculatePayrollRun` (unique) for large runs with progress; taxable / insurable base configurable on the statutory version)*
+- [x] Tests: payroll, allowance, deduction, loan instalment calculations; branch settlement; payslip access; scenario 4 *(7b, written, NOT run: `tests/Feature/Payroll/PayrollCalculatorTest.php`, `PayrollSettlementScopeTest.php`, `PayrollRunWorkflowTest.php`, `PayrollCorrectionTest.php`, `PayslipTest.php`, `FinalSettlementTest.php`, `PayrollScenarioFourTest.php`)*
+
+**Notes for Phase 8 (dashboard and reports reading payroll).** Contract in `backend/docs/PAYROLL_ENGINE.md` §10: live pay of a period = `payroll_items` with `pay_slot = 'regular'` in runs with status `finalised` (reversed runs are excluded; reversal runs carry negative mirrors); component totals from `payroll_item_lines` (`code`, `kind`, `category`, `source`, signed `amount`); group by the period-end placement stored on the item (`branch_id`, `department_id`, `team_id`, `position_id`, `cost_center_id`); employer cost `employer_contributions`; payment state on `payslips`. `PayrollItem` and `Payslip` are data-scoped. The dashboard already shows "payroll runs awaiting approval" (real count). Reports still to build: payroll register / by component / by branch / variance, statutory (tax, insurance) summaries, bank payments, loan recovery.
 
 ### Phase 8 — Remaining HR modules · L
 - [ ] Performance: cycles, goals, KPIs, self and manager assessment, competencies, scoring, approval

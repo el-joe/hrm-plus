@@ -29,3 +29,5 @@ Schedule::command('face:purge')->dailyAt('02:15')->withoutOverlapping()->onOneSe
 // credit entitlements due today and expire carried-over days past their expiry date.
 Schedule::command('leave:rollover')->dailyAt('00:30')->withoutOverlapping()->onOneServer();
 Schedule::command('leave:accrue')->dailyAt('00:40')->withoutOverlapping()->onOneServer();
+// Payroll (Phase 7b): attendance / leave changes after a period was finalised become pending adjustments.
+Schedule::command('payroll:scan-corrections')->dailyAt('02:45')->withoutOverlapping()->onOneServer();

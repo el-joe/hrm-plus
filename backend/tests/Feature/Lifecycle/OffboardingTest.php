@@ -38,7 +38,8 @@ function openCase(object $test, array $overrides = [], ?Employee $employee = nul
 it('opens a case with the generic handover checklist and only one open case per employee', function () {
     $case = openCase($this);
 
-    expect($case->items()->count())->toBe(count(config('lifecycle.generic_handover')))
+    // Generic checklist + the payroll "final financial settlement" item (Phase 7b); this employee has no loan.
+    expect($case->items()->count())->toBe(count(config('lifecycle.generic_handover')) + 1)
         ->and($case->items()->pluck('category')->map->value->unique()->values()->all())->toContain('asset', 'document', 'access', 'finance');
 
     $this->actingAs($this->hr, 'admin')->post('/admin/offboarding', ['employee_id' => $this->employee->id, 'type' => 'dismissal', 'last_working_date' => today()->toDateString()])

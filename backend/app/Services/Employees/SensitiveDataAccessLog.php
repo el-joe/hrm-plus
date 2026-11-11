@@ -29,6 +29,12 @@ class SensitiveDataAccessLog
 
     public const CANDIDATE_FILE = 'sensitive_access.candidate_file';
 
+    /** Payslips (Phase 7b): every view / PDF download by an admin, the employee or the mobile app. */
+    public const PAYSLIP = 'sensitive_access.payslip';
+
+    /** Payroll run employee breakdowns and payroll exports (Phase 7b). */
+    public const PAYROLL = 'sensitive_access.payroll';
+
     public function __construct(private readonly AuditLogger $audit) {}
 
     /**

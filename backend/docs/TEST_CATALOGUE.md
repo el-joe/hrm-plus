@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**63 files, 565 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**70 files, 637 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -27,7 +27,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Leave | 3 | 52 |
 | Feature/Lifecycle | 2 | 12 |
 | Feature | 1 | 8 |
-| Feature/Payroll | 6 | 73 |
+| Feature/Payroll | 13 | 145 |
 | Feature/Recruitment | 3 | 22 |
 | Feature/Settings | 1 | 6 |
 | Feature/Structure | 9 | 45 |
@@ -629,6 +629,13 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - statutory tables › never edits a version and refuses one that does not start after the latest
 - statutory tables › applies insurance floor and ceiling and progressive tax brackets
 
+### `tests/Feature/Payroll/FinalSettlementTest.php` (4)
+
+- adds a final settlement handover item linked to the case
+- settles the last pay: prorated salary, encashment, full loan recovery, pay slot taken
+- completes the handover item when the settlement is finalised
+- refuses a second final settlement for the same case
+
 ### `tests/Feature/Payroll/LoanTest.php` (14)
 
 - schedule generation › splits an amount into monthly instalments that always add up
@@ -664,6 +671,43 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - bulk and import › imports a spreadsheet only when every row is valid
 - data scope › limits entry lists and records to the admin's branches
 
+### `tests/Feature/Payroll/PayrollCalculatorTest.php` (24)
+
+- rule types › calculates basic, percentage and fixed lines for a full month with an explanation
+- rule types › deducts late minutes at a fixed amount per minute and explains it
+- rule types › deducts early-departure minutes and absent days at the salary rates
+- rule types › pays approved overtime only, with the multiplier of the day kind from the policy version
+- rule types › reads locked days with their adjustments and drops removed days
+- rule types › adds employee-level entries to the structure lines
+- proration › prorates a joiner by calendar days
+- proration › prorates a leaver to the termination date
+- proration › prorates to the last working day of a final settlement prepared before termination
+- proration › splits a mid-period salary change into segments and sums them
+- proration › pays a fixed basis in full without attendance deductions
+- proration › pays a daily basis for attended, holiday and paid-leave days only
+- proration › pays an hourly basis for the hours worked
+- proration › warns and pays nothing as basic when no salary is recorded
+- leave › deducts unpaid leave days from the leave feed at the day rate
+- leave › pays leave encashment booked in the period as days × day rate
+- statutory › clamps the insurable base to the ceiling and splits employee / employer shares
+- statutory › raises the insurable base to the floor
+- statutory › applies progressive brackets after the employee insurance is deducted from taxable income
+- statutory › takes the taxable base from the statutory version configuration
+- statutory › labels demo tables and warns when a structure line has no table in force
+- loans and net pay › deducts the loan instalment due and recovers only what net pay allows
+- loans and net pay › marks a negative net pay as a blocking warning
+- loans and net pay › is deterministic: the same inputs give the same hash, a change gives another
+
+### `tests/Feature/Payroll/PayrollCorrectionTest.php` (7)
+
+- turns an attendance change after finalisation into a pending correction priced with the frozen rates
+- turns a leave cancellation approved after finalisation into a refund carried by the next run
+- records manual corrections and carries them in a correction run
+- never lets an admin record a correction of their own pay
+- dismisses a pending correction with a reason
+- reverses a finalised run: mirror run, void payslips, loan recovery reversed, period free again
+- refuses to reverse a run once a payment is recorded
+
 ### `tests/Feature/Payroll/PayrollInputsTest.php` (5)
 
 - returns every input of the period as value objects with exact decimal strings
@@ -671,6 +715,27 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - exposes a JSON-safe snapshot of everything it returned
 - reads nothing outside employment and the data scope does not apply
 - refuses a period that ends before it starts
+
+### `tests/Feature/Payroll/PayrollRunWorkflowTest.php` (14)
+
+- moves through draft, calculated, pending approval, approved and finalised
+- recalculates idempotently and audits the recalculation
+- claims the run before calculating so two calculations cannot overlap
+- queues large runs and reports progress
+- refuses to submit while an employee has a blocking issue
+- requires two distinct approvers and never lets the submitter approve
+- sends a rejected run back to review with the reason
+- keeps finalisation to the dedicated permission
+- issues payslips and marks the loan instalment deducted only on finalisation
+- never changes a finalised run
+- stores the full calculation snapshot with every item
+- denies payroll runs to admins without payroll permissions
+- renders the run screens for the accountant
+- creates monthly and custom periods and refuses overlapping months
+
+### `tests/Feature/Payroll/PayrollScenarioFourTest.php` (1)
+
+- runs scenario 4 from period selection to the employee's own payslip
 
 ### `tests/Feature/Payroll/PayrollScreensTest.php` (13)
 
@@ -687,6 +752,34 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - loans screens › takes a request on behalf, lets Finance approve with terms and shows the schedule
 - portal and API › lets employees request and follow their own loans in the portal
 - portal and API › serves me/loans to the mobile app with limits, validation and ownership
+
+### `tests/Feature/Payroll/PayrollSettlementScopeTest.php` (10)
+
+- scopes by each dimension
+- pays the whole company in a consolidated run
+- combines filters with AND across dimensions and OR inside one, plus include and exclude lists
+- previews summary figures (joiners, leavers, missing salary)
+- never pays an employee twice for the same period: the second run leaves them out
+- enforces one pay slot per employee and period at the database level
+- frees the pay slots of a cancelled run
+- pays an employee who moved branch mid-period only through the period-end branch
+- limits the population of a data-scoped admin to their branches
+- shows the population preview before creating the run and creates it from the wizard
+
+### `tests/Feature/Payroll/PayslipTest.php` (12)
+
+- portal › lists only the employee's own payslips with the year summary
+- portal › shows and downloads the own payslip and logs every access
+- portal › answers 404 for someone else's payslip
+- portal › hides void payslips
+- API › lists, shows and serves the PDF of the token owner's payslips only
+- API › refuses admin tokens and anonymous calls
+- admin › lets payslip viewers open payslips in their scope and logs it
+- admin › hides payslips outside the data scope and from admins without the permission
+- admin › records partial and full payments, then bulk marks the rest paid
+- documents and exports › renders the payslip PDF in Arabic and English (smoke)
+- documents and exports › exports the payroll register and the bank file
+- documents and exports › exports the payslip list
 
 ### `tests/Feature/Payroll/SalaryStructureTest.php` (9)
 

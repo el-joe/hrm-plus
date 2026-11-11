@@ -1,0 +1,80 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Navigation
+|--------------------------------------------------------------------------
+|
+| Entries of the admin sidebar and the employee portal navigation, read by
+| App\Support\Navigation\NavigationBuilder.
+|
+| An item is shown only when its route exists AND the signed-in user passes
+| its "ability" (a "module.action" permission or a Gate ability; null means
+| every user of the area). Hiding a link is never the protection: the route
+| itself must enforce the same permission.
+|
+| Each item: key (label = app.nav.{key}), route, ability, icon (x-icon name),
+| active (route-name patterns that mark the item as current).
+| Each admin section: key (label = app.nav.sections.{key}), items.
+|
+| Later modules add their entries here (sections from DESIGN_REFERENCE.md:
+| dashboard, structure, employees, recruitment, attendance, leave, payroll,
+| performance, reports, permissions, settings).
+|
+*/
+
+return [
+
+    'admin' => [
+        [
+            'key' => 'main',
+            'items' => [
+                ['key' => 'dashboard', 'route' => 'admin.dashboard', 'ability' => null, 'icon' => 'home', 'active' => ['admin.dashboard']],
+            ],
+        ],
+        [
+            'key' => 'employees',
+            'items' => [
+                ['key' => 'employees', 'route' => 'admin.employees.index', 'ability' => 'employees.view', 'icon' => 'users', 'active' => ['admin.employees.*']],
+                ['key' => 'employee_groups', 'route' => 'admin.employee-groups.index', 'ability' => 'employee_groups.view', 'icon' => 'layers', 'active' => ['admin.employee-groups.*']],
+                ['key' => 'employee_custom_fields', 'route' => 'admin.employee-custom-fields.index', 'ability' => 'employees.manage', 'icon' => 'settings', 'active' => ['admin.employee-custom-fields.*']],
+            ],
+        ],
+        [
+            'key' => 'structure',
+            'items' => [
+                ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],
+                ['key' => 'org_chart', 'route' => 'admin.org-chart', 'ability' => 'departments.view', 'icon' => 'sitemap', 'active' => ['admin.org-chart']],
+                ['key' => 'branches', 'route' => 'admin.branches.index', 'ability' => 'branches.view', 'icon' => 'map-pin', 'active' => ['admin.branches.*']],
+                ['key' => 'departments', 'route' => 'admin.departments.index', 'ability' => 'departments.view', 'icon' => 'layers', 'active' => ['admin.departments.*']],
+                ['key' => 'teams', 'route' => 'admin.teams.index', 'ability' => 'teams.view', 'icon' => 'users', 'active' => ['admin.teams.*']],
+                ['key' => 'positions', 'route' => 'admin.positions.index', 'ability' => 'positions.view', 'icon' => 'briefcase', 'active' => ['admin.positions.*']],
+                ['key' => 'job_titles', 'route' => 'admin.job-titles.index', 'ability' => 'job_titles.view', 'icon' => 'id-card', 'active' => ['admin.job-titles.*']],
+                ['key' => 'job_grades', 'route' => 'admin.job-grades.index', 'ability' => 'job_grades.view', 'icon' => 'award', 'active' => ['admin.job-grades.*']],
+                ['key' => 'employment_types', 'route' => 'admin.employment-types.index', 'ability' => 'employment_types.view', 'icon' => 'file-text', 'active' => ['admin.employment-types.*']],
+                ['key' => 'cost_centers', 'route' => 'admin.cost-centers.index', 'ability' => 'cost_centers.view', 'icon' => 'coins', 'active' => ['admin.cost-centers.*']],
+            ],
+        ],
+        [
+            'key' => 'permissions',
+            'items' => [
+                ['key' => 'admin_users', 'route' => 'admin.admin-users.index', 'ability' => 'admin_users.view', 'icon' => 'users', 'active' => ['admin.admin-users.*']],
+                ['key' => 'roles', 'route' => 'admin.roles.index', 'ability' => 'roles.view', 'icon' => 'shield', 'active' => ['admin.roles.*']],
+            ],
+        ],
+        [
+            'key' => 'system',
+            'items' => [
+                ['key' => 'audit_logs', 'route' => 'admin.audit-logs.index', 'ability' => 'audit_logs.view', 'icon' => 'history', 'active' => ['admin.audit-logs.*']],
+                ['key' => 'settings', 'route' => 'admin.settings.index', 'ability' => 'settings.view', 'icon' => 'settings', 'active' => ['admin.settings.*']],
+                ['key' => 'ui_kit', 'route' => 'admin.ui-kit', 'ability' => 'viewUiKit', 'icon' => 'layout-grid', 'active' => ['admin.ui-kit']],
+            ],
+        ],
+    ],
+
+    'portal' => [
+        ['key' => 'home', 'route' => 'portal.home', 'ability' => null, 'icon' => 'home', 'active' => ['portal.home']],
+        ['key' => 'my_profile', 'route' => 'portal.profile', 'ability' => null, 'icon' => 'user', 'active' => ['portal.profile']],
+    ],
+
+];

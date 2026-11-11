@@ -9,8 +9,10 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                // Cairo is downloaded at build time and self-hosted from public/build.
+                bunny('Cairo', {
+                    weights: [400, 500, 600, 700],
+                    subsets: ['arabic', 'latin'],
                 }),
             ],
         }),

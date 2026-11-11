@@ -17,8 +17,21 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // App\Enums\AccountType: admin | employee. Stored as a string so the
+            // schema is identical on MySQL and SQLite.
+            $table->string('account_type', 20)->index();
+            // App\Enums\UserStatus: active | inactive | suspended.
+            $table->string('status', 20)->default('active')->index();
+            $table->string('locale', 5)->nullable();
+            // Link to the employee profile. The employees table arrives in
+            // Phase 3, which must add the foreign key constraint to this column.
+            $table->unsignedBigInteger('employee_id')->nullable()->unique();
+            $table->timestamp('last_login_at')->nullable();
+            $table->string('last_login_ip', 45)->nullable();
+            $table->timestamp('password_changed_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

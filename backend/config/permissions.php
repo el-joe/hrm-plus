@@ -1,0 +1,207 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Permission catalogue — the single source of truth
+|--------------------------------------------------------------------------
+|
+| Every admin permission is named "module.action". Nothing else in the code
+| base may invent a permission name: add the module/action here, run
+| `php artisan db:seed --class=RolesAndPermissionsSeeder`, and reference it
+| through middleware (`can:module.action`) or a policy.
+|
+| Read through App\Services\Authorization\PermissionCatalogue.
+|
+*/
+
+$crud = ['view', 'create', 'update', 'delete'];
+
+return [
+
+    'guard' => 'admin',
+
+    'super_admin_role' => 'Super Admin',
+
+    /*
+     | The full set of actions a module may use, in display order for the matrix.
+     */
+    'actions' => ['view', 'create', 'update', 'delete', 'approve', 'reject', 'export', 'manage'],
+
+    /*
+     | module => actions it supports.
+     */
+    'modules' => [
+        'dashboard' => ['view'],
+        // Company structure (Phase 3a). "company" is the company profile; the org
+        // chart is shown to anyone who may view departments.
+        'company' => ['view', 'update'],
+        'branches' => $crud,
+        'departments' => $crud,
+        'teams' => $crud,
+        'positions' => $crud,
+        'job_titles' => $crud,
+        'job_grades' => $crud,
+        'employment_types' => $crud,
+        'cost_centers' => $crud,
+        // Employees (Phase 3b). employees.manage: terminate / rehire, login
+        // accounts, custom field definitions. employee_sensitive: national id
+        // and passport numbers. employee_financials: salary, bank accounts and
+        // job-grade salary bands. Every view of either is logged.
+        'employees' => [...$crud, 'export', 'manage'],
+        'employee_sensitive' => ['view', 'update'],
+        'employee_financials' => ['view', 'update'],
+        'employee_documents' => $crud,
+        'employee_groups' => $crud,
+        'recruitment' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'onboarding' => [...$crud, 'manage'],
+        'offboarding' => [...$crud, 'approve', 'reject', 'manage'],
+        'attendance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'attendance_devices' => [...$crud, 'manage'],
+        'shifts' => [...$crud, 'approve', 'reject', 'manage'],
+        'leaves' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'payroll' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'loans' => [...$crud, 'approve', 'reject', 'export'],
+        'performance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'training' => [...$crud, 'export', 'manage'],
+        'assets' => [...$crud, 'export', 'manage'],
+        'hr_requests' => [...$crud, 'approve', 'reject', 'manage'],
+        'announcements' => $crud,
+        'disciplinary' => [...$crud, 'approve', 'reject'],
+        'reports' => ['view', 'export'],
+        'notifications' => ['view', 'manage'],
+        'approvals' => ['view', 'manage'],
+        'settings' => ['view', 'manage'],
+        'admin_users' => $crud,
+        'roles' => $crud,
+        'audit_logs' => ['view', 'export'],
+    ],
+
+    /*
+     | Default (system) roles from spec section 2. A permission entry is either
+     | an exact name, "module.*" for every action of a module, or "*" for all.
+     */
+    'roles' => [
+        'Super Admin' => [
+            'description' => 'Unrestricted access to every module and setting.',
+            'permissions' => ['*'],
+        ],
+        'HR Manager' => [
+            'description' => 'Runs all HR operations; no access to roles, admin accounts or payroll preparation.',
+            'permissions' => [
+                'dashboard.*', 'company.*', 'branches.*', 'departments.*', 'teams.*', 'positions.*', 'job_titles.*',
+                'job_grades.*', 'employment_types.*', 'cost_centers.*', 'employees.*', 'employee_sensitive.*', 'employee_financials.view',
+                'employee_documents.*', 'employee_groups.*',
+                'recruitment.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
+                'shifts.*', 'leaves.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
+                'performance.*', 'training.*', 'assets.*', 'hr_requests.*', 'announcements.*', 'disciplinary.*',
+                'reports.*', 'notifications.*', 'approvals.*', 'settings.view', 'admin_users.view', 'audit_logs.view',
+            ],
+        ],
+        'HR Specialist' => [
+            'description' => 'Day-to-day employee administration without approvals or financial data.',
+            'permissions' => [
+                'dashboard.view', 'company.view', 'branches.view', 'departments.view',
+                'teams.view', 'teams.create', 'teams.update', 'positions.view', 'positions.create', 'positions.update',
+                'job_titles.view', 'job_grades.view', 'employment_types.view', 'cost_centers.view',
+                'employees.view', 'employees.create', 'employees.update', 'employees.export',
+                'employee_sensitive.view', 'employee_groups.view',
+                'employee_documents.view', 'employee_documents.create', 'employee_documents.update',
+                'onboarding.view', 'onboarding.create', 'onboarding.update',
+                'offboarding.view', 'offboarding.create', 'offboarding.update',
+                'attendance.view', 'shifts.view',
+                'leaves.view', 'leaves.create', 'leaves.update',
+                'training.view', 'training.create', 'training.update',
+                'assets.view', 'assets.create', 'assets.update',
+                'hr_requests.view', 'hr_requests.create', 'hr_requests.update',
+                'announcements.view', 'announcements.create', 'announcements.update',
+                'disciplinary.view', 'disciplinary.create',
+                'reports.view', 'notifications.view',
+            ],
+        ],
+        'Recruiter' => [
+            'description' => 'Manages vacancies, candidates and interviews; cannot touch payroll.',
+            'permissions' => [
+                'dashboard.view', 'company.view', 'branches.view', 'departments.view', 'positions.view',
+                'job_titles.view', 'job_grades.view', 'employment_types.view', 'recruitment.*',
+                'onboarding.view', 'onboarding.create', 'onboarding.update',
+                'reports.view', 'notifications.view',
+            ],
+        ],
+        'Payroll Accountant' => [
+            'description' => 'Prepares payroll and settlements; cannot approve payroll or change attendance devices.',
+            'permissions' => [
+                'dashboard.view', 'company.view', 'branches.view', 'departments.view', 'job_grades.view',
+                'employment_types.view', 'cost_centers.view',
+                'employees.view', 'employee_sensitive.view', 'employee_financials.view', 'employee_financials.update',
+                'payroll.view', 'payroll.create', 'payroll.update', 'payroll.delete', 'payroll.export', 'payroll.manage',
+                'loans.view', 'loans.create', 'loans.update', 'loans.export',
+                'attendance.view', 'leaves.view', 'reports.view', 'reports.export', 'notifications.view',
+            ],
+        ],
+        'Attendance Officer' => [
+            'description' => 'Manages attendance and shifts; no access to payroll or financial data.',
+            'permissions' => [
+                'dashboard.view', 'branches.view', 'departments.view', 'teams.view',
+                'employees.view', 'attendance.*', 'attendance_devices.view', 'shifts.*',
+                'leaves.view', 'reports.view', 'reports.export', 'notifications.view',
+            ],
+        ],
+        'Branch Manager' => [
+            'description' => 'Views and manages employees of the assigned branches only (set data scopes on the account).',
+            'permissions' => [
+                'dashboard.view', 'company.view', 'branches.view', 'departments.view',
+                'teams.view', 'teams.create', 'teams.update', 'positions.view',
+                'employees.view', 'employees.update', 'employees.export',
+                'employee_documents.view',
+                'attendance.view', 'attendance.create', 'attendance.update', 'attendance.approve', 'attendance.reject', 'attendance.export',
+                'shifts.view', 'shifts.create', 'shifts.update', 'shifts.approve', 'shifts.reject',
+                'leaves.view', 'leaves.approve', 'leaves.reject',
+                'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
+                'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
+                'training.view', 'assets.view', 'announcements.view', 'announcements.create',
+                'disciplinary.view', 'disciplinary.create',
+                'reports.view', 'reports.export', 'notifications.view',
+            ],
+        ],
+        'Department Manager' => [
+            'description' => 'Supervises employees of the assigned departments only (set data scopes on the account).',
+            'permissions' => [
+                'dashboard.view', 'departments.view', 'teams.view', 'teams.create', 'teams.update', 'positions.view',
+                'employees.view',
+                'attendance.view', 'attendance.approve', 'attendance.reject',
+                'shifts.view', 'shifts.update',
+                'leaves.view', 'leaves.approve', 'leaves.reject',
+                'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
+                'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
+                'training.view', 'announcements.view', 'announcements.create',
+                'reports.view', 'notifications.view',
+            ],
+        ],
+        'Direct Manager' => [
+            'description' => 'Approves requests and reviews performance for direct reports.',
+            'permissions' => [
+                'dashboard.view', 'departments.view', 'teams.view', 'employees.view',
+                'attendance.view', 'attendance.approve', 'attendance.reject',
+                'leaves.view', 'leaves.approve', 'leaves.reject',
+                'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
+                'performance.view', 'performance.create', 'performance.update',
+                'notifications.view',
+            ],
+        ],
+        'Finance Officer' => [
+            'description' => 'Reviews and approves payroll and loans; read-only on financial data.',
+            'permissions' => [
+                'dashboard.view', 'company.view', 'branches.view', 'departments.view', 'job_grades.view', 'cost_centers.view',
+                'employees.view', 'employee_financials.view',
+                'payroll.view', 'payroll.approve', 'payroll.reject', 'payroll.export',
+                'loans.view', 'loans.approve', 'loans.reject', 'loans.export',
+                'reports.view', 'reports.export', 'notifications.view',
+            ],
+        ],
+        'Reports Viewer' => [
+            'description' => 'Read-only access to the dashboard and reports.',
+            'permissions' => ['dashboard.view', 'reports.view', 'reports.export'],
+        ],
+    ],
+
+];

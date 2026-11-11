@@ -16,7 +16,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
+        'guard' => env('AUTH_GUARD', 'admin'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
@@ -38,7 +38,12 @@ return [
     */
 
     'guards' => [
-        'web' => [
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+
+        'employee' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
@@ -111,6 +116,21 @@ return [
     | confirmation screen. By default, the timeout lasts for three hours.
     |
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login Throttling
+    |--------------------------------------------------------------------------
+    |
+    | Maximum failed login attempts per email + IP before the login form and
+    | the API login endpoint lock out, and the lockout length in seconds.
+    |
+    */
+
+    'login_throttle' => [
+        'max_attempts' => (int) env('AUTH_LOGIN_MAX_ATTEMPTS', 5),
+        'decay_seconds' => (int) env('AUTH_LOGIN_DECAY_SECONDS', 60),
+    ],
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 

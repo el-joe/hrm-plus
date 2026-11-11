@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'HRM Plus'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,11 +78,25 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'ar'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | Locales a user may switch to, mapped to their text direction.
+    |
+    */
+
+    'supported_locales' => [
+        'ar' => 'rtl',
+        'en' => 'ltr',
+    ],
 
     /*
     |--------------------------------------------------------------------------

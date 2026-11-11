@@ -38,6 +38,17 @@ return [
             'report' => false,
         ],
 
+        // Employee photos, documents, contract scans and import uploads. Private:
+        // no URL, never served directly; only authorised controllers stream
+        // these files (and log each document download).
+        'employee_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/employees'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

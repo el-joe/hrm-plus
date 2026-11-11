@@ -2,7 +2,51 @@
 
 namespace App\Providers;
 
+use App\Models\AdminDataScope;
+use App\Models\ApprovalAction;
+use App\Models\ApprovalRequest;
+use App\Models\ApprovalWorkflow;
+use App\Models\ApprovalWorkflowStep;
+use App\Models\AuditLog;
+use App\Models\Branch;
+use App\Models\BranchLocation;
+use App\Models\Company;
+use App\Models\CostCenter;
+use App\Models\Department;
+use App\Models\Employee;
+use App\Models\EmployeeAssignment;
+use App\Models\EmployeeBankAccount;
+use App\Models\EmployeeContract;
+use App\Models\EmployeeCustomField;
+use App\Models\EmployeeCustomFieldValue;
+use App\Models\EmployeeDocument;
+use App\Models\EmployeeEmergencyContact;
+use App\Models\EmployeeGroup;
+use App\Models\EmployeeSalary;
+use App\Models\EmploymentType;
+use App\Models\JobGrade;
+use App\Models\JobTitle;
+use App\Models\LoginHistory;
+use App\Models\Position;
+use App\Models\Role;
+use App\Models\Setting;
+use App\Models\Team;
+use App\Models\User;
+use App\Policies\AdminUserPolicy;
+use App\Services\Authorization\DataScopeManager;
+use App\Support\Navigation\NavigationBuilder;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\View\View as ViewContract;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +55,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // One instance per request (and per queued job): it carries the admin
+        // whose data scopes are currently being enforced.
+        $this->app->scoped(DataScopeManager::class);
     }
 
     /**
@@ -19,6 +65,115 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->configureMorphMap();
+        $this->configureAuthorization();
+        $this->configureRateLimiting();
+        $this->configurePasswords();
+        $this->configureViews();
+    }
+
+    /**
+     * Polymorphic columns (audit_logs.auditable_type, approval_requests.approvable_type,
+     * model_has_roles.model_type, ...) store these short aliases instead of class
+     * names, so renaming a class never orphans data. Every model that is audited,
+     * approved or otherwise used polymorphically MUST be added here; an unmapped
+     * model fails loudly.
+     */
+    private function configureMorphMap(): void
+    {
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'role' => Role::class,
+            'admin_data_scope' => AdminDataScope::class,
+            'login_history' => LoginHistory::class,
+            'audit_log' => AuditLog::class,
+            'setting' => Setting::class,
+            'approval_workflow' => ApprovalWorkflow::class,
+            'approval_workflow_step' => ApprovalWorkflowStep::class,
+            'approval_request' => ApprovalRequest::class,
+            'approval_action' => ApprovalAction::class,
+            'company' => Company::class,
+            'branch' => Branch::class,
+            'branch_location' => BranchLocation::class,
+            'department' => Department::class,
+            'team' => Team::class,
+            'position' => Position::class,
+            'job_title' => JobTitle::class,
+            'job_grade' => JobGrade::class,
+            'employment_type' => EmploymentType::class,
+            'cost_center' => CostCenter::class,
+            'employee' => Employee::class,
+            'employee_group' => EmployeeGroup::class,
+            'employee_assignment' => EmployeeAssignment::class,
+            'employee_salary' => EmployeeSalary::class,
+            'employee_bank_account' => EmployeeBankAccount::class,
+            'employee_emergency_contact' => EmployeeEmergencyContact::class,
+            'employee_contract' => EmployeeContract::class,
+            'employee_document' => EmployeeDocument::class,
+            'employee_custom_field' => EmployeeCustomField::class,
+            'employee_custom_field_value' => EmployeeCustomFieldValue::class,
+        ]);
+    }
+
+    private function configureAuthorization(): void
+    {
+        // Admin accounts are Users, so the policy cannot be auto-discovered by name.
+        Gate::policy(User::class, AdminUserPolicy::class);
+
+        // A Super Admin holds every "module.action" permission, including ones
+        // added to the catalogue after the last seed. Policy abilities
+        // (update, delete, ...) are NOT short-circuited, so record-level rules
+        // such as "nobody deletes their own account" still apply to them.
+        // {admin_user} only ever resolves Admin accounts; employee ids are a 404.
+        Route::bind('admin_user', fn (string $value): User => User::query()->admins()->findOrFail($value));
+
+        // Developer component showcase (/admin/ui-kit). Not a catalogue permission:
+        // it is not a business capability and must not be grantable to roles.
+        Gate::define('viewUiKit', fn (User $user): bool => $user->isAdmin() && $user->isSuperAdmin());
+
+        Gate::before(function (User $user, string $ability): ?bool {
+            return str_contains($ability, '.') && $user->isSuperAdmin() ? true : null;
+        });
+    }
+
+    private function configureRateLimiting(): void
+    {
+        // Per token owner when the token is valid, otherwise per IP. The user is
+        // resolved through the sanctum guard because throttling runs before auth.
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->user('sanctum')?->getAuthIdentifier() ?: $request->ip()));
+
+        RateLimiter::for('api-login', fn (Request $request): Limit => Limit::perMinute(10)
+            ->by(Str::transliterate(Str::lower((string) $request->input('email'))).'|'.$request->ip()));
+
+        RateLimiter::for('password-reset', fn (Request $request): Limit => Limit::perMinute(5)->by($request->ip()));
+    }
+
+    private function configurePasswords(): void
+    {
+        Password::defaults(fn (): Password => Password::min((int) setting('security.password_min_length'))
+            ->letters()
+            ->numbers());
+
+        // Send each account to the reset form of its own area.
+        ResetPassword::createUrlUsing(fn (User $user, string $token): string => route(
+            $user->isAdmin() ? 'admin.password.reset' : 'portal.password.reset',
+            ['token' => $token, 'email' => $user->email],
+        ));
+    }
+
+    /**
+     * Navigation of the admin sidebar and the portal menu, filtered by the
+     * signed-in user's permissions (see config/navigation.php).
+     */
+    private function configureViews(): void
+    {
+        View::composer('layouts.admin', function (ViewContract $view): void {
+            $view->with('navigation', app(NavigationBuilder::class)->admin(request()->user(), Route::currentRouteName()));
+        });
+
+        View::composer('layouts.employee', function (ViewContract $view): void {
+            $view->with('navigation', app(NavigationBuilder::class)->portal(request()->user(), Route::currentRouteName()));
+        });
     }
 }

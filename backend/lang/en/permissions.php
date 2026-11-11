@@ -1,0 +1,74 @@
+<?php
+
+/*
+| Display labels for the permission catalogue (config/permissions.php).
+*/
+
+return [
+
+    'modules' => [
+        'dashboard' => 'Dashboard & analytics',
+        'company' => 'Company profile',
+        'branches' => 'Branches & locations',
+        'departments' => 'Departments & org chart',
+        'teams' => 'Teams',
+        'positions' => 'Job positions',
+        'job_titles' => 'Job titles',
+        'job_grades' => 'Job grades',
+        'employment_types' => 'Employment types',
+        'cost_centers' => 'Cost centres',
+        'employees' => 'Employees',
+        'employee_sensitive' => 'Sensitive personal data (ID, passport)',
+        'employee_financials' => 'Employee financial data',
+        'employee_documents' => 'Employee documents',
+        'employee_groups' => 'Employee groups',
+        'recruitment' => 'Recruitment',
+        'onboarding' => 'Onboarding',
+        'offboarding' => 'Offboarding',
+        'attendance' => 'Attendance',
+        'attendance_devices' => 'Attendance devices',
+        'shifts' => 'Shifts & schedules',
+        'leaves' => 'Leave',
+        'payroll' => 'Payroll',
+        'loans' => 'Loans & advances',
+        'performance' => 'Performance',
+        'training' => 'Training',
+        'assets' => 'Assets',
+        'hr_requests' => 'HR requests',
+        'announcements' => 'Announcements',
+        'disciplinary' => 'Disciplinary actions',
+        'reports' => 'Reports',
+        'notifications' => 'Notifications',
+        'approvals' => 'Approval workflows',
+        'settings' => 'System settings',
+        'admin_users' => 'Admin users',
+        'roles' => 'Roles & permissions',
+        'audit_logs' => 'Audit log',
+    ],
+
+    'actions' => [
+        'view' => 'View',
+        'create' => 'Create',
+        'update' => 'Edit',
+        'delete' => 'Delete',
+        'approve' => 'Approve',
+        'reject' => 'Reject',
+        'export' => 'Export',
+        'manage' => 'Manage',
+    ],
+
+    'roles' => [
+        'Super Admin' => 'Super Admin',
+        'HR Manager' => 'HR Manager',
+        'HR Specialist' => 'HR Specialist',
+        'Recruiter' => 'Recruiter',
+        'Payroll Accountant' => 'Payroll Accountant',
+        'Attendance Officer' => 'Attendance Officer',
+        'Branch Manager' => 'Branch Manager',
+        'Department Manager' => 'Department Manager',
+        'Direct Manager' => 'Direct Manager',
+        'Finance Officer' => 'Finance Officer',
+        'Reports Viewer' => 'Reports Viewer',
+    ],
+
+];

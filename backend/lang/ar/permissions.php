@@ -1,0 +1,74 @@
+<?php
+
+/*
+| Display labels for the permission catalogue (config/permissions.php).
+*/
+
+return [
+
+    'modules' => [
+        'dashboard' => 'لوحة التحكم والتحليلات',
+        'company' => 'ملف الشركة',
+        'branches' => 'الفروع والمواقع',
+        'departments' => 'الإدارات والهيكل التنظيمي',
+        'teams' => 'الفرق',
+        'positions' => 'الوظائف',
+        'job_titles' => 'المسميات الوظيفية',
+        'job_grades' => 'الدرجات الوظيفية',
+        'employment_types' => 'أنواع التوظيف',
+        'cost_centers' => 'مراكز التكلفة',
+        'employees' => 'الموظفون',
+        'employee_sensitive' => 'البيانات الشخصية الحساسة (الهوية، جواز السفر)',
+        'employee_financials' => 'البيانات المالية للموظف',
+        'employee_documents' => 'مستندات الموظفين',
+        'employee_groups' => 'مجموعات الموظفين',
+        'recruitment' => 'التوظيف',
+        'onboarding' => 'تهيئة الموظف الجديد',
+        'offboarding' => 'إنهاء الخدمة',
+        'attendance' => 'الحضور والانصراف',
+        'attendance_devices' => 'أجهزة الحضور',
+        'shifts' => 'الورديات والجداول',
+        'leaves' => 'الإجازات',
+        'payroll' => 'الرواتب',
+        'loans' => 'القروض والسلف',
+        'performance' => 'تقييم الأداء',
+        'training' => 'التدريب',
+        'assets' => 'العهد والأصول',
+        'hr_requests' => 'طلبات الموارد البشرية',
+        'announcements' => 'الإعلانات',
+        'disciplinary' => 'الإجراءات التأديبية',
+        'reports' => 'التقارير',
+        'notifications' => 'الإشعارات',
+        'approvals' => 'مسارات الاعتماد',
+        'settings' => 'إعدادات النظام',
+        'admin_users' => 'مستخدمو الإدارة',
+        'roles' => 'الأدوار والصلاحيات',
+        'audit_logs' => 'سجل التدقيق',
+    ],
+
+    'actions' => [
+        'view' => 'عرض',
+        'create' => 'إضافة',
+        'update' => 'تعديل',
+        'delete' => 'حذف',
+        'approve' => 'اعتماد',
+        'reject' => 'رفض',
+        'export' => 'تصدير',
+        'manage' => 'إدارة',
+    ],
+
+    'roles' => [
+        'Super Admin' => 'مدير النظام',
+        'HR Manager' => 'مدير الموارد البشرية',
+        'HR Specialist' => 'أخصائي موارد بشرية',
+        'Recruiter' => 'مسؤول التوظيف',
+        'Payroll Accountant' => 'محاسب الرواتب',
+        'Attendance Officer' => 'مسؤول الحضور',
+        'Branch Manager' => 'مدير فرع',
+        'Department Manager' => 'مدير قسم',
+        'Direct Manager' => 'مدير مباشر',
+        'Finance Officer' => 'المسؤول المالي',
+        'Reports Viewer' => 'مستعرض التقارير',
+    ],
+
+];

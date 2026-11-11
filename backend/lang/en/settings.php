@@ -11,6 +11,7 @@ return [
         'attendance' => 'Attendance',
         'payroll' => 'Payroll',
         'leave' => 'Leave',
+        'loans' => 'Loans & advances',
         'notifications' => 'Notifications',
         'documents' => 'Documents',
         'employee_number' => 'Employee number',
@@ -21,6 +22,16 @@ return [
         'face_verification' => 'Face verification',
     ],
     'keys' => [
+        'loans' => [
+            'employee_requests_enabled' => 'Employees may request loans and advances',
+            'min_service_months' => 'Minimum service (months)',
+            'max_active_loans' => 'Open loans / advances per employee',
+            'max_loan_salary_multiple' => 'Largest loan (× monthly basic salary)',
+            'max_loan_instalments' => 'Most loan instalments',
+            'max_advance_percent' => 'Largest advance (% of monthly basic salary)',
+            'max_advance_instalments' => 'Most advance instalments',
+            'max_instalment_percent' => 'Largest instalment (% of monthly basic salary)',
+        ],
         'localisation' => [
             'default_locale' => 'Default language',
             'timezone' => 'Timezone',
@@ -52,6 +63,7 @@ return [
             'working_hours_per_day' => 'Working hours per day',
             'overtime_rate_multiplier' => 'Overtime rate multiplier',
             'rounding_precision' => 'Rounding decimal places',
+            'country_code' => 'Statutory rules country (ISO code, empty = none)',
         ],
         'leave' => [
             'year_start_month' => 'Leave year start month',

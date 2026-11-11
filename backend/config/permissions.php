@@ -94,7 +94,22 @@ return [
         'leave_types' => $crud,
         'leave_policies' => $crud,
         'leave_balances' => ['view', 'update', 'export'],
+        // Payroll components (Phase 7a). salary_components.* / salary_structures.*:
+        // the component catalogue and the structures (salary_structures.update also
+        // assigns them); allowances.* / deductions.*: entries (create includes bulk and
+        // import, delete = stop / cancel an entry), approve/reject: their approval
+        // workflows; statutory_rules.*: tax and social insurance tables.
+        // loans.view: loans and advances in scope; create: request on an employee's
+        // behalf; update: early repayment, schedule change requests, final settlement;
+        // delete: cancel a pending request; approve/reject: loan and schedule-change
+        // workflows. Amounts anywhere need employee_financials.view on the profile tab.
+        // payroll.*: payroll runs (Phase 7b).
         'payroll' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        'salary_components' => $crud,
+        'salary_structures' => $crud,
+        'allowances' => [...$crud, 'approve', 'reject', 'export'],
+        'deductions' => [...$crud, 'approve', 'reject', 'export'],
+        'statutory_rules' => $crud,
         'loans' => [...$crud, 'approve', 'reject', 'export'],
         'performance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
         'training' => [...$crud, 'export', 'manage'],
@@ -128,6 +143,8 @@ return [
                 'employee_documents.*', 'employee_groups.*',
                 'recruitment.*', 'interviews.*', 'offers.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
                 'face_verification.*', 'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'leave_types.*', 'leave_policies.*', 'leave_balances.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
+                'salary_components.view', 'salary_structures.view', 'allowances.view', 'allowances.approve', 'allowances.reject',
+                'deductions.view', 'deductions.approve', 'deductions.reject', 'statutory_rules.view',
                 'performance.*', 'training.*', 'assets.*', 'hr_requests.*', 'announcements.*', 'disciplinary.*',
                 'reports.*', 'notifications.*', 'approvals.*', 'settings.view', 'admin_users.view', 'audit_logs.view',
             ],
@@ -171,7 +188,10 @@ return [
                 'employment_types.view', 'cost_centers.view',
                 'employees.view', 'employee_sensitive.view', 'employee_financials.view', 'employee_financials.update',
                 'payroll.view', 'payroll.create', 'payroll.update', 'payroll.delete', 'payroll.export', 'payroll.manage',
-                'loans.view', 'loans.create', 'loans.update', 'loans.export',
+                'loans.view', 'loans.create', 'loans.update', 'loans.delete', 'loans.export',
+                'salary_components.*', 'salary_structures.*', 'statutory_rules.*',
+                'allowances.view', 'allowances.create', 'allowances.update', 'allowances.delete', 'allowances.export',
+                'deductions.view', 'deductions.create', 'deductions.update', 'deductions.delete', 'deductions.export',
                 'attendance.view', 'holidays.view', 'attendance_policies.view', 'leaves.view', 'leave_types.view', 'leave_policies.view', 'leave_balances.view', 'leave_balances.export', 'reports.view', 'reports.export', 'notifications.view',
             ],
         ],
@@ -235,6 +255,9 @@ return [
                 'employees.view', 'employee_financials.view',
                 'payroll.view', 'payroll.approve', 'payroll.reject', 'payroll.export',
                 'loans.view', 'loans.approve', 'loans.reject', 'loans.export', 'leave_balances.view',
+                'salary_components.view', 'salary_structures.view', 'statutory_rules.view',
+                'allowances.view', 'allowances.approve', 'allowances.reject', 'allowances.export',
+                'deductions.view', 'deductions.approve', 'deductions.reject', 'deductions.export',
                 'reports.view', 'reports.export', 'notifications.view',
             ],
         ],

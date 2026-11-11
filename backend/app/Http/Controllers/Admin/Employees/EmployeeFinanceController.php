@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Employees;
 
 use App\Actions\Employees\ChangeEmployeeSalary;
+use App\Enums\PayBasis;
 use App\Enums\SalaryChangeType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Employees\BankAccountRequest;
@@ -30,6 +31,7 @@ class EmployeeFinanceController extends Controller
             $request->validated('effective_date'),
             $request->validated('reason'),
             $request->filled('change_type') ? SalaryChangeType::from($request->validated('change_type')) : null,
+            $request->filled('pay_basis') ? PayBasis::from($request->validated('pay_basis')) : null,
         );
 
         return redirect()->route('admin.employees.tab', [$employee, 'financial'])

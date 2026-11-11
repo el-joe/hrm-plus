@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
-Generated 2026-11-11 by reading the Pest files in `backend/tests` (nothing was executed).
-**57 files, 492 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
+**63 files, 565 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -27,6 +27,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Leave | 3 | 52 |
 | Feature/Lifecycle | 2 | 12 |
 | Feature | 1 | 8 |
+| Feature/Payroll | 6 | 73 |
 | Feature/Recruitment | 3 | 22 |
 | Feature/Settings | 1 | 6 |
 | Feature/Structure | 9 | 45 |
@@ -605,6 +606,99 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - answers API errors in the language of the Accept-Language header
 - falls back to the default language chosen in the system settings
 - answers the API in the token owner's saved language when the app sends no Accept-Language
+
+## Feature/Payroll
+
+### `tests/Feature/Payroll/ComponentCalculationTest.php` (17)
+
+- calculation types › prorates a fixed amount and keeps a basic salary as given
+- calculation types › takes a percentage of the basic salary
+- calculation types › chains percentages in dependency order whatever the order of the rules
+- calculation types › refuses a percentage cycle at calculation time and when saving
+- calculation types › prices late and early minutes from the minute rate or a fixed amount per minute
+- calculation types › prices absent and unpaid leave days from the day rate with a multiplier
+- calculation types › prices overtime with the attendance policy multipliers or the component rate
+- calculation types › derives day and hour rates for every pay basis from the settings
+- calculation types › leaves statutory components to the statutory calculator
+- rounding and proration › rounds with bcmath in every mode
+- rounding and proration › uses the component precision and falls back to the setting
+- rounding and proration › computes calendar-day proration factors
+- rounding and proration › prorates a recurring entry that starts inside the period
+- statutory tables › resolves the version in force on a date and closes the previous one
+- statutory tables › ignores inactive tables, other countries and an unset payroll country
+- statutory tables › never edits a version and refuses one that does not start after the latest
+- statutory tables › applies insurance floor and ceiling and progressive tax brackets
+
+### `tests/Feature/Payroll/LoanTest.php` (14)
+
+- schedule generation › splits an amount into monthly instalments that always add up
+- schedule generation › activates an approved loan with its schedule and a disbursement in the ledger
+- schedule generation › lets the approver lower the amount and change the plan within the limits
+- schedule generation › rejects with a reason and withdraws pending requests only
+- limits › enforces amount, instalments, instalment size, service and open loans from the settings
+- limits › refuses starting months in the past and employee requests when switched off
+- limits › never lets an approver decide their own loan
+- payroll hook › returns instalments due in the period plus overdue ones, and records deductions in the ledger
+- payroll hook › keeps a partly deducted instalment scheduled for the rest and reverses a deduction
+- payroll hook › completes the loan when the balance reaches zero and ignores loans that are not active
+- repayment and schedule changes › applies an early repayment to the last instalments first and completes the loan when paid off
+- repayment and schedule changes › skips an instalment to the end only after approval
+- repayment and schedule changes › reschedules the outstanding balance after approval and leaves it unchanged on rejection
+- offboarding › adds a finance handover item per open loan and recovers the balance from the final pay
+
+### `tests/Feature/Payroll/PayEntryTest.php` (15)
+
+- scope precedence › applies only the most specific level of a component: employee > group > department > branch > company
+- scope precedence › prefers the nearest department up the tree and keeps other components independent
+- scope precedence › does not apply entries of other employees, departments or branches
+- recurrence › applies recurring entries to every overlapping period with their active part
+- recurrence › applies a one-time entry only in the period containing its date and never prorates it
+- recurrence › splits an instalment deduction over months, the last instalment taking the remainder
+- recurrence › keeps percentage entries as percentages of their base
+- recurrence › refuses instalment allowances, deductions without a reason and empty amounts
+- approval › keeps entries of components that need approval out of payroll until Finance approves them
+- approval › records a rejection with its reason and never lets the requester or the employee decide
+- approval › approves entries of components without approval at once and stores supporting documents
+- cancel and stop › cancels pending or not-yet-started entries and stops running ones without losing history
+- bulk and import › creates one entry per selected employee in one batch, all or nothing
+- bulk and import › imports a spreadsheet only when every row is valid
+- data scope › limits entry lists and records to the admin's branches
+
+### `tests/Feature/Payroll/PayrollInputsTest.php` (5)
+
+- returns every input of the period as value objects with exact decimal strings
+- feeds the component calculator end to end
+- exposes a JSON-safe snapshot of everything it returned
+- reads nothing outside employment and the data scope does not apply
+- refuses a period that ends before it starts
+
+### `tests/Feature/Payroll/PayrollScreensTest.php` (13)
+
+- permissions › lets the Payroll Accountant manage configuration and keeps others out
+- permissions › shows the Payroll sidebar section only to payroll roles
+- configuration screens › creates a component and requires a rate for percentages
+- configuration screens › creates a structure with lines, adds a version and assigns it from the employee profile
+- configuration screens › manages statutory tables with versions and shows the demo label
+- employee compensation tab › needs the financial permission and logs every view
+- employee compensation tab › lists what applies this month and the employee's loans
+- allowance and deduction screens › gives a whole department a one-time bonus that Finance approves
+- allowance and deduction screens › creates bulk entries for the ticked employees
+- allowance and deduction screens › refuses company-wide entries to data-scoped admins
+- loans screens › takes a request on behalf, lets Finance approve with terms and shows the schedule
+- portal and API › lets employees request and follow their own loans in the portal
+- portal and API › serves me/loans to the mobile app with limits, validation and ownership
+
+### `tests/Feature/Payroll/SalaryStructureTest.php` (9)
+
+- versions › adds a version that closes the previous one and keeps both
+- versions › refuses a version that does not start after the latest one
+- versions › validates the lines: no variable components, one basic, bases inside the structure, no cycles, no duplicates
+- assignments › applies the most specific assignment: employee > grade > department chain > branch > company
+- assignments › closes the open assignment of the same target instead of overwriting it
+- assignments › withdraws only assignments that have not taken effect and reopens the previous one
+- assignments › ignores inactive structures
+- basic salary and pay basis › keeps employee_salaries as the only source, with the pay basis carried over and mirrored
+- basic salary and pay basis › splits a period at mid-period salary changes, including scheduled ones
 
 ## Feature/Recruitment
 

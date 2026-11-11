@@ -42,6 +42,7 @@ use App\Models\EmployeeCustomFieldValue;
 use App\Models\EmployeeDocument;
 use App\Models\EmployeeEmergencyContact;
 use App\Models\EmployeeGroup;
+use App\Models\EmployeeLoan;
 use App\Models\EmployeeSalary;
 use App\Models\EmploymentType;
 use App\Models\EvaluationForm;
@@ -59,6 +60,7 @@ use App\Models\LeaveBalanceTransaction;
 use App\Models\LeavePolicy;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Models\LoanChange;
 use App\Models\LoginHistory;
 use App\Models\OffboardingCase;
 use App\Models\OffboardingItem;
@@ -66,15 +68,22 @@ use App\Models\Onboarding;
 use App\Models\OnboardingTask;
 use App\Models\OnboardingTemplate;
 use App\Models\OnboardingTemplateTask;
+use App\Models\PayEntry;
 use App\Models\Position;
 use App\Models\RecruitmentStage;
 use App\Models\Role;
+use App\Models\SalaryComponent;
+use App\Models\SalaryStructure;
+use App\Models\SalaryStructureAssignment;
+use App\Models\SalaryStructureVersion;
 use App\Models\ScheduleAssignment;
 use App\Models\ScheduleChangeRequest;
 use App\Models\ScheduleOverride;
 use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\ShiftBreak;
+use App\Models\StatutoryRuleSet;
+use App\Models\StatutoryRuleVersion;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Vacancy;
@@ -213,6 +222,15 @@ class AppServiceProvider extends ServiceProvider
             'leave_policy' => LeavePolicy::class,
             'leave_request' => LeaveRequest::class,
             'leave_balance_transaction' => LeaveBalanceTransaction::class,
+            'salary_component' => SalaryComponent::class,
+            'salary_structure' => SalaryStructure::class,
+            'salary_structure_version' => SalaryStructureVersion::class,
+            'salary_structure_assignment' => SalaryStructureAssignment::class,
+            'pay_entry' => PayEntry::class,
+            'statutory_rule_set' => StatutoryRuleSet::class,
+            'statutory_rule_version' => StatutoryRuleVersion::class,
+            'employee_loan' => EmployeeLoan::class,
+            'loan_change' => LoanChange::class,
         ]);
     }
 

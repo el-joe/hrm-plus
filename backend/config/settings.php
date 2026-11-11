@@ -71,6 +71,24 @@ return [
         'working_hours_per_day' => ['type' => 'decimal', 'default' => '8.00', 'rules' => ['required', 'decimal:0,2', 'gt:0', 'lte:24']],
         'overtime_rate_multiplier' => ['type' => 'decimal', 'default' => '1.50', 'rules' => ['required', 'decimal:0,2', 'gte:1']],
         'rounding_precision' => ['type' => 'integer', 'default' => 2, 'rules' => ['required', 'integer', 'between:0,4']],
+        // Phase 7a. Country whose statutory rule tables (tax, social insurance) payroll applies (ISO 3166 alpha-2).
+        // Empty: no statutory deduction is calculated until the client confirms the rules (blocker B7).
+        'country_code' => ['type' => 'string', 'default' => '', 'rules' => ['nullable', 'string', 'size:2', 'alpha']],
+    ],
+
+    // Loans and salary advances (Phase 7a): eligibility and limits checked on every request.
+    'loans' => [
+        'employee_requests_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'min_service_months' => ['type' => 'integer', 'default' => 6, 'rules' => ['required', 'integer', 'between:0,120']],
+        'max_active_loans' => ['type' => 'integer', 'default' => 1, 'rules' => ['required', 'integer', 'between:1,10']],
+        // Largest loan as a multiple of the monthly basic salary.
+        'max_loan_salary_multiple' => ['type' => 'decimal', 'default' => '3.00', 'rules' => ['required', 'decimal:0,2', 'gt:0', 'lte:100']],
+        'max_loan_instalments' => ['type' => 'integer', 'default' => 24, 'rules' => ['required', 'integer', 'between:1,120']],
+        // Largest advance as a percentage of the monthly basic salary.
+        'max_advance_percent' => ['type' => 'decimal', 'default' => '50.00', 'rules' => ['required', 'decimal:0,2', 'gt:0', 'lte:100']],
+        'max_advance_instalments' => ['type' => 'integer', 'default' => 1, 'rules' => ['required', 'integer', 'between:1,12']],
+        // A monthly instalment may not exceed this percentage of the monthly basic salary.
+        'max_instalment_percent' => ['type' => 'decimal', 'default' => '25.00', 'rules' => ['required', 'decimal:0,2', 'gt:0', 'lte:100']],
     ],
 
     'leave' => [

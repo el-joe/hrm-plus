@@ -2,15 +2,23 @@
 
 namespace App\Services\Employees;
 
+use App\Enums\SalaryStructureScope;
 use App\Models\Employee;
 use App\Models\EmployeeAssignment;
 use App\Models\EmployeeContract;
+use App\Models\EmployeeLoan;
 use App\Models\EmployeeSalary;
 use App\Models\LeaveRequest;
+use App\Models\PayEntry;
+use App\Models\SalaryStructure;
+use App\Models\SalaryStructureAssignment;
 use App\Models\User;
 use App\Services\Leave\LeaveBalanceCalculator;
 use App\Services\Leave\LeaveYear;
+use App\Services\Payroll\PayEntryResolver;
+use App\Services\Payroll\SalaryStructureResolver;
 use App\Support\SensitiveValue;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -46,6 +54,7 @@ class EmployeeProfile
 
         if ($user->can('viewFinancial', $employee)) {
             $tabs[] = 'financial';
+            $tabs[] = 'compensation';
         }
 
         if ($user->can('leaves.view') || $user->can('leave_balances.view')) {
@@ -74,6 +83,7 @@ class EmployeeProfile
             'contracts' => ['contracts' => $employee->contracts()->with('renewalOf')->orderByDesc('start_date')->get()],
             'documents' => ['documents' => $employee->documents()->with('uploader')->latest('id')->get()],
             'financial' => $this->financial($user, $employee),
+            'compensation' => $this->compensation($user, $employee),
             'leave' => $this->leave($employee),
             'history' => $this->history($user, $employee),
         };
@@ -135,6 +145,34 @@ class EmployeeProfile
             'salaries' => $employee->salaries()->with('creator')->orderByDesc('effective_date')->orderByDesc('id')->get(),
             'bankAccounts' => $employee->bankAccounts()->orderByDesc('is_primary')->orderBy('id')->get(),
             'currency' => (string) setting('localisation.currency_code'),
+        ];
+    }
+
+    /**
+     * Compensation (Phase 7a, employee_financials.view; opening it is logged): the salary
+     * structure in force and its history, the allowances / deductions that apply this month
+     * (after scope precedence) and those addressed to the employee, and loans.
+     *
+     * @return array<string, mixed>
+     */
+    private function compensation(User $user, Employee $employee): array
+    {
+        $this->accessLog->record(SensitiveDataAccessLog::FINANCIAL, $employee, ['basic_salary', 'salary_structure', 'allowances', 'deductions', 'loans'], viewer: $user);
+
+        $today = CarbonImmutable::now();
+        $structures = app(SalaryStructureResolver::class);
+
+        return [
+            'structure' => $structures->for($employee, $today),
+            'structureAssignment' => $structures->assignmentFor($employee, $today->toDateString()),
+            'employeeAssignments' => SalaryStructureAssignment::query()->where('scope_type', SalaryStructureScope::Employee)->where('scope_id', $employee->id)
+                ->with(['structure', 'creator'])->orderByDesc('effective_from')->get(),
+            'applying' => app(PayEntryResolver::class)->for($employee, $today->startOfMonth(), $today->endOfMonth()),
+            'entries' => PayEntry::query()->withoutGlobalScopes()->where('employee_id', $employee->id)->with('component')->latest('id')->limit(30)->get(),
+            'loans' => EmployeeLoan::query()->withoutGlobalScopes()->where('employee_id', $employee->id)->latest('id')->get(),
+            'structuresList' => SalaryStructure::query()->active()->orderBy('code')->get(),
+            'currency' => (string) setting('localisation.currency_code'),
+            'month' => $today->startOfMonth(),
         ];
     }
 

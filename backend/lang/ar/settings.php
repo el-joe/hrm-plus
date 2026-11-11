@@ -11,6 +11,7 @@ return [
         'attendance' => 'الحضور',
         'payroll' => 'الرواتب',
         'leave' => 'الإجازات',
+        'loans' => 'القروض والسلف',
         'notifications' => 'الإشعارات',
         'documents' => 'المستندات',
         'employee_number' => 'رقم الموظف',
@@ -21,6 +22,16 @@ return [
         'face_verification' => 'التحقق بالوجه',
     ],
     'keys' => [
+        'loans' => [
+            'employee_requests_enabled' => 'يمكن للموظفين طلب القروض والسلف',
+            'min_service_months' => 'الحد الأدنى للخدمة (بالأشهر)',
+            'max_active_loans' => 'عدد القروض / السلف المفتوحة لكل موظف',
+            'max_loan_salary_multiple' => 'أكبر قرض (× الراتب الأساسي الشهري)',
+            'max_loan_instalments' => 'أقصى عدد أقساط للقرض',
+            'max_advance_percent' => 'أكبر سلفة (% من الراتب الأساسي الشهري)',
+            'max_advance_instalments' => 'أقصى عدد أقساط للسلفة',
+            'max_instalment_percent' => 'أكبر قسط (% من الراتب الأساسي الشهري)',
+        ],
         'localisation' => [
             'default_locale' => 'اللغة الافتراضية',
             'timezone' => 'المنطقة الزمنية',
@@ -52,6 +63,7 @@ return [
             'working_hours_per_day' => 'ساعات العمل في اليوم',
             'overtime_rate_multiplier' => 'معامل أجر العمل الإضافي',
             'rounding_precision' => 'منازل التقريب العشرية',
+            'country_code' => 'دولة القواعد النظامية (رمز ISO، فارغ = لا شيء)',
         ],
         'leave' => [
             'year_start_month' => 'شهر بداية سنة الإجازات',

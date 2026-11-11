@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RecruitmentDefaultsSeeder::class);
         $this->call(AttendanceDefaultsSeeder::class);
         $this->call(LeaveDefaultsSeeder::class);
+        $this->call(PayrollDefaultsSeeder::class);
 
         if (! app()->isProduction()) {
             $this->call(OrganisationStructureSeeder::class);
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             $this->call(AttendanceDemoSeeder::class);
             $this->call(AttendanceCaptureDemoSeeder::class);
             $this->call(LeaveDemoSeeder::class);
+            $this->call(PayrollDemoSeeder::class);
         }
     }
 }

@@ -84,6 +84,11 @@ return [
     ],
 
     'usage' => [
+        'salary_structure_lines' => '{1} :count salary structure line|[2,*] :count salary structure lines',
+        'pay_entries' => '{1} :count allowance / deduction|[2,*] :count allowances / deductions',
+        'salary_components' => '{1} :count component based on it|[2,*] :count components based on it',
+        'salary_structure_assignments' => '{1} :count assignment|[2,*] :count assignments',
+        'statutory_rule_versions' => '{1} :count version|[2,*] :count versions',
         'leave_policies' => '{1} :count leave policy|[2,*] :count leave policies',
         'leave_requests' => '{1} :count leave request|[2,*] :count leave requests',
         'leave_balance_transactions' => '{1} :count balance entry|[2,*] :count balance entries',

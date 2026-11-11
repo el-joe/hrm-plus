@@ -64,6 +64,12 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::post('leave/requests/{leaveRequest}/attachments', [V1\LeaveController::class, 'addAttachments'])->whereNumber('leaveRequest')->name('leave.requests.attachments.store');
             Route::get('leave/requests/{leaveRequest}/attachments/{attachment}', [V1\LeaveController::class, 'attachment'])
                 ->whereNumber(['leaveRequest', 'attachment'])->name('leave.requests.attachments.show');
+            // Loans and advances (Phase 7a).
+            Route::get('loans', [V1\LoanController::class, 'index'])->name('loans.index');
+            Route::get('loans/limits', [V1\LoanController::class, 'limits'])->name('loans.limits');
+            Route::post('loans', [V1\LoanController::class, 'store'])->name('loans.store');
+            Route::get('loans/{loan}', [V1\LoanController::class, 'show'])->whereNumber('loan')->name('loans.show');
+            Route::post('loans/{loan}/cancel', [V1\LoanController::class, 'cancel'])->whereNumber('loan')->name('loans.cancel');
             Route::post('face/enrol', [V1\FaceController::class, 'enrol'])->middleware('throttle:attendance-checkin')->name('face.enrol');
         });
 

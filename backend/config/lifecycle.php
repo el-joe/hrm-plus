@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Offboarding\GenericHandoverChecklist;
+use App\Services\Payroll\LoanSettlementHandover;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,8 @@ return [
 
     'handover_providers' => [
         GenericHandoverChecklist::class,
+        // Phase 7a: one finance item per open loan / advance (settle in the final pay).
+        LoanSettlementHandover::class,
     ],
 
     /*

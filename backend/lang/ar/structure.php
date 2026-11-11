@@ -83,6 +83,11 @@ return [
     ],
 
     'usage' => [
+        'salary_structure_lines' => '{1} سطر واحد في هيكل رواتب|[2,*] :count أسطر في هياكل الرواتب',
+        'pay_entries' => '{1} بدل / خصم واحد|[2,*] :count بدلات / خصومات',
+        'salary_components' => '{1} مكوّن واحد محسوب منه|[2,*] :count مكونات محسوبة منه',
+        'salary_structure_assignments' => '{1} تعيين واحد|[2,*] :count تعيينات',
+        'statutory_rule_versions' => '{1} إصدار واحد|[2,*] :count إصدارات',
         'leave_policies' => '{1} سياسة إجازات واحدة|[2,*] :count سياسات إجازات',
         'leave_requests' => '{1} طلب إجازة واحد|[2,*] :count طلبات إجازة',
         'leave_balance_transactions' => '{1} حركة رصيد واحدة|[2,*] :count حركات رصيد',

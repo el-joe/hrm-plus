@@ -2,6 +2,7 @@
 
 namespace App\Actions\Employees;
 
+use App\Enums\PayBasis;
 use App\Enums\SalaryChangeType;
 use App\Models\Employee;
 use App\Models\EmployeeSalary;
@@ -10,13 +11,14 @@ use Illuminate\Support\Carbon;
 
 /**
  * A new dated basic salary. The change type (increase / decrease) is derived
- * with bcmath unless the caller names it (promotion, adjustment).
+ * with bcmath unless the caller names it (promotion, adjustment). The pay
+ * basis (monthly / daily / hourly / fixed) carries over unless a new one is given.
  */
 class ChangeEmployeeSalary
 {
     public function __construct(private readonly EmploymentHistory $history) {}
 
-    public function handle(Employee $employee, string $amount, string $effectiveDate, ?string $reason, ?SalaryChangeType $type = null): EmployeeSalary
+    public function handle(Employee $employee, string $amount, string $effectiveDate, ?string $reason, ?SalaryChangeType $type = null, ?PayBasis $payBasis = null): EmployeeSalary
     {
         $type ??= match (true) {
             $employee->basic_salary === null => SalaryChangeType::Initial,
@@ -24,6 +26,6 @@ class ChangeEmployeeSalary
             default => SalaryChangeType::Increase,
         };
 
-        return $this->history->recordSalary($employee, $amount, $type, Carbon::parse($effectiveDate), $reason);
+        return $this->history->recordSalary($employee, $amount, $type, Carbon::parse($effectiveDate), $reason, payBasis: $payBasis);
     }
 }

@@ -111,6 +111,7 @@ return [
         'contracts' => 'Contracts',
         'documents' => 'Documents',
         'financial' => 'Financial',
+        'compensation' => 'Compensation',
         'leave' => 'Leave',
         'history' => 'History',
     ],
@@ -242,7 +243,7 @@ return [
 
     'financial' => [
         'salary' => 'Basic salary',
-        'basic_salary_help' => 'Monthly basic salary in force today. Allowances, deductions, loans and payslips come with payroll.',
+        'basic_salary_help' => 'Basic salary in force today and how it is expressed. Structure, allowances, deductions and loans are on the Compensation tab.',
         'change_salary' => 'Change salary',
         'auto_type' => 'Increase or decrease (automatic)',
         'salary_history' => 'Salary history',
@@ -252,6 +253,8 @@ return [
         'primary' => 'Primary',
         'no_accounts' => 'No bank account recorded',
         'confirm_delete_account' => 'Delete this bank account?',
+        'pay_basis' => 'Pay basis',
+        'pay_basis_keep' => 'Keep current basis',
         'save_failed' => 'The change was not saved',
     ],
 

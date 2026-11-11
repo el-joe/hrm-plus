@@ -1,10 +1,17 @@
 <?php
 
 use App\Actions\Leave\ManageLeaveRequest;
+use App\Actions\Payroll\ManageLoan;
+use App\Actions\Payroll\ManagePayEntry;
+use App\Actions\Payroll\SaveSalaryStructureVersion;
 use App\Enums\AttendanceScope;
 use App\Enums\LeaveRequestSource;
+use App\Enums\LoanSource;
+use App\Enums\PayBasis;
+use App\Enums\PayComponentKind;
 use App\Enums\PunchDirection;
 use App\Enums\RawEventSource;
+use App\Enums\SalaryChangeType;
 use App\Enums\ScheduleType;
 use App\Models\AttendanceDay;
 use App\Models\AttendancePolicy;
@@ -13,12 +20,16 @@ use App\Models\AttendanceRawEvent;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\EmployeeLoan;
 use App\Models\EmploymentType;
 use App\Models\LeavePolicy;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Models\PayEntry;
 use App\Models\Position;
 use App\Models\Role;
+use App\Models\SalaryComponent;
+use App\Models\SalaryStructure;
 use App\Models\ScheduleAssignment;
 use App\Models\Shift;
 use App\Models\User;
@@ -27,11 +38,15 @@ use App\Services\Attendance\AttendanceEngine;
 use App\Services\Attendance\AttendancePolicyResolver;
 use App\Services\Attendance\Data\RawEventData;
 use App\Services\Attendance\RawEventRecorder;
+use App\Services\Employees\EmploymentHistory;
 use App\Services\Leave\LeaveAccrualService;
 use App\Services\Leave\LeaveBalanceCalculator;
+use App\Services\Payroll\Data\CalculationContext;
+use App\Services\Payroll\SalaryRates;
 use Carbon\CarbonImmutable;
 use Database\Seeders\AttendanceDefaultsSeeder;
 use Database\Seeders\LeaveDefaultsSeeder;
+use Database\Seeders\PayrollDefaultsSeeder;
 use Database\Seeders\RecruitmentDefaultsSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Http\UploadedFile;
@@ -318,4 +333,87 @@ function fileLeave(
     return app(ManageLeaveRequest::class)->submit(
         $employee, ['leave_type_id' => $type->id, 'start_date' => $start, 'end_date' => $end ?? $start, ...$data], $source, $by, $attachments, $recordAsApproved,
     );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Payroll helpers (Phase 7a)
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Roles and the payroll approval workflows (payroll_allowance, payroll_deduction,
+ * loan_request, loan_change — one level each).
+ */
+function seedPayroll(): void
+{
+    seedRoles();
+    test()->seed(PayrollDefaultsSeeder::class);
+}
+
+/**
+ * An active employee hired 2024-01-01 with a basic salary recorded through EmploymentHistory.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function paidEmployee(string $salary = '6000.00', PayBasis $basis = PayBasis::Monthly, array $attributes = [], string $from = '2024-01-01'): Employee
+{
+    $employee = attendanceEmployee(['hire_date' => '2024-01-01', 'original_hire_date' => '2024-01-01', ...$attributes]);
+    app(EmploymentHistory::class)->recordSalary($employee, $salary, SalaryChangeType::Initial, CarbonImmutable::parse($from), applyNow: true, payBasis: $basis);
+
+    return $employee->refresh();
+}
+
+/**
+ * A calculation context with rates derived from a monthly salary (30 days, 8 hours unless the settings say otherwise).
+ *
+ * @param  array<string, string>  $quantities
+ * @param  list<array{hours: string, multiplier: string}>  $overtime
+ */
+function payContext(string $basic = '6000', string $factor = '1', array $quantities = [], array $overtime = [], PayBasis $basis = PayBasis::Monthly): CalculationContext
+{
+    $rates = app(SalaryRates::class)->for($basic, $basis);
+
+    return new CalculationContext(bcmul($basic, $factor, 6), $rates['day'], $rates['hour'], $rates['minute'], $factor, $quantities, $overtime);
+}
+
+/**
+ * A structure with version 1 from $from holding the given components (lines: component or [component, overrides]).
+ *
+ * @param  list<SalaryComponent|array{0: SalaryComponent, 1: array<string, mixed>}>  $lines
+ */
+function salaryStructure(string $code, array $lines, string $from = '2024-01-01'): SalaryStructure
+{
+    return app(SaveSalaryStructureVersion::class)->create(
+        ['code' => $code, 'name_ar' => 'هيكل '.$code, 'name_en' => 'Structure '.$code, 'is_active' => true],
+        ['effective_from' => $from, 'lines' => array_map(fn ($line): array => is_array($line)
+            ? ['salary_component_id' => $line[0]->id, ...$line[1]]
+            : ['salary_component_id' => $line->id], $lines)],
+        null,
+    );
+}
+
+/**
+ * Create an allowance / deduction through the real action (by an accountant unless given).
+ *
+ * @param  array<string, mixed>  $data
+ */
+function payEntry(PayComponentKind $kind, SalaryComponent $component, array $data, ?User $by = null): PayEntry
+{
+    return app(ManagePayEntry::class)->create($kind, [
+        'salary_component_id' => $component->id, 'calculation' => 'fixed', 'recurrence' => 'recurring', 'start_date' => '2026-01-01',
+        'reason' => 'Test', ...$data,
+    ], $by ?? adminWithRoles('Payroll Accountant'));
+}
+
+/**
+ * Request a loan / advance through the real action (by the accountant on behalf unless given).
+ *
+ * @param  array<string, mixed>  $data
+ */
+function requestLoan(Employee $employee, array $data = [], ?User $by = null, LoanSource $source = LoanSource::Admin): EmployeeLoan
+{
+    return app(ManageLoan::class)->request($employee, [
+        'type' => 'loan', 'amount' => '6000', 'instalments' => 6, 'start_month' => now()->addMonthNoOverflow()->format('Y-m'), 'reason' => 'Test', ...$data,
+    ], $source, $by ?? adminWithRoles('Payroll Accountant'));
 }

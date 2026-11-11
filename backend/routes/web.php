@@ -240,6 +240,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         // Leave management (Phase 6).
         require __DIR__.'/admin/leave.php';
 
+        // Payroll components: salary structures, allowances, deductions, statutory tables, loans (Phase 7a).
+        require __DIR__.'/admin/payroll.php';
+
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.
         Route::resource('admin-users', Admin\AdminUserController::class);
@@ -304,6 +307,12 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         Route::post('leaves/{leaveRequest}/cancel', [Employee\LeaveController::class, 'cancel'])->whereNumber('leaveRequest')->name('leaves.cancel');
         Route::get('leaves/{leaveRequest}/attachments/{attachment}', [Employee\LeaveController::class, 'attachment'])
             ->whereNumber(['leaveRequest', 'attachment'])->name('leaves.attachments.download');
+
+        // My loans and advances (own record only): limits, requests, schedule (Phase 7a).
+        Route::get('loans', [Employee\LoanController::class, 'index'])->name('loans');
+        Route::post('loans', [Employee\LoanController::class, 'store'])->name('loans.store');
+        Route::get('loans/{loan}', [Employee\LoanController::class, 'show'])->whereNumber('loan')->name('loans.show');
+        Route::post('loans/{loan}/cancel', [Employee\LoanController::class, 'cancel'])->whereNumber('loan')->name('loans.cancel');
 
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');

@@ -28,6 +28,7 @@ import { initScheduleForms } from './pages/schedule-forms';
 import { initScheduleCalendar } from './pages/schedule-calendar';
 import { initAttendanceBulk } from './pages/attendance-bulk';
 import { initLeaveForms, initLeaveReject } from './pages/leave';
+import { initPayrollForms } from './pages/payroll';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -91,6 +92,10 @@ function boot() {
 
     if (document.querySelector('[data-bulk-attendance]')) {
         initAttendanceBulk();
+    }
+
+    if (document.querySelector('select[data-switch], [data-repeater]')) {
+        initPayrollForms();
     }
 }
 

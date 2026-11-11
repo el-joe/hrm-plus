@@ -132,6 +132,7 @@ from `app.js` and guarded by a data-attribute check.
 | `pages/schedule-forms.js` | `form[data-shift-form]`, `[data-work-schedule-form]`, `[data-scope-form]`, `[data-schedule-change-form]` | Shift type fields and break rows, schedule pattern grid length, "applies to" record select, change/swap fields. |
 | `pages/schedule-calendar.js` | `[data-schedule-calendar]` | Opens the day override modal from a calendar cell (cells are links to the day page without JS). |
 | `pages/leave.js` | `form[data-leave-form]` (admin "request on behalf", portal "My leaves"); `#leave-reject-modal` + `[data-leave-reject]` (admin requests queue) | Offers only the day parts the chosen leave type allows (options `data-unit` / `data-units`), hides the end date for partial days and shows hours only for hourly leave, shows the attachment rule of the type. The queue's reject button opens one shared modal (reason required) instead of following its link to the request page. Works without JS (all fields visible; the server validates). |
+| `pages/payroll.js` | `select[data-switch="group"]` + `[data-show-for="a b"]` (`data-switch-group`, `data-hide-when="group:value"`); `[data-repeater]` with `[data-repeater-rows]`, `<template data-repeater-template>` (`__INDEX__`), `[data-repeater-add]`, `[data-repeater-remove]` | Payroll forms (Phase 7a): shows only the fields the chosen calculation / recurrence / target uses (hidden fields are disabled, so not submitted); adds and removes structure lines and tax brackets. A bare `data-switch` (rendered by Blade as `data-switch="data-switch"`) is the default group. Works without JS (all fields visible, a few empty rows rendered; the server keeps only what the choice uses). |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes
@@ -177,6 +178,14 @@ Balances are never computed in Blade: they come from `App\Services\Leave\LeaveBa
 are defined once in `App\Services\Leave\LeaveReports` (columns, query, row) and rendered generically by `reports/show`. The
 calendar is server-rendered like the schedule calendar; its scroll container is `relative` so `sr-only` labels inside cells
 do not widen the page.
+
+**Payroll component screens (Phase 7a)** — `admin/payroll/*` (components, structures, entries for both allowances and
+deductions — one set of views, `$resource` = `allowances` | `deductions`, statutory, loans), the profile tab
+`admin/employees/tabs/compensation` and `employee/loans/*`. Partials: `_money` (DECIMAL + currency, LTR), `_request-status`
+(entry / change status), `_loan-status`, `_demo` (the "DEMO — not legal advice" badge — show it wherever a demo statutory
+table appears), `_approval-history`, `_target-fields` (applies-to select + one record select per target), `entries/_fields`,
+`entries/_value`, `loans/_request-fields` (shared by admin and portal), `loans/_limits`, `structures/_lines` + `_line`,
+`statutory/_bracket`. Amounts are never computed in Blade or JS: they come from `App\Services\Payroll\*` (bcmath strings).
 
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.

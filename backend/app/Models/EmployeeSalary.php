@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PayBasis;
 use App\Enums\SalaryChangeType;
 use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * One effective-dated basic salary (DECIMAL, bcmath only). Sensitive: shown
  * with employee_financials.view only, and every view is logged.
  */
-#[Fillable(['employee_id', 'change_type', 'effective_date', 'basic_salary', 'previous_salary', 'currency', 'reason', 'applied_at', 'cancelled_at', 'created_by'])]
+#[Fillable(['employee_id', 'change_type', 'effective_date', 'basic_salary', 'pay_basis', 'previous_salary', 'currency', 'reason', 'applied_at', 'cancelled_at', 'created_by'])]
 class EmployeeSalary extends Model
 {
     use Auditable;
@@ -35,6 +36,7 @@ class EmployeeSalary extends Model
             'effective_date' => 'date',
             'basic_salary' => 'decimal:2',
             'previous_salary' => 'decimal:2',
+            'pay_basis' => PayBasis::class,
             'applied_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];

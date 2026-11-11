@@ -23,6 +23,7 @@ it('shows every sidebar entry to a Super Admin', function () {
         'attendance_devices', 'attendance_work_locations', 'face_enrolments',
         'schedule_calendar', 'shifts', 'work_schedules', 'schedule_assignments', 'schedule_changes', 'holidays', 'attendance_policies', 'attendance_statuses',
         'leave_requests', 'leave_calendar', 'leave_balances', 'leave_reports', 'leave_types', 'leave_policies',
+        'loans', 'allowances', 'deductions', 'salary_structures', 'salary_components', 'statutory_rules',
         'company', 'org_chart', 'branches', 'departments', 'teams', 'positions', 'job_titles', 'job_grades', 'employment_types', 'cost_centers',
         'admin_users', 'roles', 'audit_logs', 'settings', 'ui_kit',
     ]);

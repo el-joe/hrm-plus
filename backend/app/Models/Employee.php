@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\EmployeeStatus;
 use App\Enums\Gender;
 use App\Enums\MaritalStatus;
+use App\Enums\PayBasis;
 use App\Enums\TerminationType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
@@ -35,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'national_id', 'passport_number', 'passport_expiry_date', 'email', 'personal_email', 'phone', 'alternate_phone',
     'address', 'city', 'country_code', 'probation_end_date',
 ])]
-#[Hidden(['national_id', 'national_id_hash', 'passport_number', 'passport_number_hash', 'basic_salary'])]
+#[Hidden(['national_id', 'national_id_hash', 'passport_number', 'passport_number_hash', 'basic_salary', 'pay_basis'])]
 class Employee extends Model
 {
     /** @use HasFactory<EmployeeFactory> */
@@ -92,6 +93,7 @@ class Employee extends Model
             'national_id' => 'encrypted',
             'passport_number' => 'encrypted',
             'basic_salary' => 'decimal:2',
+            'pay_basis' => PayBasis::class,
             'eligible_for_rehire' => 'boolean',
         ];
     }
@@ -392,6 +394,26 @@ class Employee extends Model
     public function leaveRequests(): HasMany
     {
         return $this->hasMany(LeaveRequest::class);
+    }
+
+    /**
+     * Loans and salary advances (Phase 7a).
+     *
+     * @return HasMany<EmployeeLoan, $this>
+     */
+    public function loans(): HasMany
+    {
+        return $this->hasMany(EmployeeLoan::class);
+    }
+
+    /**
+     * Allowances and deductions addressed to this employee only (Phase 7a).
+     *
+     * @return HasMany<PayEntry, $this>
+     */
+    public function payEntries(): HasMany
+    {
+        return $this->hasMany(PayEntry::class);
     }
 
     /**

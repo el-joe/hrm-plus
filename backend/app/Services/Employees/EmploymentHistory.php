@@ -5,6 +5,7 @@ namespace App\Services\Employees;
 use App\Enums\AccountType;
 use App\Enums\AssignmentChangeType;
 use App\Enums\EmployeeStatus;
+use App\Enums\PayBasis;
 use App\Enums\SalaryChangeType;
 use App\Enums\UserStatus;
 use App\Events\EmployeeTerminated;
@@ -97,12 +98,15 @@ class EmploymentHistory
         CarbonInterface $effectiveDate,
         ?string $reason = null,
         bool $applyNow = false,
+        ?PayBasis $payBasis = null,
     ): EmployeeSalary {
-        return DB::transaction(function () use ($employee, $amount, $type, $effectiveDate, $reason, $applyNow): EmployeeSalary {
+        return DB::transaction(function () use ($employee, $amount, $type, $effectiveDate, $reason, $applyNow, $payBasis): EmployeeSalary {
             $salary = $employee->salaries()->create([
                 'change_type' => $type,
                 'effective_date' => $effectiveDate->toDateString(),
                 'basic_salary' => bcadd($amount, '0', 2),
+                // The basis of the previous salary carries over unless a new one is given (Phase 7a).
+                'pay_basis' => $payBasis ?? $employee->pay_basis ?? PayBasis::Monthly,
                 'previous_salary' => $employee->basic_salary,
                 'currency' => (string) setting('localisation.currency_code'),
                 'reason' => $reason,
@@ -239,6 +243,7 @@ class EmploymentHistory
             ->first();
 
         $employee->basic_salary = $latest?->basic_salary;
+        $employee->pay_basis = $latest?->pay_basis;
         $employee->save();
     }
 

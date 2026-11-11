@@ -175,3 +175,29 @@ Scheduled commands added: `leave:rollover` (00:30, opens the new leave year once
 (`php artisan queue:work`); future days are processed by the nightly `attendance:process`. Phase 6 added the permission modules
 `leave_types.*`, `leave_policies.*` and `leave_balances.*` (leave requests keep the existing `leaves.*`) — run
 `php artisan permissions:sync` on existing databases.
+
+## Payroll components demo data (Phase 7a)
+
+`PayrollDefaultsSeeder` (every environment) creates the approval workflows `payroll_allowance`
+(step: `allowances.approve`), `payroll_deduction` (`deductions.approve`), `loan_request` and `loan_change`
+(`loans.approve`). No component, structure or statutory rate is seeded in production (blocker B7).
+
+`PayrollDemoSeeder` (not in production) then adds, through the real actions:
+
+| What | Details |
+|---|---|
+| Setting | `payroll.country_code = EG` so the demo statutory tables apply |
+| Components | BASIC, HOUSING (25 % of basic), TRANSPORT (500), MEAL, PERF_BONUS (variable, **needs approval**), COMMISSION, OVERTIME (attendance-policy multipliers), LATE / EARLY (per minute), ABSENCE (per day), UNPAID (per unpaid-leave day), PENALTY (variable, **needs approval**), RECOVERY, SI_EMP / SI_ER (social insurance), TAX |
+| Statutory tables | `DEMO-SI-EG` (2 versions) and `DEMO-TAX-EG` — flagged **"DEMO — not legal advice"**, made-up round numbers, active so 7b can calculate in development |
+| Structures | **STD** (company; v1 2024, v2 from 2026-07-01 with transport 600), **MGT** (grades G6–G8: housing 30 %, transport 1000, no overtime), **OPS** (branch ALX: housing 20 %, transport 750); **employee2@**'s profile (EMP-00015) gets MGT from next month |
+| Basic salaries | Unchanged: the 60 employees keep their `employee_salaries` history (pay basis *monthly*) |
+| Allowances | Branch ALX meal allowance + an employee override (precedence), a one-time performance bonus for department SAL-CAI approved by finance.officer@, a bulk 5 % commission batch for five Cairo sales staff, a **pending** performance bonus (approve as finance.officer@ or hr.manager@) |
+| Deductions | An approved penalty, a 4-month instalment recovery, a **pending** 2 % penalty |
+| Loans | LN-…01 **employee2@** active since June (2 instalments deducted), LN-…02 **employee1@** pending (portal), ADV-…01 **employee3@** advance repaid early, LN-…03 rejected, ADV-…02 withdrawn, LN-…04 active with a **pending reschedule** request |
+
+Who does what: **payroll.accountant@** configures components, structures and statutory tables, files
+allowances / deductions (single, bulk, Excel import) and loans on behalf, records repayments and final settlements;
+**finance.officer@** (and **hr.manager@**) approve entries and loans. The employee profile tab *Compensation*
+needs `employee_financials.view` (every view logged). Employees use the portal *My loans* or `GET/POST /api/v1/me/loans`.
+Phase 7a added the permissions `salary_components.*`, `salary_structures.*`, `allowances.*`, `deductions.*` and
+`statutory_rules.*` — run `php artisan permissions:sync` on existing databases.

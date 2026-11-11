@@ -1,11 +1,14 @@
 {{--
     Financial tab (employee_financials.view; opening it is logged). Variables: $employee, $salaries, $bankAccounts, $currency.
-    Allowances, deductions, loans, advances and payroll history are added by the payroll module.
+    Structure, allowances, deductions and loans are on the Compensation tab (Phase 7a).
 --}}
 @php($canEdit = auth()->user()->can('updateFinancial', $employee))
 <div class="grid gap-4 lg:grid-cols-3 lg:gap-6">
     <x-card :title="__('employees.financial.salary')" data-region="salary">
         <p class="text-numeric-xl text-text-primary" dir="ltr">{{ App\Support\Money::format($employee->basic_salary) }} <span class="text-body-md text-text-tertiary">{{ $currency }}</span></p>
+        @if ($employee->pay_basis)
+            <p class="mt-1"><x-badge tone="info">{{ __('employees.financial.pay_basis') }}: {{ $employee->pay_basis->label() }}</x-badge></p>
+        @endif
         <p class="mt-1 text-caption-md text-text-tertiary">{{ __('employees.financial.basic_salary_help') }}</p>
         @if ($canEdit)
             <x-button type="button" variant="secondary" size="sm" icon="pencil" class="mt-4" data-modal-open="change-salary" hidden data-js-only>{{ __('employees.financial.change_salary') }}</x-button>
@@ -35,6 +38,7 @@
                     </x-table.td>
                     <x-table.td :label="__('employees.fields.change_type')">
                         {{ $salary->change_type->label() }}
+                        <span class="block text-caption-md text-text-tertiary">{{ $salary->pay_basis->label() }}</span>
                         @if ($salary->isPending())
                             <x-badge tone="info">{{ __('employees.history.scheduled') }}</x-badge>
                         @elseif ($salary->cancelled_at)
@@ -125,6 +129,12 @@
                 :label="__('employees.fields.basic_salary').' ('.$currency.')'" :value="old('basic_salary', $employee->basic_salary)" />
             <x-form.input name="effective_date" type="date" required :label="__('employees.fields.effective_date')" :value="old('effective_date', now()->toDateString())"
                 :help="__('employees.form.effective_help')" />
+            <x-form.select name="pay_basis" :label="__('employees.financial.pay_basis')">
+                <option value="">{{ __('employees.financial.pay_basis_keep') }}{{ $employee->pay_basis ? ' ('.$employee->pay_basis->label().')' : '' }}</option>
+                @foreach (App\Enums\PayBasis::cases() as $basis)
+                    <option value="{{ $basis->value }}" @selected(old('pay_basis') === $basis->value)>{{ $basis->label() }}</option>
+                @endforeach
+            </x-form.select>
             <x-form.select name="change_type" :label="__('employees.fields.change_type')">
                 <option value="">{{ __('employees.financial.auto_type') }}</option>
                 @foreach ([App\Enums\SalaryChangeType::Promotion, App\Enums\SalaryChangeType::Adjustment] as $type)

@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-11 · Status: **Phases 0–6 complete (6: leave management — tests written, not run yet); Phase 7 next**
+Last updated: 2026-11-12 · Status: **Phases 0–6 complete (6: leave management — tests written, not run yet); Phase 7a (payroll components) done — tests written, not run; Phase 7b (runs, payslips) next**
 
 ---
 
@@ -178,12 +178,14 @@ Must finish before any UI code is written.
 
 **Notes for Phase 7 (payroll).** Read leave only through `App\Services\Leave\LeavePayrollFeed`: `unpaidDays($employee, $from, $to)` (bcmath days of taken leave of types flagged *deduct from payroll*, dated in the period), `unpaidBreakdown()` (per date / type / request) and `encashments()` (encashment ledger rows to pay, positive days). Amounts are days (half days 0.5; hours as a fraction of the scheduled day) — payroll applies its own day rate. A cancellation approved after a period is finalised removes the days from the feed: payroll must treat the difference as a correction of the locked period. Paid leave needs no deduction; attendance `on_leave` days are not absences.
 
-### Phase 7 — Payroll engine · XL · critical
-- [ ] Salary structures and components (monthly, daily, hourly, fixed), effective-dated, with change history
-- [ ] Allowance types: fixed or percentage, recurring or one-time, scoped to employee, department or branch, with start and end dates and payroll treatment
-- [ ] Deduction types: fixed, percentage, recurring, one-time, instalment; approval and supporting documents
-- [ ] Statutory rule tables by country and effective date; no hard-coded rates
-- [ ] Loans and advances: request, approval, instalment schedule, automatic deduction, early repayment, settlement
+### Phase 7 — Payroll engine · XL · critical · **7a done** (components; tests written, not run), 7b next
+- [x] Salary structures and components (monthly, daily, hourly, fixed), effective-dated, with change history *(7a: component catalogue with a closed list of rule types — fixed, % of basic or of another component (chains, no cycles), variable, per late / early minute, per absent day, overtime hours × policy multiplier, per unpaid-leave day, statutory; taxable / insurable / prorate / approval / payslip order / rounding. `employee_salaries` stays the only basic-salary source and gains `pay_basis` (monthly / daily / hourly / fixed, mirrored on `employees`). Structures → versions (never edited; a new version closes the previous one) → lines with overrides; assignments to employee / job grade / department (up the tree) / branch / company, effective-dated, precedence in that order)*
+- [x] Allowance types: fixed or percentage, recurring or one-time, scoped to employee, department or branch, with start and end dates and payroll treatment *(7a: `pay_entries` kind earning — also employee group and company; precedence employee > group > department > branch > company per component; taxable / insurable / prorate overrides; approval when the component requires it (`payroll_allowance`); bulk to ticked employees (one batch) and Excel / CSV import with dry run; cancel (not started) / stop (running) — approved entries are never edited)*
+- [x] Deduction types: fixed, percentage, recurring, one-time, instalment; approval and supporting documents *(7a: same table, kind deduction; reason required; instalment plans (last instalment takes the remainder); `payroll_deduction` workflow; documents on the private disk; nullable `source` morph for disciplinary actions later)*
+- [x] Statutory rule tables by country and effective date; no hard-coded rates *(7a: rule sets (country, income tax / social insurance, demo flag) → versions (rates, floor / ceiling, annual exemption) → tax brackets; versions never edited; setting `payroll.country_code` (empty by default = none); dev seed has two DEMO tables labelled "DEMO — not legal advice" with made-up rates; `StatutoryCalculator` applies them)*
+- [x] Loans and advances: request, approval, instalment schedule, automatic deduction, early repayment, settlement *(7a: portal, API `me/loans`, admin on behalf; limits in Settings → Loans; `loan_request` workflow with approved terms; schedule + append-only ledger; `LoanInstalments::dueFor()` / `markDeducted()` / `reverseDeduction()` for 7b; early repayment (last instalments first); skip / reschedule through `loan_change`; offboarding handover item + "recover in final pay")*
+- [x] Read API for the engine *(7a: `PayrollInputs::for($employee, $from, $to)` → value objects with exact DECIMAL strings + `toArray()` snapshot; `ComponentCalculator`, `SalaryRates`, `Proration`, `StatutoryCalculator`; contract in `backend/docs/PAYROLL_ENGINE.md`)*
+- [x] Tests (7a, written, NOT run): `tests/Feature/Payroll/ComponentCalculationTest.php`, `SalaryStructureTest.php`, `PayEntryTest.php`, `LoanTest.php`, `PayrollInputsTest.php`, `PayrollScreensTest.php`
 - [ ] Payroll periods (monthly and custom) and runs: draft → calculate → recalculate → review → approve → finalise → lock
 - [ ] **Settlement scoping** by branch, department, team, position, group, individuals, or whole company; per-branch or consolidated runs
 - [ ] Per-employee calculation breakdown screen

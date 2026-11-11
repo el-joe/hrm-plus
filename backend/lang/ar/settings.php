@@ -58,6 +58,9 @@ return [
             'allow_half_day' => 'السماح بإجازة نصف يوم',
             'allow_negative_balance' => 'السماح برصيد سالب',
             'count_weekends_as_leave' => 'احتساب أيام الراحة الأسبوعية ضمن الإجازة',
+            'max_past_days' => 'الحد الأقصى لطلب إجازة بتاريخ سابق (أيام)',
+            'cancel_before_start_directly' => 'إلغاء الإجازة المعتمدة قبل بدئها دون موافقة',
+            'calendar_conflict_threshold' => 'تقويم الإجازات: تنبيه عند غياب هذا العدد من القسم نفسه',
         ],
         'notifications' => [
             'email_enabled' => 'إرسال إشعارات البريد الإلكتروني',

@@ -6,7 +6,10 @@ use App\Models\Employee;
 use App\Models\EmployeeAssignment;
 use App\Models\EmployeeContract;
 use App\Models\EmployeeSalary;
+use App\Models\LeaveRequest;
 use App\Models\User;
+use App\Services\Leave\LeaveBalanceCalculator;
+use App\Services\Leave\LeaveYear;
 use App\Support\SensitiveValue;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -45,6 +48,10 @@ class EmployeeProfile
             $tabs[] = 'financial';
         }
 
+        if ($user->can('leaves.view') || $user->can('leave_balances.view')) {
+            $tabs[] = 'leave';
+        }
+
         $tabs[] = 'history';
 
         return array_map(fn (string $tab): array => [
@@ -67,6 +74,7 @@ class EmployeeProfile
             'contracts' => ['contracts' => $employee->contracts()->with('renewalOf')->orderByDesc('start_date')->get()],
             'documents' => ['documents' => $employee->documents()->with('uploader')->latest('id')->get()],
             'financial' => $this->financial($user, $employee),
+            'leave' => $this->leave($employee),
             'history' => $this->history($user, $employee),
         };
     }
@@ -127,6 +135,22 @@ class EmployeeProfile
             'salaries' => $employee->salaries()->with('creator')->orderByDesc('effective_date')->orderByDesc('id')->get(),
             'bankAccounts' => $employee->bankAccounts()->orderByDesc('is_primary')->orderBy('id')->get(),
             'currency' => (string) setting('localisation.currency_code'),
+        ];
+    }
+
+    /**
+     * Leave balances of the current leave year and the latest requests (Phase 6).
+     *
+     * @return array<string, mixed>
+     */
+    private function leave(Employee $employee): array
+    {
+        $years = app(LeaveYear::class);
+
+        return [
+            'leaveYear' => $years->label($years->current()),
+            'balances' => app(LeaveBalanceCalculator::class)->all($employee),
+            'leaveRequests' => LeaveRequest::query()->where('employee_id', $employee->id)->with('leaveType')->latest('start_date')->limit(20)->get(),
         ];
     }
 

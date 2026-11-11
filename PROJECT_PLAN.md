@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-11 · Status: **Phases 0–5 complete (5a attendance core, 5b capture & visibility); Phase 6 next**
+Last updated: 2026-11-11 · Status: **Phases 0–6 complete (6: leave management — tests written, not run yet); Phase 7 next**
 
 ---
 
@@ -166,13 +166,17 @@ Must finish before any UI code is written.
 - [x] Attendance dashboard, calendar, daily and monthly views, reports *(5b: dashboard, attendance calendar (employee grid / team matrix), 7 reports with Excel/CSV export; CSS bars, no chart library)*
 - [x] Tests: device event processing, duplicate prevention, bulk attendance, geofence validation, face provider boundary, shift calculations; scenarios 2 (server side) and 3 *(5b test files written but NOT run yet at the user's request: `AttendanceDeviceTest`, `MobileAttendanceTest` (incl. scenario 2 end-to-end), `FaceVerificationTest`, `AttendanceDashboardReportsTest`)*
 
-### Phase 6 — Leave management · M
-- [ ] Leave types, effective-dated policies per employment type or group, eligibility
-- [ ] Accrual, annual balance, carry-over, maximums, balance adjustments
-- [ ] Requests with attachments, multi-level approval, rejection reasons, cancellation requests
-- [ ] Calendars by company, branch, department; leave history
-- [ ] Feed approved leave into attendance and unpaid leave into payroll
-- [ ] Tests: balance calculations, approvals
+### Phase 6 — Leave management · M · **done** (tests written, not run yet — user decision)
+- [x] Leave types, effective-dated policies per employment type or group, eligibility *(bilingual types: paid / unpaid + "deduct from payroll", balance or not, unit day / half day / hour, attachment above N days, gender, minimum service, times per employment (Hajj), max days per request, notice, past dates, counting of rest days / holidays, approval workflow per type, attendance day status, colour. Policies per type for the company / an employment type / an employee group (group > employment type > company), `effective_from` / `effective_to`; saving a newer one closes the open one (`SaveLeavePolicy`); "new version" action. Marital-status / religion eligibility not built — the spec does not ask for it)*
+- [x] Accrual, annual balance, carry-over, maximums, balance adjustments *(append-only ledger `leave_balance_transactions` (accrual, usage, reversal, adjustment, carry-over, expiry, encashment; DECIMAL + bcmath; reference keys make automatic rows idempotent). Accrual methods: yearly up front, monthly, pro rata in the hire year, service-year tiers (topped up when a tier is reached). Ceiling, negative balance with limit, carry-over maximum + expiry (FIFO against leave taken), encashment flag/limit. `leave:accrue` daily, `leave:rollover` daily (acts once per leave year). Manual adjustments / encashments with reason, audited. Balance = ledger sum; available = balance − pending requests; future leave years count their projected entitlement)*
+- [x] Requests with attachments, multi-level approval, rejection reasons, cancellation requests *(portal, API and admin on behalf (optionally "record as approved" with `leaves.manage`); working days from `ScheduleResolver` + holidays, half days, hours as a fraction of the scheduled day; overlap prevention (two halves allowed); notice / past-date / per-request / attachment / eligibility / balance checks; approval engine with the type's workflow (default two levels: manager in scope → HR), self-approval and deciding one's own leave blocked; rejection reason mandatory; cancellation: pending or not-yet-started approved leave at once, started leave through the `leave_cancellation` workflow; database + mail notifications to approvers and the employee)*
+- [x] Calendars by company, branch, department; leave history *(admin leave calendar (month grid, filters, "my team" = direct reports, only-away, holidays, rest days, pending vs approved, people away per day, department conflict hint ≥ setting); conflicts on the request page; history on the balance page, the employee profile *Leave* tab and the portal)*
+- [x] Feed approved leave into attendance and unpaid leave into payroll *(`ApprovedLeaveProvider` bound to `LeaveProvider`: counted days of approved / cancellation-pending requests → `on_leave` (with the type's day status, e.g. *Sick leave*), partial days → half-day leave flag; approve / cancel queue `AttendanceRecalculation` for past dates. `LeavePayrollFeed::unpaidDays()`, `unpaidBreakdown()`, `encashments()` for Phase 7)*
+- [x] Admin screens and reports *(types, policies, requests queue with inline approve / reject, request page (days, attachments, approval history, team conflicts, balance), balances list + employee breakdown + ledger + adjustments, calendar, reports: balances, requests, usage by type, usage by department, upcoming, on leave — Excel / CSV export; portal *My leaves* + home "remaining leave"; API `me/leave/*`)*
+- [x] Tests *(written, NOT run: `tests/Feature/Leave/LeaveBalanceTest.php`, `LeaveRequestTest.php`, `LeaveScreensTest.php`; `AdminNavigationTest` and `EmployeeCrudTest` updated for the new sidebar section and profile tab)*
+- [x] Small fixes from the project lead: dev-seed company timezone `Africa/Cairo` (setting `localisation.timezone`, set by `OrganisationStructureSeeder`); face verification default **optional** (setting default + column default of `attendance_policy_versions.face_verification_mode`; seeded policies follow). Also fixed: approval listeners read the deciding action with `reorder()` (the `actions` relation is ordered ascending, so the attendance listener recorded the submitter as `decided_by`).
+
+**Notes for Phase 7 (payroll).** Read leave only through `App\Services\Leave\LeavePayrollFeed`: `unpaidDays($employee, $from, $to)` (bcmath days of taken leave of types flagged *deduct from payroll*, dated in the period), `unpaidBreakdown()` (per date / type / request) and `encashments()` (encashment ledger rows to pay, positive days). Amounts are days (half days 0.5; hours as a fraction of the scheduled day) — payroll applies its own day rate. A cancellation approved after a period is finalised removes the days from the feed: payroll must treat the difference as a correction of the locked period. Paid leave needs no deduction; attendance `on_leave` days are not absences.
 
 ### Phase 7 — Payroll engine · XL · critical
 - [ ] Salary structures and components (monthly, daily, hourly, fixed), effective-dated, with change history

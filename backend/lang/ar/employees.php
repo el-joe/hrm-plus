@@ -111,6 +111,7 @@ return [
         'contracts' => 'العقود',
         'documents' => 'المستندات',
         'financial' => 'البيانات المالية',
+        'leave' => 'الإجازات',
         'history' => 'السجل',
     ],
 

@@ -84,6 +84,9 @@ return [
     ],
 
     'usage' => [
+        'leave_policies' => '{1} :count leave policy|[2,*] :count leave policies',
+        'leave_requests' => '{1} :count leave request|[2,*] :count leave requests',
+        'leave_balance_transactions' => '{1} :count balance entry|[2,*] :count balance entries',
         'departments' => '{1} :count department|[2,*] :count departments',
         'child_departments' => '{1} :count sub-department|[2,*] :count sub-departments',
         'teams' => '{1} :count team|[2,*] :count teams',

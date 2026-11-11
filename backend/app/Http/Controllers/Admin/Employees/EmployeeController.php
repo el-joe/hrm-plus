@@ -27,7 +27,7 @@ class EmployeeController extends Controller
 {
     public const PER_PAGE = 25;
 
-    public const TABS = ['personal', 'employment', 'contracts', 'documents', 'financial', 'history'];
+    public const TABS = ['personal', 'employment', 'contracts', 'documents', 'financial', 'leave', 'history'];
 
     public function index(Request $request, EmployeeDirectory $directory, EmployeeFormOptions $options): View
     {
@@ -80,6 +80,7 @@ class EmployeeController extends Controller
 
         abort_if($tab === 'financial' && ! $request->user()->can('viewFinancial', $employee), 403);
         abort_if($tab === 'documents' && ! $request->user()->can('viewDocuments', $employee), 403);
+        abort_if($tab === 'leave' && ! $request->user()->can('leaves.view') && ! $request->user()->can('leave_balances.view'), 403);
 
         return view('admin.employees.show', [
             'employee' => $employee,

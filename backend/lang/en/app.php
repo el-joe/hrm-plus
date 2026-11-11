@@ -43,7 +43,15 @@ return [
     ],
     'nav' => [
         'ui_kit' => 'UI kit',
+        'leave_requests' => 'Leave requests',
+        'leave_calendar' => 'Leave calendar',
+        'leave_balances' => 'Leave balances',
+        'leave_reports' => 'Leave reports',
+        'leave_types' => 'Leave types',
+        'leave_policies' => 'Leave policies',
+        'my_leaves' => 'My leaves',
         'sections' => [
+            'leave' => 'Leave',
             'attendance_capture' => 'Attendance capture',
             'attendance' => 'Attendance',
             'scheduling' => 'Shifts & schedules',

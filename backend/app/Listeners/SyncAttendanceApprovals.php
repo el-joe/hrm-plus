@@ -26,7 +26,7 @@ class SyncAttendanceApprovals
         $request = $event->approvalRequest;
         $record = $this->scopes->withoutScoping(fn () => $request->approvable()->getResults());
         $approved = $event instanceof ApprovalRequestApproved;
-        $decidedBy = User::query()->find($request->actions()->latest('id')->value('acted_by'));
+        $decidedBy = User::query()->find($request->actions()->reorder()->latest('id')->value('acted_by'));
 
         $this->scopes->withoutScoping(function () use ($record, $approved, $decidedBy): void {
             match (true) {

@@ -55,6 +55,10 @@ use App\Models\JobApplication;
 use App\Models\JobGrade;
 use App\Models\JobOffer;
 use App\Models\JobTitle;
+use App\Models\LeaveBalanceTransaction;
+use App\Models\LeavePolicy;
+use App\Models\LeaveRequest;
+use App\Models\LeaveType;
 use App\Models\LoginHistory;
 use App\Models\OffboardingCase;
 use App\Models\OffboardingItem;
@@ -78,8 +82,8 @@ use App\Models\WorkSchedule;
 use App\Models\WorkScheduleDay;
 use App\Policies\AdminUserPolicy;
 use App\Services\Attendance\Contracts\LeaveProvider;
-use App\Services\Attendance\NullLeaveProvider;
 use App\Services\Authorization\DataScopeManager;
+use App\Services\Leave\ApprovedLeaveProvider;
 use App\Support\Navigation\NavigationBuilder;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -105,9 +109,8 @@ class AppServiceProvider extends ServiceProvider
         // whose data scopes are currently being enforced.
         $this->app->scoped(DataScopeManager::class);
 
-        // Approved leave reaches the attendance engine through this hook; the
-        // leave module (Phase 6) replaces the null implementation.
-        $this->app->bind(LeaveProvider::class, NullLeaveProvider::class);
+        // Approved leave reaches the attendance engine through this hook (Phase 6).
+        $this->app->bind(LeaveProvider::class, ApprovedLeaveProvider::class);
     }
 
     /**
@@ -206,6 +209,10 @@ class AppServiceProvider extends ServiceProvider
             'face_consent' => FaceConsent::class,
             'face_enrolment' => FaceEnrolment::class,
             'face_verification' => FaceVerification::class,
+            'leave_type' => LeaveType::class,
+            'leave_policy' => LeavePolicy::class,
+            'leave_request' => LeaveRequest::class,
+            'leave_balance_transaction' => LeaveBalanceTransaction::class,
         ]);
     }
 
@@ -233,6 +240,10 @@ class AppServiceProvider extends ServiceProvider
         // Attendance reports (Phase 5b): attendance staff and report viewers.
         Gate::define('viewAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.view') || $user->can('reports.view')));
         Gate::define('exportAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.export') || $user->can('reports.export')));
+
+        // Leave reports (Phase 6): leave staff and report viewers.
+        Gate::define('viewLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.view') || $user->can('reports.view')));
+        Gate::define('exportLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.export') || $user->can('reports.export')));
 
         Gate::before(function (User $user, string $ability): ?bool {
             return str_contains($ability, '.') && $user->isSuperAdmin() ? true : null;

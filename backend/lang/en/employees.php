@@ -111,6 +111,7 @@ return [
         'contracts' => 'Contracts',
         'documents' => 'Documents',
         'financial' => 'Financial',
+        'leave' => 'Leave',
         'history' => 'History',
     ],
 

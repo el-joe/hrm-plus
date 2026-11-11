@@ -58,6 +58,9 @@ return [
             'allow_half_day' => 'Allow half-day leave',
             'allow_negative_balance' => 'Allow negative balance',
             'count_weekends_as_leave' => 'Count weekly days off inside a leave',
+            'max_past_days' => 'Past dates employees may request (days)',
+            'cancel_before_start_directly' => 'Cancel approved leave before it starts without approval',
+            'calendar_conflict_threshold' => 'Leave calendar: flag a department when this many are away',
         ],
         'notifications' => [
             'email_enabled' => 'Send email notifications',

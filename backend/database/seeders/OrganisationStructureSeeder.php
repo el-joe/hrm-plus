@@ -11,6 +11,7 @@ use App\Models\JobGrade;
 use App\Models\JobTitle;
 use App\Models\Position;
 use App\Models\Team;
+use App\Services\Settings\SettingsService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -23,6 +24,10 @@ class OrganisationStructureSeeder extends Seeder
     public function run(): void
     {
         $this->company();
+
+        // The demo company is in Egypt: its timezone matches the branches (Africa/Cairo),
+        // so "today" on the dashboards is Cairo's today.
+        app(SettingsService::class)->set('localisation.timezone', 'Africa/Cairo');
 
         $grades = $this->jobGrades();
         $titles = $this->jobTitles();

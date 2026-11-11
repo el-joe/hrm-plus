@@ -25,3 +25,7 @@ Schedule::command('attendance:process --pending')->everyTenMinutes()->withoutOve
 // biometric retention purge.
 Schedule::command('attendance:sync-devices')->everyFiveMinutes()->withoutOverlapping()->onOneServer();
 Schedule::command('face:purge')->dailyAt('02:15')->withoutOverlapping()->onOneServer();
+// Leave (Phase 6): open the new leave year (rolls each balance once; a no-op on other days), then
+// credit entitlements due today and expire carried-over days past their expiry date.
+Schedule::command('leave:rollover')->dailyAt('00:30')->withoutOverlapping()->onOneServer();
+Schedule::command('leave:accrue')->dailyAt('00:40')->withoutOverlapping()->onOneServer();

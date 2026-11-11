@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-11 by reading the Pest files in `backend/tests` (nothing was executed).
-**54 files, 440 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**57 files, 492 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -24,6 +24,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Authorization | 4 | 32 |
 | Feature/Employees | 9 | 73 |
 | Feature/Frontend | 4 | 16 |
+| Feature/Leave | 3 | 52 |
 | Feature/Lifecycle | 2 | 12 |
 | Feature | 1 | 8 |
 | Feature/Recruitment | 3 | 22 |
@@ -508,6 +509,69 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - forbids the UI kit to an admin without the Super Admin role
 - forbids the UI kit to an HR Manager
 - sends a guest to the admin login instead of the UI kit
+
+## Feature/Leave
+
+### `tests/Feature/Leave/LeaveBalanceTest.php` (15)
+
+- credits an up-front entitlement once per leave year however often accrual runs
+- prorates the hire year by the months left after the hire date
+- accrues a twelfth of the entitlement for every month started
+- uses the service tier for completed years and tops up when a new tier is reached
+- credits nothing before the minimum service or to employees the type is not meant for
+- stops accruing at the maximum balance
+- rolls a year over within the carry-over maximum, expires the rest, then expires unused carried days
+- carries nothing when the policy carries nothing and moves a negative balance as a debt
+- refuses a request beyond the balance unless the policy allows a negative balance down to its limit
+- counts a future leave year against its projected entitlement
+- records adjustments with a reason and an audit entry, and encashes only what the policy allows
+- refuses balance adjustments without the permission
+- resolves the most specific policy: group over employment type over company
+- keeps policies effective-dated: a new version closes the previous one and applies from its date
+- breaks a balance down into carried, accrued, adjusted, taken and pending days
+
+### `tests/Feature/Leave/LeaveRequestTest.php` (22)
+
+- counting › counts working days only, skipping rest days and public holidays
+- counting › counts calendar days for types that count rest days and holidays
+- counting › charges half a day for a half day and a fraction of the scheduled hours for hourly leave
+- counting › refuses a unit the leave type does not allow and a period without working days
+- counting › refuses dates outside employment
+- overlap and balance › prevents overlapping leave but allows the two halves of one day
+- overlap and balance › frees the dates of rejected and withdrawn requests
+- overlap and balance › reserves the days of a pending request and releases them on rejection and withdrawal
+- overlap and balance › applies notice, past-date, per-request, attachment and eligibility rules to employees
+- approval › goes through the manager, then HR, books the usage and notifies
+- approval › needs a reason to reject, stores it and tells the employee
+- approval › never lets an approver decide on their own leave
+- approval › lets HR record leave as approved without a workflow, but not their own
+- approval › uses the workflow configured on the leave type
+- cancellation › cancels approved leave that has not started at once and returns the days
+- cancellation › needs approval to cancel leave that has started, and keeps it until decided
+- cancellation › sends a cancellation request through approval when the setting asks for it even before the start
+- cancellation › refuses to cancel rejected or cancelled requests
+- attendance integration › turns approved past leave into on_leave days and back when it is cancelled
+- attendance integration › leaves future dates to the nightly processing
+- attendance integration › reports half-day leave without marking the whole day as leave
+- payroll feed › reports the unpaid days of taken unpaid leave in a period
+
+### `tests/Feature/Leave/LeaveScreensTest.php` (15)
+
+- configuration › lets HR manage leave types and refuses viewers and outsiders
+- configuration › refuses to delete a leave type in use and rejects an unknown workflow
+- configuration › saves a new policy version that closes the open one
+- requests › shows each manager only the requests of employees in their scope
+- requests › rejects from the queue with a mandatory reason
+- requests › files leave on an employee's behalf with attachments, or records it as approved for HR
+- requests › lets HR cancel approved leave and refuses others
+- requests › renders the calendar, balances, reports and the employee leave tab inside the scope
+- portal › shows my balances and requests, and sends a request
+- portal › cancels my own request but never another employee's
+- portal › validates the request and keeps business-rule errors on the form
+- api › lists types, balances and own requests
+- api › previews, submits with an attachment, shows and cancels a request
+- api › refuses invalid and overlapping requests with the API error envelope
+- api › never exposes another employee's request and refuses admin tokens
 
 ## Feature/Lifecycle
 

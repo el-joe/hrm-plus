@@ -53,6 +53,17 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::get('face', [V1\FaceController::class, 'show'])->name('face.show');
             Route::post('face/consent', [V1\FaceController::class, 'consent'])->name('face.consent');
             Route::delete('face/consent', [V1\FaceController::class, 'withdraw'])->name('face.withdraw');
+            // Leave (Phase 6).
+            Route::get('leave/types', [V1\LeaveController::class, 'types'])->name('leave.types');
+            Route::get('leave/balances', [V1\LeaveController::class, 'balances'])->name('leave.balances');
+            Route::get('leave/requests', [V1\LeaveController::class, 'index'])->name('leave.requests.index');
+            Route::post('leave/requests/preview', [V1\LeaveController::class, 'preview'])->name('leave.requests.preview');
+            Route::post('leave/requests', [V1\LeaveController::class, 'store'])->name('leave.requests.store');
+            Route::get('leave/requests/{leaveRequest}', [V1\LeaveController::class, 'show'])->whereNumber('leaveRequest')->name('leave.requests.show');
+            Route::post('leave/requests/{leaveRequest}/cancel', [V1\LeaveController::class, 'cancel'])->whereNumber('leaveRequest')->name('leave.requests.cancel');
+            Route::post('leave/requests/{leaveRequest}/attachments', [V1\LeaveController::class, 'addAttachments'])->whereNumber('leaveRequest')->name('leave.requests.attachments.store');
+            Route::get('leave/requests/{leaveRequest}/attachments/{attachment}', [V1\LeaveController::class, 'attachment'])
+                ->whereNumber(['leaveRequest', 'attachment'])->name('leave.requests.attachments.show');
             Route::post('face/enrol', [V1\FaceController::class, 'enrol'])->middleware('throttle:attendance-checkin')->name('face.enrol');
         });
 

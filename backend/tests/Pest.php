@@ -1,6 +1,8 @@
 <?php
 
+use App\Actions\Leave\ManageLeaveRequest;
 use App\Enums\AttendanceScope;
+use App\Enums\LeaveRequestSource;
 use App\Enums\PunchDirection;
 use App\Enums\RawEventSource;
 use App\Enums\ScheduleType;
@@ -12,6 +14,9 @@ use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\EmploymentType;
+use App\Models\LeavePolicy;
+use App\Models\LeaveRequest;
+use App\Models\LeaveType;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\ScheduleAssignment;
@@ -22,7 +27,11 @@ use App\Services\Attendance\AttendanceEngine;
 use App\Services\Attendance\AttendancePolicyResolver;
 use App\Services\Attendance\Data\RawEventData;
 use App\Services\Attendance\RawEventRecorder;
+use App\Services\Leave\LeaveAccrualService;
+use App\Services\Leave\LeaveBalanceCalculator;
+use Carbon\CarbonImmutable;
 use Database\Seeders\AttendanceDefaultsSeeder;
+use Database\Seeders\LeaveDefaultsSeeder;
 use Database\Seeders\RecruitmentDefaultsSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Http\UploadedFile;
@@ -239,4 +248,74 @@ function punchAt(Employee $employee, string $localDateTime, string $direction = 
 function processDay(Employee $employee, string $date): Collection
 {
     return collect(app(AttendanceEngine::class)->process($employee, $date))->keyBy('shift_key');
+}
+
+/*
+|--------------------------------------------------------------------------
+| Leave helpers (Phase 6)
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Roles, attendance statuses / policy and the leave approval workflows
+ * (leave_request: leaves.approve then leaves.manage; leave_request_hr and
+ * leave_cancellation: leaves.manage).
+ */
+function seedLeave(): void
+{
+    seedRoles();
+    seedAttendance();
+    test()->seed(LeaveDefaultsSeeder::class);
+}
+
+/**
+ * Sunday–Thursday 08:00–16:00 for the whole company: Friday and Saturday are rest days.
+ */
+function leaveWorkWeek(): Shift
+{
+    $shift = Shift::factory()->between('08:00', '16:00')->create();
+    assignSchedule(workWeek($shift), AttendanceScope::Company, null, '2015-01-01');
+
+    return $shift;
+}
+
+/**
+ * A leave type with one company policy (21 days up front unless overridden).
+ *
+ * @param  array<string, mixed>  $type
+ * @param  array<string, mixed>  $policy
+ */
+function leaveTypeWithPolicy(array $type = [], array $policy = []): LeaveType
+{
+    $leaveType = LeaveType::factory()->create($type);
+    LeavePolicy::factory()->create(['leave_type_id' => $leaveType->id, ...$policy]);
+
+    return $leaveType;
+}
+
+function accrueLeave(string $date, ?int $employeeId = null): void
+{
+    app(LeaveAccrualService::class)->accrueAll(CarbonImmutable::parse($date), $employeeId);
+}
+
+function availableLeave(Employee $employee, LeaveType $type, ?int $year = null): string
+{
+    return app(LeaveBalanceCalculator::class)->for($employee, $type, $year)->available;
+}
+
+/**
+ * Submit a request through the real action (default: filed by HR on the employee's behalf).
+ *
+ * @param  array<string, mixed>  $data
+ * @param  list<UploadedFile>  $attachments
+ */
+function fileLeave(
+    Employee $employee, LeaveType $type, string $start, ?string $end = null, array $data = [], ?User $by = null,
+    LeaveRequestSource $source = LeaveRequestSource::Admin, array $attachments = [], bool $recordAsApproved = false,
+): LeaveRequest {
+    $by ??= adminWithRoles('HR Specialist');
+
+    return app(ManageLeaveRequest::class)->submit(
+        $employee, ['leave_type_id' => $type->id, 'start_date' => $start, 'end_date' => $end ?? $start, ...$data], $source, $by, $attachments, $recordAsApproved,
+    );
 }

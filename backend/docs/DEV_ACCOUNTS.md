@@ -127,10 +127,11 @@ calculated by `php artisan queue:work`. Phase 5a added the permissions `schedule
 | Unmatched events | Unknown device users 9001, 9002, 9003 (Cairo, one from a logged CSV import) and 7777 (Alexandria) — map them on the device page or under *Attendance → Raw events* |
 | Work locations | One FIELD employee may check in anywhere this month; the IT department may use the Cairo HQ and Smart Village locations |
 | Face | **employee1@** consented and enrolled (simulated provider); two field employees enrolled by HR, one withdrew consent (data deleted) |
-| Mobile attempts (08:05, today or yesterday when seeded before 09:00) | employee1@ accepted check-in + a face retry at check-out; employee3@ outside the geofence (rejected), mock location (flagged, pending), phone clock off (flagged, **approved** by attendance.officer@); employee2@ poor accuracy (rejected), not enrolled (flagged, pending) |
+| Mobile attempts (08:05, today or yesterday when seeded before 09:00) | employee1@ accepted check-in + a failed face match at check-out (sent to review — optional mode); employee3@ outside the geofence (rejected), mock location (flagged, pending), phone clock off (flagged, **approved** by attendance.officer@); employee2@ poor accuracy (rejected), not enrolled (flagged, pending) |
 
-Face verification is **required** by default (setting *Attendance → require face verification*), so mobile check-in needs a
-consent + enrolment first: `POST /api/v1/me/face/consent` (`{"accepted": true, "version": "1.0"}`), then
+Face verification is **optional** by default since Phase 6 (setting *Attendance → require face verification* off; new policy
+versions default to `optional` until a real provider is configured — blocker B4). Switch a policy version to *required* to test
+the strict flow, which needs a consent + enrolment first: `POST /api/v1/me/face/consent` (`{"accepted": true, "version": "1.0"}`), then
 `POST /api/v1/me/face/enrol` (`{"token": "sim-enrol"}`). With the simulated provider the face token decides the result:
 `sim-no-match`, `sim-liveness-fail`, `sim-error`, anything else matches.
 
@@ -145,3 +146,32 @@ Scheduled commands added: `attendance:sync-devices` (every 5 minutes; pulls due 
 (02:15, biometric retention). Phase 5b added the permission module `face_verification.*` and default grants of
 `attendance_devices.*` — run `php artisan permissions:sync` on existing databases. Docs: `docs/ATTENDANCE_DEVICES.md`,
 `docs/FACE_VERIFICATION.md`.
+
+## Leave demo data (Phase 6)
+
+`LeaveDefaultsSeeder` (every environment) creates the approval workflows a leave type can use: `leave_request` (two levels:
+*Manager approval* = permission `leaves.approve` within the approver's data scope, then *HR approval* = `leaves.manage`),
+`leave_request_hr` (one level, `leaves.manage`) and `leave_cancellation` (cancelling approved leave that has started, `leaves.manage`).
+
+`LeaveDemoSeeder` (not in production) then builds, through the real actions (queue switched to `sync` while seeding; notifications
+are faked during seeding by `RecruitmentDemoSeeder`, as before):
+
+| What | Details |
+|---|---|
+| Company timezone | The dev seed sets *Settings → Localisation → timezone* to `Africa/Cairo` (like the branches), so "today" on the dashboards is Cairo's today |
+| Leave types (**DEMO**, Egyptian-style — check against the labour law) | ANNUAL (half days, 3 days notice), SICK (past dates allowed, certificate above 1 day, shown as *Sick leave* in attendance, HR-only approval), CASUAL (hours, max 2 days per request), UNPAID (no balance, deducted by payroll, 7 days notice), MATERNITY (women, 10 months service, calendar days, 3 times per employment), HAJJ (5 years service, once per employment, calendar days) |
+| Policies | ANN-STD by years of service (15 / 21 from 1 year / 30 from 10 years; carry over up to 7 days expiring after 3 months; ceiling 45; encashable up to 10), ANN-PT for part-time staff (12 days, monthly), ANN-FIELD for group FIELD (24 days, pro rata, carry 10 for 6 months), SICK-OLD (12 days) closed on 31 Dec by SICK (15 days from 1 January — effective dating), CASUAL 7, MATERNITY 90, HAJJ 30 |
+| Balances | Last leave year accrued in full, a few days taken, rolled over (carry-over / expiry rows), then this year accrued up to today |
+| Requests (~49) | Approved through both levels in the attendance demo window (the simulated punches of those days are voided, so attendance shows *On leave* / *Sick leave*), sick leave with a demo certificate, half-day and hourly casual leave, unpaid leave last month (payroll feed), a maternity leave in progress, future approved leave, requests pending at the manager level and at the HR level, rejected, withdrawn, cancelled before the start, and two **cancellation requests** waiting for HR |
+| Portal | employee1@ and employee2@ have their own portal requests (employee1@ also an approved day last fortnight); employee3@ is on a rotation, so the demo may skip his hourly request when the day is a rest day |
+
+Try it: approve as **branch.manager@** (only Alexandria employees, first level), **department.manager@** (IT) or
+**direct.manager@**, then as **hr.manager@** (HR level, cancellations). Employees request and cancel under *My leaves* in the
+portal or through `GET/POST /api/v1/me/leave/*`.
+
+Scheduled commands added: `leave:rollover` (00:30, opens the new leave year once — a no-op on other days) and `leave:accrue`
+(00:40, credits entitlements due by today and expires unused carried-over days). Both are idempotent and accept `--date` /
+`--year` and `--employee`. Approved or cancelled leave recalculates past attendance days through the queue
+(`php artisan queue:work`); future days are processed by the nightly `attendance:process`. Phase 6 added the permission modules
+`leave_types.*`, `leave_policies.*` and `leave_balances.*` (leave requests keep the existing `leaves.*`) — run
+`php artisan permissions:sync` on existing databases.

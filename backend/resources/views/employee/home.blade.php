@@ -37,6 +37,16 @@
                 <x-button variant="secondary" size="sm" :href="route('portal.profile')" icon="user">{{ __('employees.portal.open_profile') }}</x-button>
             </x-slot:footer>
         </x-card>
+
+        <x-card :title="__('leave.portal.home_title')" class="max-w-2xl" data-region="home-leave">
+            @include('admin.leave._balance-cards', ['balances' => $leaveBalances, 'compact' => true])
+            @if ($pendingLeave)
+                <p class="mt-3 text-body-sm text-text-secondary">{{ trans_choice('leave.portal.pending_count', $pendingLeave, ['count' => $pendingLeave]) }}</p>
+            @endif
+            <x-slot:footer>
+                <x-button variant="secondary" size="sm" :href="route('portal.leaves')" icon="calendar">{{ __('leave.portal.open') }}</x-button>
+            </x-slot:footer>
+        </x-card>
     @else
         <x-alert tone="warning" data-notice="no-employee-profile">{{ __('app.dashboard.no_employee_profile') }}</x-alert>
     @endif

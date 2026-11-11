@@ -43,7 +43,15 @@ return [
     ],
     'nav' => [
         'ui_kit' => 'مكتبة المكونات',
+        'leave_requests' => 'طلبات الإجازات',
+        'leave_calendar' => 'تقويم الإجازات',
+        'leave_balances' => 'أرصدة الإجازات',
+        'leave_reports' => 'تقارير الإجازات',
+        'leave_types' => 'أنواع الإجازات',
+        'leave_policies' => 'سياسات الإجازات',
+        'my_leaves' => 'إجازاتي',
         'sections' => [
+            'leave' => 'الإجازات',
             'attendance_capture' => 'تسجيل الحضور',
             'attendance' => 'الحضور والانصراف',
             'scheduling' => 'الورديات والجداول',

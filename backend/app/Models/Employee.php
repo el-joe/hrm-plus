@@ -387,6 +387,14 @@ class Employee extends Model
     }
 
     /**
+     * @return HasMany<LeaveRequest, $this>
+     */
+    public function leaveRequests(): HasMany
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    /**
      * @return HasMany<OffboardingCase, $this>
      */
     public function offboardingCases(): HasMany

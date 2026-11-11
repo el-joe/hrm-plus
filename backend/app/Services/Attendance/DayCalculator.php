@@ -210,6 +210,10 @@ class DayCalculator
         if ($context->leave !== null && ! $context->leave->halfDay) {
             $steps[] = $this->step('leave', $context->leave->reference, 'approved leave');
 
+            if ($context->leave->attendanceStatusId !== null) {
+                $result['attendance_status_id'] = $context->leave->attendanceStatusId;
+            }
+
             if ($hasPunches) {
                 $flags[] = 'worked_on_leave';
             }

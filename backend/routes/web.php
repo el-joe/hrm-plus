@@ -237,6 +237,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         require __DIR__.'/admin/attendance.php';
         require __DIR__.'/admin/scheduling.php';
 
+        // Leave management (Phase 6).
+        require __DIR__.'/admin/leave.php';
+
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.
         Route::resource('admin-users', Admin\AdminUserController::class);
@@ -294,6 +297,13 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         Route::get('attendance', [Employee\AttendanceController::class, 'index'])->name('attendance');
         Route::post('attendance/corrections', [Employee\AttendanceController::class, 'storeCorrection'])->name('attendance.corrections.store');
         Route::post('attendance/corrections/{correction}/cancel', [Employee\AttendanceController::class, 'cancelCorrection'])->whereNumber('correction')->name('attendance.corrections.cancel');
+
+        // My leaves (own record only): balances, requests, cancellation, attachments.
+        Route::get('leaves', [Employee\LeaveController::class, 'index'])->name('leaves');
+        Route::post('leaves', [Employee\LeaveController::class, 'store'])->name('leaves.store');
+        Route::post('leaves/{leaveRequest}/cancel', [Employee\LeaveController::class, 'cancel'])->whereNumber('leaveRequest')->name('leaves.cancel');
+        Route::get('leaves/{leaveRequest}/attachments/{attachment}', [Employee\LeaveController::class, 'attachment'])
+            ->whereNumber(['leaveRequest', 'attachment'])->name('leaves.attachments.download');
 
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');

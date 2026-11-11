@@ -45,7 +45,8 @@ return [
         'overtime_minimum_minutes' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'between:0,480']],
         'geofence_default_radius_meters' => ['type' => 'integer', 'default' => 150, 'rules' => ['required', 'integer', 'between:10,5000']],
         'gps_max_accuracy_meters' => ['type' => 'integer', 'default' => 50, 'rules' => ['required', 'integer', 'between:5,1000']],
-        'face_verification_required' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Default of new policy versions: optional until a real face provider is configured (blocker B4).
+        'face_verification_required' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
         'face_verification_max_retries' => ['type' => 'integer', 'default' => 3, 'rules' => ['required', 'integer', 'between:1,10']],
         'manual_entry_requires_approval' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
         // Phase 5b: defaults of the mobile rules of new attendance-policy versions, and device monitoring.
@@ -77,6 +78,13 @@ return [
         'allow_half_day' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
         'allow_negative_balance' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
         'count_weekends_as_leave' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
+        // Phase 6. How many days back employees may request leave of types that allow past dates.
+        'max_past_days' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'between:0,365']],
+        // Approved leave that has not started may be cancelled by the employee without approval;
+        // once started (or when this is off) a cancellation request goes through approval.
+        'cancel_before_start_directly' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Leave calendar: highlight a day when at least this many employees of one department are away.
+        'calendar_conflict_threshold' => ['type' => 'integer', 'default' => 2, 'rules' => ['required', 'integer', 'between:2,50']],
     ],
 
     'notifications' => [

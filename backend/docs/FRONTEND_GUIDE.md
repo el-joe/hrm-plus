@@ -131,6 +131,7 @@ from `app.js` and guarded by a data-attribute check.
 | `pages/attendance-bulk.js` | `[data-bulk-attendance]` (admin/attendance/bulk) | "Mark all present except" list: client search over `data-search`, select all / none of the visible rows, apply one exception to the selected rows, and show the time inputs only for "late" (check-in) and "custom times" (both). Selection count through `ui/check-group.js`. Works without JS (all inputs visible; the server validates). |
 | `pages/schedule-forms.js` | `form[data-shift-form]`, `[data-work-schedule-form]`, `[data-scope-form]`, `[data-schedule-change-form]` | Shift type fields and break rows, schedule pattern grid length, "applies to" record select, change/swap fields. |
 | `pages/schedule-calendar.js` | `[data-schedule-calendar]` | Opens the day override modal from a calendar cell (cells are links to the day page without JS). |
+| `pages/leave.js` | `form[data-leave-form]` (admin "request on behalf", portal "My leaves"); `#leave-reject-modal` + `[data-leave-reject]` (admin requests queue) | Offers only the day parts the chosen leave type allows (options `data-unit` / `data-units`), hides the end date for partial days and shows hours only for hourly leave, shows the attachment rule of the type. The queue's reject button opens one shared modal (reason required) instead of following its link to the request page. Works without JS (all fields visible; the server validates). |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes
@@ -167,6 +168,15 @@ and minutes with `App\Support\Duration::format()`. Never compute attendance figu
 `inline-size` percentage per category, colours from the `status-*-dot` tokens) — no chart library. Reports are defined
 once in `App\Services\Attendance\Reports\AttendanceReports` (columns, query, row) and rendered generically by
 `reports/show`; add a report there, not in a new view. The calendar cells are server-rendered; no JS.
+
+**Leave screens (Phase 6)** — `admin/leave/*` (types, policies, requests, balances, calendar, reports) and
+`employee/leaves`. Partials: `_status` (request status pill), `_period` (dates in LTR + the half-day / hours label — use it
+wherever a request period is shown), `_swatch` (type colour, literal `bg-chart-*` classes), `_balance-cards` (balance per type;
+`compact` for a short summary, `single` for a side card), `_request-fields` (the request form fields shared by admin and portal).
+Balances are never computed in Blade: they come from `App\Services\Leave\LeaveBalanceCalculator` (bcmath strings). Reports
+are defined once in `App\Services\Leave\LeaveReports` (columns, query, row) and rendered generically by `reports/show`. The
+calendar is server-rendered like the schedule calendar; its scroll container is `relative` so `sr-only` labels inside cells
+do not widen the page.
 
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.

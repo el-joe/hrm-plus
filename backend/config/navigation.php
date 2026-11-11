@@ -97,6 +97,17 @@ return [
             ],
         ],
         [
+            'key' => 'leave',
+            'items' => [
+                ['key' => 'leave_requests', 'route' => 'admin.leave-requests.index', 'ability' => 'leaves.view', 'icon' => 'inbox', 'active' => ['admin.leave-requests.*']],
+                ['key' => 'leave_calendar', 'route' => 'admin.leave-calendar', 'ability' => 'leaves.view', 'icon' => 'calendar', 'active' => ['admin.leave-calendar']],
+                ['key' => 'leave_balances', 'route' => 'admin.leave-balances.index', 'ability' => 'leave_balances.view', 'icon' => 'coins', 'active' => ['admin.leave-balances.*']],
+                ['key' => 'leave_reports', 'route' => 'admin.leave-reports.index', 'ability' => 'viewLeaveReports', 'icon' => 'file-text', 'active' => ['admin.leave-reports.*']],
+                ['key' => 'leave_types', 'route' => 'admin.leave-types.index', 'ability' => 'leave_types.view', 'icon' => 'layers', 'active' => ['admin.leave-types.*']],
+                ['key' => 'leave_policies', 'route' => 'admin.leave-policies.index', 'ability' => 'leave_policies.view', 'icon' => 'shield-check', 'active' => ['admin.leave-policies.*']],
+            ],
+        ],
+        [
             'key' => 'structure',
             'items' => [
                 ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],
@@ -132,6 +143,7 @@ return [
         ['key' => 'home', 'route' => 'portal.home', 'ability' => null, 'icon' => 'home', 'active' => ['portal.home']],
         ['key' => 'my_profile', 'route' => 'portal.profile', 'ability' => null, 'icon' => 'user', 'active' => ['portal.profile']],
         ['key' => 'my_attendance', 'route' => 'portal.attendance', 'ability' => null, 'icon' => 'clock', 'active' => ['portal.attendance*']],
+        ['key' => 'my_leaves', 'route' => 'portal.leaves', 'ability' => null, 'icon' => 'calendar', 'active' => ['portal.leaves*']],
         ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding']],
         ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*']],
     ],

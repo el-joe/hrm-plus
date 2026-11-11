@@ -143,7 +143,7 @@ it('renders every profile tab and the create form', function (string $tab) {
     $employee = Employee::factory()->inDepartment($this->org['department'])->create();
 
     $this->actingAs(superAdmin(), 'admin')->get("/admin/employees/{$employee->id}/tab/{$tab}")->assertOk()->assertSee($employee->employee_number);
-})->with(['personal', 'employment', 'contracts', 'documents', 'financial', 'history']);
+})->with(['personal', 'employment', 'contracts', 'documents', 'financial', 'leave', 'history']);
 
 it('renders the create and edit forms', function () {
     $employee = Employee::factory()->inDepartment($this->org['department'])->create();

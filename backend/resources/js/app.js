@@ -27,6 +27,7 @@ import { initPipelineBoard } from './pages/pipeline-board';
 import { initScheduleForms } from './pages/schedule-forms';
 import { initScheduleCalendar } from './pages/schedule-calendar';
 import { initAttendanceBulk } from './pages/attendance-bulk';
+import { initLeaveForms, initLeaveReject } from './pages/leave';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -74,6 +75,14 @@ function boot() {
 
     if (document.querySelector('form[data-shift-form], form[data-work-schedule-form], form[data-scope-form], form[data-schedule-change-form]')) {
         initScheduleForms();
+    }
+
+    if (document.querySelector('form[data-leave-form]')) {
+        initLeaveForms();
+    }
+
+    if (document.getElementById('leave-reject-modal')) {
+        initLeaveReject();
     }
 
     if (document.querySelector('[data-schedule-calendar]')) {

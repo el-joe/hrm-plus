@@ -94,6 +94,14 @@ return [
         'headed_departments' => '{1} :count department it heads|[2,*] :count departments it heads',
         'managed_branches' => '{1} :count branch it manages|[2,*] :count branches it manages',
         'employees' => '{1} :count employee|[2,*] :count employees',
+        'work_schedules' => '{1} :count work schedule|[2,*] :count work schedules',
+        'attendance_days' => '{1} :count processed attendance day|[2,*] :count processed attendance days',
+        'schedule_overrides' => '{1} :count calendar change|[2,*] :count calendar changes',
+        'schedule_assignments' => '{1} :count schedule assignment|[2,*] :count schedule assignments',
+        'policy_assignments' => '{1} :count policy assignment|[2,*] :count policy assignments',
+        'raw_events' => '{1} :count attendance event|[2,*] :count attendance events',
+        'manual_entries' => '{1} :count manual entry|[2,*] :count manual entries',
+        'corrections' => '{1} :count correction|[2,*] :count corrections',
     ],
 
     'company' => [

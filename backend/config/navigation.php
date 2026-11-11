@@ -60,6 +60,30 @@ return [
             ],
         ],
         [
+            'key' => 'attendance',
+            'items' => [
+                ['key' => 'attendance_daily', 'route' => 'admin.attendance.daily', 'ability' => 'attendance.view', 'icon' => 'clock', 'active' => ['admin.attendance.daily', 'admin.attendance.days.*']],
+                ['key' => 'attendance_timesheet', 'route' => 'admin.attendance.timesheet', 'ability' => 'attendance.view', 'icon' => 'calendar', 'active' => ['admin.attendance.timesheet']],
+                ['key' => 'attendance_bulk', 'route' => 'admin.attendance.bulk.create', 'ability' => 'attendance.create', 'icon' => 'check-circle', 'active' => ['admin.attendance.bulk.*']],
+                ['key' => 'attendance_batches', 'route' => 'admin.attendance.batches.index', 'ability' => 'attendance.view', 'icon' => 'upload', 'active' => ['admin.attendance.batches.*', 'admin.attendance.import*']],
+                ['key' => 'attendance_corrections', 'route' => 'admin.attendance.corrections.index', 'ability' => 'attendance.view', 'icon' => 'pencil', 'active' => ['admin.attendance.corrections.*']],
+                ['key' => 'attendance_locks', 'route' => 'admin.attendance.locks.index', 'ability' => 'attendance.manage', 'icon' => 'lock', 'active' => ['admin.attendance.locks.*']],
+            ],
+        ],
+        [
+            'key' => 'scheduling',
+            'items' => [
+                ['key' => 'schedule_calendar', 'route' => 'admin.schedule-calendar', 'ability' => 'schedules.view', 'icon' => 'calendar', 'active' => ['admin.schedule-calendar*']],
+                ['key' => 'shifts', 'route' => 'admin.shifts.index', 'ability' => 'shifts.view', 'icon' => 'clock', 'active' => ['admin.shifts.*']],
+                ['key' => 'work_schedules', 'route' => 'admin.work-schedules.index', 'ability' => 'schedules.view', 'icon' => 'layers', 'active' => ['admin.work-schedules.*']],
+                ['key' => 'schedule_assignments', 'route' => 'admin.schedule-assignments.index', 'ability' => 'schedules.view', 'icon' => 'users', 'active' => ['admin.schedule-assignments.*']],
+                ['key' => 'schedule_changes', 'route' => 'admin.schedule-changes.index', 'ability' => 'schedules.view', 'icon' => 'history', 'active' => ['admin.schedule-changes.*']],
+                ['key' => 'holidays', 'route' => 'admin.holidays.index', 'ability' => 'holidays.view', 'icon' => 'calendar', 'active' => ['admin.holidays.*']],
+                ['key' => 'attendance_policies', 'route' => 'admin.attendance-policies.index', 'ability' => 'attendance_policies.view', 'icon' => 'shield-check', 'active' => ['admin.attendance-policies.*']],
+                ['key' => 'attendance_statuses', 'route' => 'admin.attendance-statuses.index', 'ability' => 'attendance.manage', 'icon' => 'layout-grid', 'active' => ['admin.attendance-statuses.*']],
+            ],
+        ],
+        [
             'key' => 'structure',
             'items' => [
                 ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],
@@ -94,6 +118,7 @@ return [
     'portal' => [
         ['key' => 'home', 'route' => 'portal.home', 'ability' => null, 'icon' => 'home', 'active' => ['portal.home']],
         ['key' => 'my_profile', 'route' => 'portal.profile', 'ability' => null, 'icon' => 'user', 'active' => ['portal.profile']],
+        ['key' => 'my_attendance', 'route' => 'portal.attendance', 'ability' => null, 'icon' => 'clock', 'active' => ['portal.attendance*']],
         ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding']],
         ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*']],
     ],

@@ -63,9 +63,19 @@ return [
         'offers' => [...$crud, 'approve', 'reject'],
         'onboarding' => [...$crud, 'manage'],
         'offboarding' => [...$crud, 'approve', 'reject', 'manage'],
+        // Attendance (Phase 5a). attendance.view: daily records, timesheets, raw
+        // events; create: manual / bulk entry and imports; update: corrections
+        // and voiding punches; approve/reject: corrections, manual batches and
+        // overtime; manage: period locks, day statuses, reprocessing.
+        // shifts.*: shift definitions. schedules.*: work schedules, assignments,
+        // calendar overrides; schedules.approve/reject: shift changes and swaps.
+        // attendance_policies.*: policy rules and their assignment.
         'attendance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
         'attendance_devices' => [...$crud, 'manage'],
         'shifts' => [...$crud, 'approve', 'reject', 'manage'],
+        'schedules' => [...$crud, 'approve', 'reject'],
+        'holidays' => $crud,
+        'attendance_policies' => $crud,
         'leaves' => [...$crud, 'approve', 'reject', 'export', 'manage'],
         'payroll' => [...$crud, 'approve', 'reject', 'export', 'manage'],
         'loans' => [...$crud, 'approve', 'reject', 'export'],
@@ -100,7 +110,7 @@ return [
                 'job_grades.*', 'employment_types.*', 'cost_centers.*', 'employees.*', 'employee_sensitive.*', 'employee_financials.view',
                 'employee_documents.*', 'employee_groups.*',
                 'recruitment.*', 'interviews.*', 'offers.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
-                'shifts.*', 'leaves.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
+                'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'payroll.view', 'loans.view', 'loans.approve', 'loans.reject',
                 'performance.*', 'training.*', 'assets.*', 'hr_requests.*', 'announcements.*', 'disciplinary.*',
                 'reports.*', 'notifications.*', 'approvals.*', 'settings.view', 'admin_users.view', 'audit_logs.view',
             ],
@@ -117,7 +127,7 @@ return [
                 'interviews.view',
                 'onboarding.view', 'onboarding.create', 'onboarding.update',
                 'offboarding.view', 'offboarding.create', 'offboarding.update',
-                'attendance.view', 'shifts.view',
+                'attendance.view', 'shifts.view', 'schedules.view', 'holidays.view',
                 'leaves.view', 'leaves.create', 'leaves.update',
                 'training.view', 'training.create', 'training.update',
                 'assets.view', 'assets.create', 'assets.update',
@@ -145,7 +155,7 @@ return [
                 'employees.view', 'employee_sensitive.view', 'employee_financials.view', 'employee_financials.update',
                 'payroll.view', 'payroll.create', 'payroll.update', 'payroll.delete', 'payroll.export', 'payroll.manage',
                 'loans.view', 'loans.create', 'loans.update', 'loans.export',
-                'attendance.view', 'leaves.view', 'reports.view', 'reports.export', 'notifications.view',
+                'attendance.view', 'holidays.view', 'attendance_policies.view', 'leaves.view', 'reports.view', 'reports.export', 'notifications.view',
             ],
         ],
         'Attendance Officer' => [
@@ -153,6 +163,7 @@ return [
             'permissions' => [
                 'dashboard.view', 'branches.view', 'departments.view', 'teams.view',
                 'employees.view', 'attendance.*', 'attendance_devices.view', 'shifts.*',
+                'schedules.*', 'holidays.*', 'attendance_policies.view',
                 'leaves.view', 'reports.view', 'reports.export', 'notifications.view',
             ],
         ],
@@ -165,6 +176,7 @@ return [
                 'employee_documents.view',
                 'attendance.view', 'attendance.create', 'attendance.update', 'attendance.approve', 'attendance.reject', 'attendance.export',
                 'shifts.view', 'shifts.create', 'shifts.update', 'shifts.approve', 'shifts.reject',
+                'schedules.view', 'schedules.create', 'schedules.update', 'schedules.approve', 'schedules.reject', 'holidays.view',
                 'leaves.view', 'leaves.approve', 'leaves.reject',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
@@ -179,7 +191,7 @@ return [
                 'dashboard.view', 'departments.view', 'teams.view', 'teams.create', 'teams.update', 'positions.view',
                 'employees.view',
                 'attendance.view', 'attendance.approve', 'attendance.reject',
-                'shifts.view', 'shifts.update',
+                'shifts.view', 'shifts.update', 'schedules.view', 'schedules.approve', 'schedules.reject', 'holidays.view',
                 'leaves.view', 'leaves.approve', 'leaves.reject',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',

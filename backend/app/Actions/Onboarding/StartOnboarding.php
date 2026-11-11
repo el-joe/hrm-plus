@@ -57,6 +57,7 @@ class StartOnboarding
                     'title_en' => $task->title_en,
                     'description' => $task->description,
                     'assignee' => $task->assignee,
+                    'action' => $task->action,
                     'due_date' => $startDate->copy()->addDays($task->due_offset_days)->toDateString(),
                     'sort_order' => $task->sort_order,
                 ]);

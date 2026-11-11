@@ -93,6 +93,14 @@ return [
         'headed_departments' => '{1} إدارة واحدة ترأسها|[2,*] :count من الإدارات التي ترأسها',
         'managed_branches' => '{1} فرع واحد تديره|[2,*] :count من الفروع التي تديرها',
         'employees' => '{1} موظف واحد|{2} موظفين اثنين|[3,10] :count موظفين|[11,*] :count موظفًا',
+        'work_schedules' => '{1} جدول عمل واحد|[2,*] :count جداول عمل',
+        'attendance_days' => '{1} يوم حضور معالج واحد|[2,*] :count أيام حضور معالجة',
+        'schedule_overrides' => '{1} تعديل تقويم واحد|[2,*] :count تعديلات تقويم',
+        'schedule_assignments' => '{1} إسناد جدول واحد|[2,*] :count إسنادات جداول',
+        'policy_assignments' => '{1} إسناد سياسة واحد|[2,*] :count إسنادات سياسات',
+        'raw_events' => '{1} حدث حضور واحد|[2,*] :count أحداث حضور',
+        'manual_entries' => '{1} إدخال يدوي واحد|[2,*] :count إدخالات يدوية',
+        'corrections' => '{1} تصحيح واحد|[2,*] :count تصحيحات',
     ],
 
     'company' => [

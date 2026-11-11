@@ -42,6 +42,10 @@ return [
         'category' => 'Category',
     ],
 
+    'task_actions' => [
+        'assign_schedule' => 'Open the schedule assignment screen',
+    ],
+
     'enums' => [
         'assignees' => ['hr' => 'HR', 'it' => 'IT', 'manager' => 'Direct manager', 'finance' => 'Finance', 'employee' => 'Employee'],
         'handover_categories' => ['asset' => 'Asset', 'document' => 'Document', 'access' => 'System access', 'finance' => 'Financial', 'other' => 'Other'],

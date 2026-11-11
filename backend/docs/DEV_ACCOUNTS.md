@@ -87,3 +87,32 @@ once the queue runs (`php artisan queue:work`).
 Additional scheduled commands: `recruitment:send-interview-reminders` (hourly), `recruitment:expire-offers`
 (00:20) and `offboarding:detect-contract-expiries` (06:30). Phase 4 added the permissions `interviews.*` and
 `offers.*` — run `php artisan permissions:sync` on existing databases.
+
+## Attendance demo data (Phase 5a)
+
+`AttendanceDefaultsSeeder` (every environment) creates the configurable day statuses (absent, on leave, official
+mission, remote work, day off, sick leave), the approval workflows `attendance_correction`,
+`attendance_manual_batch` (step: `attendance.approve`) and `schedule_change` (step: `schedules.approve`), and the
+company-wide **STD** attendance policy (version 1 copied from Settings → Attendance). It also links the onboarding
+task "Assign the work schedule" to the schedule assignment screen.
+
+`AttendanceDemoSeeder` (not in production) then builds about five weeks of attendance up to yesterday, through the
+real services (so takes ~1.5 minutes):
+
+| What | Details |
+|---|---|
+| Timezone | Branches without a timezone get `Africa/Cairo` |
+| Shifts | MOR 08:00–16:30 (30 min unpaid lunch), EVE 16:00–00:00, NGT 22:00–06:00 (night, cross-midnight), FLX flexible 07:00–19:00 (8 h, core 10:00–15:00), SPA + SPB split shift |
+| Schedules | STD Sun–Thu MOR → company; FLEX → IT; ROT 6-day rotation (MOR, MOR, EVE, EVE, off, off) → OPS-WH; NIGHT Sat–Wed → group WH-NIGHT; SPLIT Sat–Thu SPA+SPB → SAL-ALX; MON monthly example (unassigned) |
+| Policies | STD (company), OPS (branch ALX: 15 min grace, overtime auto-approved, missing check-out assumed), IT (department IT: breaks from punches, overtime from 60 min) |
+| Holidays | **Demo** Egyptian public holidays of the current year (Islamic dates approximate — edit under Shifts & schedules → Public holidays) |
+| Raw events | Simulated device punches (`DEMO-DEVICE-*`) and mobile punches (`DEMO-APP`, group FIELD and part of GIZ) with lateness, early leave, overtime, punched breaks, forgotten check-outs and absences, all `payload.demo = true` |
+| Manual | One bulk "mark all present except" batch for HR on the latest working day (official mission, late, absent), one import batch for three Alexandria sales employees |
+| Corrections | A pending portal request from **employee1@** (approve as attendance.officer@ or hr.manager@), an admin correction approved by hr.manager@ |
+| Schedule changes | A pending shift change and an approved swap in the warehouse |
+| Locks | The first demo week is locked (Attendance → Period locks) |
+
+Scheduled commands added: `attendance:process` (01:30, yesterday for everyone) and `attendance:process --pending`
+(every 10 minutes, raw events whose processing job did not run). Events recorded with `process: 'queue'` are
+calculated by `php artisan queue:work`. Phase 5a added the permissions `schedules.*`, `holidays.*` and
+`attendance_policies.*` — run `php artisan permissions:sync` on existing databases.

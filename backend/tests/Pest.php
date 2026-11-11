@@ -1,14 +1,33 @@
 <?php
 
+use App\Enums\AttendanceScope;
+use App\Enums\PunchDirection;
+use App\Enums\RawEventSource;
+use App\Enums\ScheduleType;
+use App\Models\AttendanceDay;
+use App\Models\AttendancePolicy;
+use App\Models\AttendancePolicyVersion;
+use App\Models\AttendanceRawEvent;
 use App\Models\Branch;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\EmploymentType;
 use App\Models\Position;
 use App\Models\Role;
+use App\Models\ScheduleAssignment;
+use App\Models\Shift;
 use App\Models\User;
+use App\Models\WorkSchedule;
+use App\Services\Attendance\AttendanceEngine;
+use App\Services\Attendance\AttendancePolicyResolver;
+use App\Services\Attendance\Data\RawEventData;
+use App\Services\Attendance\RawEventRecorder;
+use Database\Seeders\AttendanceDefaultsSeeder;
 use Database\Seeders\RecruitmentDefaultsSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -121,4 +140,103 @@ function seedRecruitment(): void
 function fakeCv(string $name = 'cv.pdf'): UploadedFile
 {
     return UploadedFile::fake()->create($name, 120, 'application/pdf');
+}
+
+/*
+|--------------------------------------------------------------------------
+| Attendance helpers (Phase 5a)
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Statuses, approval workflows and the company default policy.
+ */
+function seedAttendance(): void
+{
+    test()->seed(AttendanceDefaultsSeeder::class);
+}
+
+/**
+ * An employee hired 2025-01-01 in a branch on Cairo time (UTC+2 in winter).
+ */
+function attendanceEmployee(array $attributes = []): Employee
+{
+    $branch = $attributes['branch_id'] ?? Branch::factory()->create(['timezone' => 'Africa/Cairo'])->id;
+    $department = $attributes['department_id'] ?? Department::factory()->create(['branch_id' => $branch])->id;
+
+    return Employee::factory()->create([
+        'branch_id' => $branch, 'department_id' => $department, 'hire_date' => '2025-01-01', 'original_hire_date' => '2025-01-01', ...$attributes,
+    ]);
+}
+
+/**
+ * A weekly schedule: shifts by weekday (0 = Sunday); weekdays without shifts are rest days.
+ *
+ * @param  array<int, list<Shift>|Shift>  $days
+ */
+function weeklySchedule(array $days, string $code = 'WK'): WorkSchedule
+{
+    $schedule = WorkSchedule::create([
+        'code' => $code.uniqid(), 'name_ar' => 'جدول', 'name_en' => 'Schedule '.$code, 'type' => ScheduleType::Weekly, 'is_active' => true,
+    ]);
+
+    foreach ($days as $weekday => $shifts) {
+        foreach (is_array($shifts) ? $shifts : [$shifts] as $shift) {
+            $schedule->days()->create(['day_index' => $weekday, 'shift_id' => $shift->id]);
+        }
+    }
+
+    return $schedule;
+}
+
+/**
+ * Sunday–Thursday with the given shift, Friday and Saturday off.
+ */
+function workWeek(Shift $shift): WorkSchedule
+{
+    return weeklySchedule([0 => $shift, 1 => $shift, 2 => $shift, 3 => $shift, 4 => $shift]);
+}
+
+function assignSchedule(WorkSchedule $schedule, AttendanceScope $scope, ?int $scopeId, string $from = '2025-01-01', ?string $to = null): ScheduleAssignment
+{
+    return ScheduleAssignment::create([
+        'work_schedule_id' => $schedule->id, 'scope_type' => $scope, 'scope_id' => $scopeId, 'effective_from' => $from, 'effective_to' => $to,
+    ]);
+}
+
+/**
+ * A policy whose version 1 (from 2020-01-01) has the default rules plus the overrides, assigned to the scope.
+ *
+ * @param  array<string, mixed>  $rules
+ */
+function attendancePolicy(array $rules = [], AttendanceScope $scope = AttendanceScope::Company, ?int $scopeId = null): AttendancePolicy
+{
+    $policy = AttendancePolicy::create(['code' => 'P'.uniqid(), 'name_ar' => 'سياسة', 'name_en' => 'Policy', 'is_active' => true]);
+    $defaults = app(AttendancePolicyResolver::class)->defaults()->only(AttendancePolicyVersion::RULES);
+    $policy->versions()->create([...$defaults, 'late_grace_minutes' => 10, 'early_leave_grace_minutes' => 10, 'overtime_min_minutes' => 30,
+        'overtime_requires_approval' => false, 'punch_dedupe_seconds' => 60, ...$rules, 'version' => 1, 'effective_from' => '2020-01-01']);
+    $policy->assignments()->create(['scope_type' => $scope, 'scope_id' => $scopeId, 'effective_from' => '2020-01-01']);
+
+    return $policy;
+}
+
+/**
+ * Record a punch at a Cairo wall-clock time (no processing).
+ */
+function punchAt(Employee $employee, string $localDateTime, string $direction = 'in', string $source = 'device'): AttendanceRawEvent
+{
+    return app(RawEventRecorder::class)->record(RawEventData::punch(
+        RawEventSource::from($source), $employee->id, Carbon::parse($localDateTime, 'Africa/Cairo'),
+        PunchDirection::from($direction), 'Africa/Cairo', 'test:'.uniqid('', true),
+    ), process: 'none');
+}
+
+/**
+ * Process a date and return its days keyed by shift_key.
+ *
+ * @return Collection<int, AttendanceDay>
+ */
+function processDay(Employee $employee, string $date): Collection
+{
+    return collect(app(AttendanceEngine::class)->process($employee, $date))->keyBy('shift_key');
 }

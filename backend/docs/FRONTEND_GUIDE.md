@@ -128,6 +128,9 @@ from `app.js` and guarded by a data-attribute check.
 | `pages/employee-form.js` | `form[data-employee-form]`; selects with `data-depends-on="branch_id"` and options with `data-parent` | Narrows department / team / position / location lists to the chosen branch / department (admin/employees/_placement-fields). The server validates the combination anyway. |
 | `pages/pipeline-board.js` | `[data-pipeline-board]` (admin/recruitment/vacancies/_board) | Drag and drop of application cards between stage columns, and fetch submission of each card's stage form (the keyboard / no-JS alternative). Optimistic move; the card returns and a toast explains when the server refuses. |
 | `ui/print.js` | `[data-print]` | Opens the print dialog (offer letter: print / save as PDF). |
+| `pages/attendance-bulk.js` | `[data-bulk-attendance]` (admin/attendance/bulk) | "Mark all present except" list: client search over `data-search`, select all / none of the visible rows, apply one exception to the selected rows, and show the time inputs only for "late" (check-in) and "custom times" (both). Selection count through `ui/check-group.js`. Works without JS (all inputs visible; the server validates). |
+| `pages/schedule-forms.js` | `form[data-shift-form]`, `[data-work-schedule-form]`, `[data-scope-form]`, `[data-schedule-change-form]` | Shift type fields and break rows, schedule pattern grid length, "applies to" record select, change/swap fields. |
+| `pages/schedule-calendar.js` | `[data-schedule-calendar]` | Opens the day override modal from a calendar cell (cells are links to the day page without JS). |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes
@@ -150,6 +153,13 @@ data is logged per tab), `_placement-fields` for every placement form, `_status`
 Protected values (identity numbers, salary, bank details) are rendered only after the policy check in
 `App\Services\Employees\EmployeeProfile`; files are always linked through the authorised download routes.
 Money is formatted with `App\Support\Money::format()` (bcmath, never float).
+
+**Attendance screens** — `admin/attendance/*` (operations) and `admin/scheduling/*` (configuration).
+Partials: `_day-status` (status pill + "manual" marker + lock icon — use it wherever a processed day is shown, manual
+attendance must always be distinguishable), `_sources` (source badges), `_summary` (month totals, also used by the
+portal). Times are stored in UTC: render with `App\Services\Attendance\AttendanceClock::localTime($instant, $day->timezone)`
+and minutes with `App\Support\Duration::format()`. Never compute attendance figures in Blade or JS — they come from
+`attendance_days` (written only by `AttendanceEngine`).
 
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.

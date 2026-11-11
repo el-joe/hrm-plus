@@ -7,6 +7,18 @@ use App\Models\ApprovalAction;
 use App\Models\ApprovalRequest;
 use App\Models\ApprovalWorkflow;
 use App\Models\ApprovalWorkflowStep;
+use App\Models\AttendanceAdjustment;
+use App\Models\AttendanceCorrection;
+use App\Models\AttendanceDay;
+use App\Models\AttendanceManualBatch;
+use App\Models\AttendanceManualEntry;
+use App\Models\AttendancePeriodLock;
+use App\Models\AttendancePolicy;
+use App\Models\AttendancePolicyAssignment;
+use App\Models\AttendancePolicyVersion;
+use App\Models\AttendancePunch;
+use App\Models\AttendanceRawEvent;
+use App\Models\AttendanceStatus;
 use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\BranchLocation;
@@ -28,6 +40,7 @@ use App\Models\EmployeeGroup;
 use App\Models\EmployeeSalary;
 use App\Models\EmploymentType;
 use App\Models\EvaluationForm;
+use App\Models\Holiday;
 use App\Models\Interview;
 use App\Models\InterviewScorecard;
 use App\Models\JobApplication;
@@ -44,11 +57,20 @@ use App\Models\OnboardingTemplateTask;
 use App\Models\Position;
 use App\Models\RecruitmentStage;
 use App\Models\Role;
+use App\Models\ScheduleAssignment;
+use App\Models\ScheduleChangeRequest;
+use App\Models\ScheduleOverride;
 use App\Models\Setting;
+use App\Models\Shift;
+use App\Models\ShiftBreak;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Models\WorkSchedule;
+use App\Models\WorkScheduleDay;
 use App\Policies\AdminUserPolicy;
+use App\Services\Attendance\Contracts\LeaveProvider;
+use App\Services\Attendance\NullLeaveProvider;
 use App\Services\Authorization\DataScopeManager;
 use App\Support\Navigation\NavigationBuilder;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -74,6 +96,10 @@ class AppServiceProvider extends ServiceProvider
         // One instance per request (and per queued job): it carries the admin
         // whose data scopes are currently being enforced.
         $this->app->scoped(DataScopeManager::class);
+
+        // Approved leave reaches the attendance engine through this hook; the
+        // leave module (Phase 6) replaces the null implementation.
+        $this->app->bind(LeaveProvider::class, NullLeaveProvider::class);
     }
 
     /**
@@ -144,6 +170,26 @@ class AppServiceProvider extends ServiceProvider
             'onboarding_task' => OnboardingTask::class,
             'offboarding_case' => OffboardingCase::class,
             'offboarding_item' => OffboardingItem::class,
+            'shift' => Shift::class,
+            'shift_break' => ShiftBreak::class,
+            'work_schedule' => WorkSchedule::class,
+            'work_schedule_day' => WorkScheduleDay::class,
+            'schedule_assignment' => ScheduleAssignment::class,
+            'schedule_change_request' => ScheduleChangeRequest::class,
+            'schedule_override' => ScheduleOverride::class,
+            'holiday' => Holiday::class,
+            'attendance_status' => AttendanceStatus::class,
+            'attendance_policy' => AttendancePolicy::class,
+            'attendance_policy_version' => AttendancePolicyVersion::class,
+            'attendance_policy_assignment' => AttendancePolicyAssignment::class,
+            'attendance_period_lock' => AttendancePeriodLock::class,
+            'attendance_manual_batch' => AttendanceManualBatch::class,
+            'attendance_manual_entry' => AttendanceManualEntry::class,
+            'attendance_correction' => AttendanceCorrection::class,
+            'attendance_raw_event' => AttendanceRawEvent::class,
+            'attendance_day' => AttendanceDay::class,
+            'attendance_punch' => AttendancePunch::class,
+            'attendance_adjustment' => AttendanceAdjustment::class,
         ]);
     }
 

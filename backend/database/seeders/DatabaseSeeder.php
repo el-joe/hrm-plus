@@ -16,12 +16,14 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(RecruitmentDefaultsSeeder::class);
+        $this->call(AttendanceDefaultsSeeder::class);
 
         if (! app()->isProduction()) {
             $this->call(OrganisationStructureSeeder::class);
             $this->call(EmployeeSeeder::class);
             $this->call(DevelopmentAccountsSeeder::class);
             $this->call(RecruitmentDemoSeeder::class);
+            $this->call(AttendanceDemoSeeder::class);
         }
     }
 }

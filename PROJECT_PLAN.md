@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-11 · Status: **Phases 0–4 complete; Phase 5 next**
+Last updated: 2026-11-11 · Status: **Phases 0–4 complete; Phase 5a (attendance core) complete; Phase 5b next**
 
 ---
 
@@ -153,17 +153,18 @@ Must finish before any UI code is written.
 - [x] Offboarding: resignation, termination, contract expiry, exit interview, asset and document handover, account deactivation *(handover items from pluggable providers — the Assets phase registers its own; exit interview form; completion terminates via TerminateEmployee on the last working day; termination now also disables linked admin accounts; `offboarding:detect-contract-expiries` opens contract-end cases)*
 - [x] Tests: recruitment workflow; end-to-end scenario 1 up to account creation *(and API sign-in of the new employee)*
 
-### Phase 5 — Attendance engine · XL · critical
-- [ ] Schema: devices, device-employee mappings, raw device events, sync logs, work locations, geofences, face verification records, attendance policies, daily records, punches, corrections
-- [ ] Shifts and schedules (spec module 7): fixed, flexible, rotating, night, cross-midnight, multiple per day; weekly and monthly schedules by employee, department, branch; holidays; breaks; swaps; approvals; visual calendar
-- [ ] Device layer: adapter interface, simulated adapter, push endpoint, pull sync job, manual sync, historical import, CSV/Excel fallback, health status, failure handling, event review screen
-- [ ] Duplicate-event protection at the database level
-- [ ] GPS check-in/out API: server-side distance and accuracy validation, shift validation, mock-location flagging, suspicious-attempt review queue
-- [ ] Face verification: provider interface, simulated adapter, enrolment, consent, encrypted storage, retention and deletion, retry rules, manual fallback workflow
-- [ ] Manual attendance: individual correction, **bulk "mark all present except"** with filters, exceptions, search, select all, confirmation screen, audit trail, Excel import, approval workflow
-- [ ] Calculation service: lateness, early departure, absence, overtime, breaks, missing punches, grace periods, all driven by policy tables
-- [ ] Attendance dashboard, calendar, daily and monthly views, reports
-- [ ] Tests: device event processing, duplicate prevention, bulk attendance, geofence validation, face provider boundary, shift calculations; scenarios 2 (server side) and 3
+### Phase 5 — Attendance engine · XL · critical · **5a (core) done**, 5b (devices, GPS, face, dashboard) next
+- [x] Schema (5a part): attendance policies (effective-dated versions + assignments), raw events, punches, daily records, corrections, manual batches, period locks, adjustments, shifts, schedules, overrides, holidays, configurable day statuses *(5b adds devices, device-employee mappings, sync logs, geofences, face verification records — linked to `attendance_raw_events` by id)*
+- [ ] Schema (5b part): devices, device-employee mappings, sync logs, work locations / geofences, face verification records
+- [x] Shifts and schedules (spec module 7): fixed, flexible, rotating, night, cross-midnight, multiple per day; weekly and monthly schedules by employee, group, department, branch, company; holidays; breaks; swaps; approvals; visual calendar *(`ScheduleResolver::for($employee, $date)` is the single source; precedence employee > group > department (nearest up the tree) > branch > company; date overrides from the calendar and approved changes / swaps)*
+- [ ] Device layer: adapter interface, simulated adapter, push endpoint, pull sync job, manual sync, historical import, CSV/Excel fallback, health status, failure handling, event review screen *(5b)*
+- [x] Duplicate-event protection at the database level *(unique `attendance_raw_events.idempotency_key`; unique day per employee + date + shift_key)*
+- [ ] GPS check-in/out API: server-side distance and accuracy validation, shift validation, mock-location flagging, suspicious-attempt review queue *(5b; records through `RawEventRecorder`)*
+- [ ] Face verification: provider interface, simulated adapter, enrolment, consent, encrypted storage, retention and deletion, retry rules, manual fallback workflow *(5b)*
+- [x] Manual attendance: individual correction, **bulk "mark all present except"** with filters, exceptions, search, select all, confirmation screen, audit trail, Excel import, approval workflow *(manual input becomes raw events with source manual / import; marked "manual" in every view)*
+- [x] Calculation service: lateness, early departure, absence, overtime, breaks, missing punches, grace periods, all driven by policy tables *(`AttendanceEngine` + `DayCalculator`, idempotent, calculation snapshot with policy version; `attendance:process` nightly; period locks with adjustment rows)*
+- [ ] Attendance dashboard, calendar, daily and monthly views, reports *(5a: schedule calendar, daily view, day breakdown, monthly timesheet, exports; 5b: dashboard and reports)*
+- [ ] Tests: device event processing, duplicate prevention, bulk attendance, geofence validation, face provider boundary, shift calculations; scenarios 2 (server side) and 3 *(5a done: engine rules, resolver, duplicates, bulk, corrections, locks, import, scope, portal/API, scenario 3, scenario 2 without GPS/face; 5b: devices, geofence, face)*
 
 ### Phase 6 — Leave management · M
 - [ ] Leave types, effective-dated policies per employment type or group, eligibility

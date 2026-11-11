@@ -42,6 +42,10 @@ return [
         'category' => 'الفئة',
     ],
 
+    'task_actions' => [
+        'assign_schedule' => 'فتح شاشة إسناد جدول العمل',
+    ],
+
     'enums' => [
         'assignees' => ['hr' => 'الموارد البشرية', 'it' => 'تقنية المعلومات', 'manager' => 'المدير المباشر', 'finance' => 'المالية', 'employee' => 'الموظف'],
         'handover_categories' => ['asset' => 'عهدة', 'document' => 'مستند', 'access' => 'صلاحيات الأنظمة', 'finance' => 'مالي', 'other' => 'أخرى'],

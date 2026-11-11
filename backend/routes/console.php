@@ -17,3 +17,7 @@ Schedule::command('employees:send-expiry-reminders')->dailyAt('07:00')->withoutO
 Schedule::command('recruitment:send-interview-reminders')->hourly()->withoutOverlapping()->onOneServer();
 Schedule::command('recruitment:expire-offers')->dailyAt('00:20')->withoutOverlapping()->onOneServer();
 Schedule::command('offboarding:detect-contract-expiries')->dailyAt('06:30')->withoutOverlapping()->onOneServer();
+// Attendance (Phase 5a): yesterday's days once the day is over (absences appear even without any
+// punch), and a sweep for raw events whose processing job never ran.
+Schedule::command('attendance:process')->dailyAt('01:30')->withoutOverlapping()->onOneServer();
+Schedule::command('attendance:process --pending')->everyTenMinutes()->withoutOverlapping()->onOneServer();

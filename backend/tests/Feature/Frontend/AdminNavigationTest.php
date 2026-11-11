@@ -18,6 +18,8 @@ it('shows every sidebar entry to a Super Admin', function () {
         'employees', 'employee_groups', 'employee_custom_fields',
         'vacancies', 'candidates', 'interviews', 'offers', 'recruitment_stages', 'evaluation_forms',
         'onboarding', 'offboarding', 'onboarding_templates',
+        'attendance_daily', 'attendance_timesheet', 'attendance_bulk', 'attendance_batches', 'attendance_corrections', 'attendance_locks',
+        'schedule_calendar', 'shifts', 'work_schedules', 'schedule_assignments', 'schedule_changes', 'holidays', 'attendance_policies', 'attendance_statuses',
         'company', 'org_chart', 'branches', 'departments', 'teams', 'positions', 'job_titles', 'job_grades', 'employment_types', 'cost_centers',
         'admin_users', 'roles', 'audit_logs', 'settings', 'ui_kit',
     ]);

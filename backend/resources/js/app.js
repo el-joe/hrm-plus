@@ -24,6 +24,9 @@ import { initOrgChart } from './pages/org-chart';
 import { initEmployeeForm } from './pages/employee-form';
 import { initEmployeeBulk } from './pages/employee-bulk';
 import { initPipelineBoard } from './pages/pipeline-board';
+import { initScheduleForms } from './pages/schedule-forms';
+import { initScheduleCalendar } from './pages/schedule-calendar';
+import { initAttendanceBulk } from './pages/attendance-bulk';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -67,6 +70,18 @@ function boot() {
 
     if (document.querySelector('[data-pipeline-board]')) {
         initPipelineBoard();
+    }
+
+    if (document.querySelector('form[data-shift-form], form[data-work-schedule-form], form[data-scope-form], form[data-schedule-change-form]')) {
+        initScheduleForms();
+    }
+
+    if (document.querySelector('[data-schedule-calendar]')) {
+        initScheduleCalendar();
+    }
+
+    if (document.querySelector('[data-bulk-attendance]')) {
+        initAttendanceBulk();
     }
 }
 

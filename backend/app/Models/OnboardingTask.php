@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OnboardingTaskAction;
 use App\Enums\TaskAssignee;
 use App\Enums\TaskStatus;
 use App\Models\Concerns\Auditable;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['onboarding_id', 'title_ar', 'title_en', 'description', 'assignee', 'due_date', 'status', 'note', 'sort_order'])]
+#[Fillable(['onboarding_id', 'title_ar', 'title_en', 'description', 'assignee', 'action', 'due_date', 'status', 'note', 'sort_order'])]
 class OnboardingTask extends Model
 {
     use Auditable;
@@ -21,7 +22,7 @@ class OnboardingTask extends Model
     protected function casts(): array
     {
         return [
-            'assignee' => TaskAssignee::class,
+            'assignee' => TaskAssignee::class, 'action' => OnboardingTaskAction::class,
             'status' => TaskStatus::class,
             'due_date' => 'date',
             'completed_at' => 'datetime',

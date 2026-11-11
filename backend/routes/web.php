@@ -231,6 +231,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::post('cancel', [Lifecycle\OffboardingController::class, 'cancel'])->name('cancel');
         });
 
+        // Attendance (Phase 5a): operations (daily records, corrections, bulk entry,
+        // import, locks) and configuration (shifts, schedules, calendar,
+        // holidays, policies, statuses). Kept in their own files.
+        require __DIR__.'/admin/attendance.php';
+        require __DIR__.'/admin/scheduling.php';
+
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.
         Route::resource('admin-users', Admin\AdminUserController::class);
@@ -283,6 +289,11 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         // My onboarding checklist (own tasks only).
         Route::get('onboarding', [Employee\OnboardingController::class, 'index'])->name('onboarding');
         Route::patch('onboarding/tasks/{task}', [Employee\OnboardingController::class, 'update'])->whereNumber('task')->name('onboarding.tasks.update');
+
+        // My attendance (own record only): schedule, daily records, correction requests.
+        Route::get('attendance', [Employee\AttendanceController::class, 'index'])->name('attendance');
+        Route::post('attendance/corrections', [Employee\AttendanceController::class, 'storeCorrection'])->name('attendance.corrections.store');
+        Route::post('attendance/corrections/{correction}/cancel', [Employee\AttendanceController::class, 'cancelCorrection'])->whereNumber('correction')->name('attendance.corrections.cancel');
 
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');

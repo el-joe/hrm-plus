@@ -29,7 +29,9 @@ class SecurityHeaders
         $headers->set('X-Frame-Options', 'SAMEORIGIN', false);
         $headers->set('X-Content-Type-Options', 'nosniff', false);
         $headers->set('Referrer-Policy', 'strict-origin-when-cross-origin', false);
-        $headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()', false);
+        // The portal's check-in card needs the browser's location and camera (same origin only).
+        $selfFeatures = $request->is('portal', 'portal/*') ? '(self)' : '()';
+        $headers->set('Permissions-Policy', "camera={$selfFeatures}, microphone=(), geolocation={$selfFeatures}, payment=(), usb=()", false);
         $headers->set('Cross-Origin-Opener-Policy', 'same-origin', false);
 
         $hsts = (int) config('security.hsts_max_age');

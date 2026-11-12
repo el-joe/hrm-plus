@@ -430,6 +430,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('attendance-checkin', fn (Request $request): Limit => Limit::perMinute(12)
             ->by('checkin|'.($request->user('sanctum')?->getAuthIdentifier() ?: $request->ip())));
 
+        // The same limit for check-in / check-out from the portal, per signed-in account (shared bucket name with the app).
+        RateLimiter::for('portal-checkin', fn (Request $request): Limit => Limit::perMinute(12)
+            ->by('checkin|'.($request->user()?->getAuthIdentifier() ?: $request->ip())));
+
         // Device push, per device serial (and per IP for unknown serials).
         RateLimiter::for('device-push', fn (Request $request): Limit => Limit::perMinute((int) config('attendance_devices.push_per_minute'))
             ->by('device|'.$request->route('serial').'|'.$request->ip()));

@@ -135,6 +135,8 @@ class AttendancePolicyResolver
             'face_verification_mode' => $this->settings->get('attendance.face_verification_required') ? FaceVerificationMode::Required : FaceVerificationMode::Optional,
             'face_max_attempts' => (int) $this->settings->get('attendance.face_verification_max_retries'),
             'face_failure_action' => MobileRuleAction::Review,
+            'web_checkin_enabled' => true,
+            'web_checkin_requires_geofence' => true,
         ];
     }
 

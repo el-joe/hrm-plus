@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CheckInChannel;
 use App\Enums\FaceVerificationMode;
 use App\Enums\MobileAttemptOutcome;
 use App\Enums\PunchDirection;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * Every mobile GPS check-in / check-out attempt with the location data the
- * app sent and the server's decision: accepted (a raw event was recorded),
+ * Every self-service GPS check-in / check-out attempt (channel: the mobile app
+ * or the web portal) with the location data sent and the server's decision: accepted (a raw event was recorded),
  * rejected (nothing recorded) or flagged (recorded only if a reviewer
  * approves it). Written by App\Services\Attendance\Mobile\MobileCheckIn and
  * MobileAttemptReview only.
@@ -35,6 +36,7 @@ class AttendanceMobileAttempt extends Model
     protected function casts(): array
     {
         return [
+            'channel' => CheckInChannel::class,
             'direction' => PunchDirection::class,
             'outcome' => MobileAttemptOutcome::class,
             'review_status' => ReviewStatus::class,

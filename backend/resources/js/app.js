@@ -34,6 +34,7 @@ import { initAnnouncementForm } from './pages/announcements';
 import { initNotificationBell } from './ui/notification-bell';
 import { initNotificationTemplates } from './pages/notification-templates';
 import { initDashboardLayout } from './pages/dashboard';
+import { initCheckIns } from './pages/check-in';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -64,6 +65,10 @@ function boot() {
     initGlobalSearch();
     initPrint();
     initNotificationBell();
+
+    if (document.querySelector('[data-check-in]')) {
+        initCheckIns();
+    }
 
     if (document.querySelector('[data-org-chart]')) {
         initOrgChart();

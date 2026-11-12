@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'mobile_checkin_enabled', 'gps_max_accuracy_meters', 'gps_accuracy_tolerance_meters', 'gps_checkout_extra_meters',
     'gps_max_time_drift_seconds', 'gps_mock_location_action', 'gps_outside_window_action', 'gps_repeated_attempts_threshold',
     'face_verification_mode', 'face_max_attempts', 'face_failure_action',
+    'web_checkin_enabled', 'web_checkin_requires_geofence',
 ])]
 class AttendancePolicyVersion extends Model
 {
@@ -51,7 +52,7 @@ class AttendancePolicyVersion extends Model
     ];
 
     /**
-     * Mobile check-in and face verification rules (Phase 5b). Read by
+     * Mobile / web-portal check-in and face verification rules (Phase 5b). Read by
      * App\Services\Attendance\Mobile\MobileCheckIn when an attempt arrives; NOT
      * part of the day calculation snapshot (rules()), so changing them never
      * changes a calculated day.
@@ -62,6 +63,7 @@ class AttendancePolicyVersion extends Model
         'mobile_checkin_enabled', 'gps_max_accuracy_meters', 'gps_accuracy_tolerance_meters', 'gps_checkout_extra_meters',
         'gps_max_time_drift_seconds', 'gps_mock_location_action', 'gps_outside_window_action', 'gps_repeated_attempts_threshold',
         'face_verification_mode', 'face_max_attempts', 'face_failure_action',
+        'web_checkin_enabled', 'web_checkin_requires_geofence',
     ];
 
     /**
@@ -106,6 +108,8 @@ class AttendancePolicyVersion extends Model
             'face_verification_mode' => FaceVerificationMode::class,
             'face_max_attempts' => 'integer',
             'face_failure_action' => MobileRuleAction::class,
+            'web_checkin_enabled' => 'boolean',
+            'web_checkin_requires_geofence' => 'boolean',
         ];
     }
 

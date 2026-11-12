@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\Attendance\OwnCorrectionRequest;
 use App\Models\Employee;
 use App\Services\Attendance\AttendanceTimesheet;
 use App\Services\Attendance\BulkAttendance;
+use App\Services\Attendance\Mobile\PortalCheckIn;
 use App\Services\Attendance\PortalAttendance;
 use App\Services\Employees\PortalProfile;
 use Illuminate\Http\RedirectResponse;
@@ -18,14 +19,15 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * "My attendance" (spec section 5): schedule of the coming days, the month's
- * daily records with totals, and correction requests. Own record only.
+ * "My attendance" (spec section 5): today's check-in / check-out from the browser
+ * (PortalCheckIn), schedule of the coming days, the month's daily records with
+ * totals, and correction requests. Own record only.
  */
 class AttendanceController extends Controller
 {
     public function __construct(private readonly PortalProfile $profile, private readonly PortalAttendance $attendance) {}
 
-    public function index(Request $request, AttendanceTimesheet $timesheet): View
+    public function index(Request $request, AttendanceTimesheet $timesheet, PortalCheckIn $checkIn): View
     {
         $employee = $this->employee($request);
         [$from, $to] = AttendanceTimesheet::month($request->query('month'));
@@ -41,6 +43,7 @@ class AttendanceController extends Controller
             'corrections' => $this->attendance->corrections($employee, 10),
             'statuses' => $this->attendance->requestableStatuses(),
             'today' => $today,
+            'checkIn' => $checkIn->card($employee),
         ]);
     }
 

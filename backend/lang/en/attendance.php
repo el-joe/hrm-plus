@@ -13,7 +13,7 @@ return [
         'shift_types' => ['fixed' => 'Fixed', 'flexible' => 'Flexible'],
         'break_types' => ['fixed' => 'Fixed time', 'flexible' => 'Flexible (any time)'],
         'schedule_types' => ['weekly' => 'Weekly', 'rotating' => 'Rotating cycle', 'monthly' => 'Monthly (day of month)'],
-        'sources' => ['device' => 'Device', 'mobile_gps' => 'Mobile (GPS)', 'manual' => 'Manual', 'import' => 'Import'],
+        'sources' => ['device' => 'Device', 'mobile_gps' => 'Mobile (GPS)', 'web_portal' => 'Web portal (GPS)', 'manual' => 'Manual', 'import' => 'Import'],
         'event_kinds' => ['punch' => 'Punch', 'day_mark' => 'Day status'],
         'event_statuses' => ['pending' => 'Pending', 'processed' => 'Processed', 'unmatched' => 'Unmatched', 'void' => 'Voided'],
         'directions' => ['in' => 'In', 'out' => 'Out', 'unknown' => 'Unknown'],

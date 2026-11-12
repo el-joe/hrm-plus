@@ -104,6 +104,10 @@ class MobileAttendanceStatus
             ],
             'rules' => [
                 'mobile_checkin_enabled' => $policy->mobile_checkin_enabled,
+                'web_checkin_enabled' => $policy->web_checkin_enabled,
+                'web_checkin_requires_geofence' => $policy->web_checkin_requires_geofence,
+                'checkout_extra_meters' => $policy->gps_checkout_extra_meters,
+                'face_failure_action' => $policy->face_failure_action->value,
                 'max_accuracy_meters' => $policy->gps_max_accuracy_meters,
                 'accuracy_tolerance_meters' => $policy->gps_accuracy_tolerance_meters,
                 'max_time_drift_seconds' => $policy->gps_max_time_drift_seconds,

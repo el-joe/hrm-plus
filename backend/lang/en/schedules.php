@@ -223,6 +223,7 @@ return [
             'breaks' => 'Breaks',
             'approvals' => 'Approvals',
             'mobile' => 'Mobile check-in (GPS)',
+            'web' => 'Check-in from the web portal',
             'face' => 'Face verification',
         ],
         'rule_labels' => [
@@ -260,6 +261,8 @@ return [
             'face_verification_mode' => 'Face verification',
             'face_max_attempts' => 'Face attempts per day and direction',
             'face_failure_action' => 'When face verification fails for good',
+            'web_checkin_enabled' => 'Allow check-in from the web portal',
+            'web_checkin_requires_geofence' => 'Web check-in must be inside the geofence',
         ],
         'rule_help' => [
             'late_grace_minutes' => 'Arrivals within the grace period are not late.',
@@ -280,6 +283,8 @@ return [
             'gps_checkout_extra_meters' => 'Lets employees check out slightly further away (e.g. a car park).',
             'gps_max_time_drift_seconds' => 'Larger differences send the attempt to review; the server time is always the recorded time.',
             'face_failure_action' => 'Send to review = manual fallback by HR; reject = the employee must contact HR.',
+            'web_checkin_enabled' => 'Employees can check in and out from the portal in a browser (HTTPS needed for location and camera). The other mobile rules and face verification apply the same way.',
+            'web_checkin_requires_geofence' => 'On: the browser location must pass the same accuracy and geofence checks as the app. Off: the location is recorded when available but not checked (e.g. remote staff on desktops).',
             'face_verification_mode' => 'Optional: verified when the app sends a face; a failure is never accepted silently.',
         ],
     ],

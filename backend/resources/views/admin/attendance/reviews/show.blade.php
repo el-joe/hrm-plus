@@ -22,8 +22,8 @@
     <div class="grid gap-4 lg:grid-cols-2 lg:gap-6">
         <x-card :title="__('mobile.review.location')">
             <x-detail-list>
-                <x-detail-item :label="__('mobile.fields.coordinates')"><span dir="ltr">{{ $attempt->latitude }}, {{ $attempt->longitude }}</span></x-detail-item>
-                <x-detail-item :label="__('mobile.fields.accuracy')"><span dir="ltr">{{ (float) $attempt->accuracy_meters }} m</span></x-detail-item>
+                <x-detail-item :label="__('mobile.fields.coordinates')"><span dir="ltr">{{ $attempt->latitude !== null ? $attempt->latitude.', '.$attempt->longitude : '—' }}</span></x-detail-item>
+                <x-detail-item :label="__('mobile.fields.accuracy')"><span dir="ltr">{{ $attempt->accuracy_meters !== null ? (float) $attempt->accuracy_meters.' m' : '—' }}</span></x-detail-item>
                 <x-detail-item :label="__('mobile.fields.location')">
                     @if ($attempt->allow_anywhere)
                         {{ __('mobile.locations.anywhere') }}
@@ -47,6 +47,7 @@
                 <x-detail-item :label="__('mobile.fields.device_time')"><span dir="ltr">{{ $attempt->device_time?->setTimezone($tz)->format('Y-m-d H:i:s') ?? '—' }}</span></x-detail-item>
                 <x-detail-item :label="__('mobile.fields.time_drift')"><span dir="ltr">{{ $attempt->time_drift_seconds !== null ? $attempt->time_drift_seconds.' s' : '—' }}</span></x-detail-item>
                 <x-detail-item :label="__('attendance.fields.shift')">{{ $attempt->shift ? $attempt->shift->code.' · '.$attempt->shift->timeRange() : __('mobile.review.no_shift_window') }}</x-detail-item>
+                <x-detail-item :label="__('mobile.fields.channel')"><x-badge :tone="$attempt->channel === \App\Enums\CheckInChannel::Web ? 'info' : 'neutral'" data-channel="{{ $attempt->channel->value }}">{{ $attempt->channel->label() }}</x-badge></x-detail-item>
                 <x-detail-item :label="__('mobile.fields.device')"><span dir="ltr">{{ trim(($attempt->platform ?? '').' '.($attempt->app_version ?? '')) ?: '—' }}</span>
                     @if ($attempt->device_identifier)<span class="block text-caption-md text-text-tertiary" dir="ltr">{{ $attempt->device_identifier }}</span>@endif
                 </x-detail-item>

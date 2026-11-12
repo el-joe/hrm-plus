@@ -26,6 +26,7 @@ trait PolicyRuleRules
     public static array $booleanRules = [
         'late_count_from_shift_start', 'overtime_enabled', 'overtime_requires_approval', 'overtime_count_early_arrival',
         'rest_day_work_is_overtime', 'manual_entry_requires_approval', 'correction_requires_approval', 'mobile_checkin_enabled',
+        'web_checkin_enabled', 'web_checkin_requires_geofence',
     ];
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Services\Announcements\AnnouncementFeed;
+use App\Services\Attendance\Mobile\PortalCheckIn;
 use App\Services\Employees\PortalHome;
 use App\Services\Employees\PortalProfile;
 use App\Services\HrRequests\PortalHrRequests;
@@ -14,7 +15,8 @@ use Illuminate\View\View;
 /**
  * Employee Home (spec section 5): profile summary, today's attendance and shift, this month's
  * attendance, leave balances, pending items, the latest payslip, upcoming shifts and holidays,
- * tasks, announcements and notifications. Figures come from App\Services\Employees\PortalHome
+ * tasks, announcements and notifications, and the browser check-in / check-out
+ * (PortalCheckIn). Figures come from App\Services\Employees\PortalHome
  * (shared with GET /api/v1/me/home).
  */
 class HomeController extends Controller
@@ -26,6 +28,7 @@ class HomeController extends Controller
         PortalHrRequests $requests,
         AnnouncementFeed $announcements,
         NotificationInbox $inbox,
+        PortalCheckIn $checkIn,
     ): View {
         $employee = $profile->employeeFor($request->user());
 
@@ -33,6 +36,7 @@ class HomeController extends Controller
             'user' => $request->user(),
             'employee' => $employee,
             'today' => $employee ? $home->attendanceToday($employee) : null,
+            'checkIn' => $employee ? $checkIn->card($employee) : null,
             'month' => $employee ? $home->attendanceMonth($employee) : null,
             'leaveBalances' => $employee ? collect($home->leaveBalances($employee)) : collect(),
             'pending' => $employee ? $home->pending($employee) : null,

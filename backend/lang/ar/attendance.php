@@ -12,7 +12,7 @@ return [
         'shift_types' => ['fixed' => 'ثابتة', 'flexible' => 'مرنة'],
         'break_types' => ['fixed' => 'وقت محدد', 'flexible' => 'مرنة (في أي وقت)'],
         'schedule_types' => ['weekly' => 'أسبوعي', 'rotating' => 'دوري متناوب', 'monthly' => 'شهري (حسب يوم الشهر)'],
-        'sources' => ['device' => 'جهاز البصمة', 'mobile_gps' => 'الجوال (GPS)', 'manual' => 'يدوي', 'import' => 'استيراد'],
+        'sources' => ['device' => 'جهاز البصمة', 'mobile_gps' => 'الجوال (GPS)', 'web_portal' => 'بوابة الويب (GPS)', 'manual' => 'يدوي', 'import' => 'استيراد'],
         'event_kinds' => ['punch' => 'بصمة', 'day_mark' => 'حالة يوم'],
         'event_statuses' => ['pending' => 'قيد المعالجة', 'processed' => 'تمت المعالجة', 'unmatched' => 'غير مربوط بموظف', 'void' => 'ملغى'],
         'directions' => ['in' => 'دخول', 'out' => 'خروج', 'unknown' => 'غير محدد'],

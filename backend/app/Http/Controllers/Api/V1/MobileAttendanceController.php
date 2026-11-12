@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\MobileAttemptOutcome;
 use App\Enums\PunchDirection;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\MobileAttendanceRequest;
@@ -10,7 +9,6 @@ use App\Http\Resources\V1\AttendanceDayResource;
 use App\Http\Resources\V1\MobileAttemptResource;
 use App\Models\AttendanceMobileAttempt;
 use App\Models\Employee;
-use App\Services\Attendance\Mobile\CheckInResult;
 use App\Services\Attendance\Mobile\MobileAttendanceStatus;
 use App\Services\Attendance\Mobile\MobileCheckIn;
 use App\Services\Employees\PortalProfile;
@@ -42,12 +40,12 @@ class MobileAttendanceController extends Controller
 
     public function checkIn(MobileAttendanceRequest $request, MobileCheckIn $checkIn): JsonResponse
     {
-        return $this->respond($checkIn->handle($this->employee($request), $request->user(), $request->toData(PunchDirection::In)));
+        return $checkIn->handle($this->employee($request), $request->user(), $request->toData(PunchDirection::In))->toResponse();
     }
 
     public function checkOut(MobileAttendanceRequest $request, MobileCheckIn $checkIn): JsonResponse
     {
-        return $this->respond($checkIn->handle($this->employee($request), $request->user(), $request->toData(PunchDirection::Out)));
+        return $checkIn->handle($this->employee($request), $request->user(), $request->toData(PunchDirection::Out))->toResponse();
     }
 
     public function attempts(Request $request): JsonResponse
@@ -56,22 +54,6 @@ class MobileAttendanceController extends Controller
             ->where('employee_id', $this->employee($request)->id)->latest('server_time')->latest('id')->paginate(20);
 
         return ApiResponse::paginated($attempts, MobileAttemptResource::class);
-    }
-
-    private function respond(CheckInResult $result): JsonResponse
-    {
-        $attempt = new MobileAttemptResource($result->attempt);
-
-        return match ($result->attempt->outcome) {
-            MobileAttemptOutcome::Accepted => ApiResponse::success($attempt, __('mobile.api.accepted_'.$result->attempt->direction->value), 201),
-            MobileAttemptOutcome::Flagged => ApiResponse::success($attempt, __('mobile.api.flagged'), 202),
-            MobileAttemptOutcome::Rejected => ApiResponse::error(
-                __('mobile.reasons.'.($result->attempt->reasonCodes()[0] ?? 'outside_geofence')),
-                422,
-                'attendance_rejected',
-                data: [...$attempt->resolve(), 'face_remaining_attempts' => $result->remainingFaceAttempts],
-            ),
-        };
     }
 
     private function employee(Request $request): Employee

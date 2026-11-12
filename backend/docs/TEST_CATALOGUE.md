@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**127 files, 1073 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**128 files, 1083 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -21,7 +21,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Api/V1 | 3 | 15 |
 | Feature/Approvals | 1 | 14 |
 | Feature/Assets | 4 | 35 |
-| Feature/Attendance | 8 | 87 |
+| Feature/Attendance | 9 | 97 |
 | Feature/Audit | 1 | 9 |
 | Feature/Auth | 4 | 32 |
 | Feature/Authorization | 5 | 38 |
@@ -430,6 +430,19 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - shows only in-scope employees on the calendar and changes a date through an override
 - runs shift changes and swaps through the approval workflow
 - renders every configuration page in Arabic and English
+
+### `tests/Feature/Attendance/WebCheckInTest.php` (10)
+
+- records a web check-in and check-out as web_portal events at server time and processes the day
+- applies exactly the rules of the app API to the same input
+- answers the geofence rejection with the distance and the nearest location
+- sends a flagged web attempt to the review queue, recorded as web_portal only once approved
+- applies the face rules on the web: off, optional and required with retries and the review fallback
+- is idempotent per request uuid and refuses a uuid used by another employee
+- follows the policy switches for the web portal
+- shows the check-in card with the next action, window and face chips on the portal
+- protects the web routes: CSRF, signed-in employees only, the browser permissions
+- labels and filters the web channel on the admin screens and reports
 
 ## Feature/Audit
 

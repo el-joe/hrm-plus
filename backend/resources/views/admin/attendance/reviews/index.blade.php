@@ -19,6 +19,12 @@
                 <option value="{{ $reason }}" @selected(($filters['reason'] ?? '') === $reason)>{{ AttemptReason::label($reason) }}</option>
             @endforeach
         </x-form.select>
+        <x-form.select name="channel" :label="__('mobile.fields.channel')" hide-label class="md:w-40">
+            <option value="">{{ __('mobile.fields.channel') }}: {{ __('app.common.all') }}</option>
+            @foreach ($channels as $channel)
+                <option value="{{ $channel->value }}" @selected(($filters['channel'] ?? '') === $channel->value)>{{ $channel->label() }}</option>
+            @endforeach
+        </x-form.select>
         <x-form.select name="branch_id" :label="__('attendance.fields.branch')" hide-label class="md:w-44">
             <option value="">{{ __('attendance.fields.branch') }}: {{ __('app.common.all') }}</option>
             @foreach ($branches as $branch)
@@ -35,6 +41,7 @@
                 <x-table.th class="min-w-48">{{ __('attendance.fields.employee') }}</x-table.th>
                 <x-table.th>{{ __('attendance.fields.time') }}</x-table.th>
                 <x-table.th>{{ __('attendance.fields.direction') }}</x-table.th>
+                <x-table.th>{{ __('mobile.fields.channel') }}</x-table.th>
                 <x-table.th>{{ __('mobile.fields.location') }}</x-table.th>
                 <x-table.th>{{ __('mobile.fields.face') }}</x-table.th>
                 <x-table.th>{{ __('mobile.fields.reasons') }}</x-table.th>
@@ -49,6 +56,7 @@
                 </x-table.td>
                 <x-table.td :label="__('attendance.fields.time')" class="tabular-nums"><span dir="ltr">{{ $attempt->server_time->setTimezone($attempt->timezone)->format('Y-m-d H:i') }}</span></x-table.td>
                 <x-table.td :label="__('attendance.fields.direction')">{{ $attempt->direction->label() }}</x-table.td>
+                <x-table.td :label="__('mobile.fields.channel')"><x-badge :tone="$attempt->channel === \App\Enums\CheckInChannel::Web ? 'info' : 'neutral'" data-channel="{{ $attempt->channel->value }}">{{ $attempt->channel->label() }}</x-badge></x-table.td>
                 <x-table.td :label="__('mobile.fields.location')">
                     @if ($attempt->allow_anywhere)
                         <x-badge tone="info">{{ __('mobile.locations.anywhere') }}</x-badge>
@@ -75,7 +83,7 @@
                 <x-table.td :label="__('mobile.fields.outcome')">@include('admin.attendance.reviews._outcome')</x-table.td>
             </x-table.row>
         @empty
-            <x-table.empty :colspan="7" icon="map-pin" :title="__('mobile.review.empty')" :description="$filters['view'] === 'queue' ? __('mobile.review.empty_queue') : null" />
+            <x-table.empty :colspan="8" icon="map-pin" :title="__('mobile.review.empty')" :description="$filters['view'] === 'queue' ? __('mobile.review.empty_queue') : null" />
         @endforelse
         <x-slot:footer>
             <x-pagination :paginator="$attempts" />

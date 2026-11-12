@@ -2,10 +2,10 @@
 
 namespace App\Services\Attendance\Mobile;
 
+use App\Enums\CheckInChannel;
 use App\Enums\MobileAttemptOutcome;
 use App\Enums\MobileRuleAction;
 use App\Enums\PunchDirection;
-use App\Enums\RawEventSource;
 use App\Enums\ReviewStatus;
 use App\Models\AttendanceMobileAttempt;
 use App\Models\AttendancePolicyVersion;
@@ -27,12 +27,16 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
- * Server-side validation of a mobile GPS check-in / check-out. Nothing the
- * app sends is trusted; the punch time is the SERVER time.
+ * Server-side validation of a self-service GPS check-in / check-out, from the
+ * mobile app or the employee web portal (CheckInData::$channel) — ONE path
+ * for both, so the same input gets the same decision. Nothing the client
+ * sends is trusted; the punch time is the SERVER time.
  *
  * Checks, with the rules of the employee's attendance-policy version:
  *
- *   employed on the date, mobile check-in enabled          else rejected
+ *   employed on the date, check-in enabled for the channel
+ *   (mobile_checkin_enabled | web_checkin_enabled)          else rejected
+ *   a position (web without geofence: optional)             else rejected
  *   GPS accuracy <= gps_max_accuracy_meters                 else rejected (retry outdoors)
  *   distance (haversine) to an allowed location <= its
  *   radius + min(accuracy, gps_accuracy_tolerance_meters)
@@ -43,8 +47,11 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  *   >= gps_repeated_attempts_threshold rejections in the last hour   review
  *   face verification (FaceVerifier, mode off/optional/required)    retry / review / reject
  *
- * Outcome: accepted -> recorded through RawEventRecorder (source mobile_gps,
- * idempotency key "mobile:{request uuid}"); flagged -> stored for the review
+ * Web attempts skip accuracy and geofence when web_checkin_requires_geofence
+ * is off (the position, when given, is still stored for audit).
+ *
+ * Outcome: accepted -> recorded through RawEventRecorder (source mobile_gps or
+ * web_portal, idempotency key "{channel}:{request uuid}"); flagged -> stored for the review
  * queue, recorded only if approved; rejected -> stored, nothing recorded.
  * The same request uuid always returns the stored outcome.
  */
@@ -70,11 +77,14 @@ class MobileCheckIn
         $workDate = $shift !== null ? $resolved->date : AttendanceClock::localDate($now, $resolved->timezone);
         $policy = $resolved->placement !== null ? $this->policies->for($employee, $resolved->placement, $workDate) : $this->policies->defaults();
 
+        $isWeb = $data->channel === CheckInChannel::Web;
+        $enforceGeofence = ! $isWeb || $policy->web_checkin_requires_geofence;
         $reject = [];
         $review = [];
         $attributes = [
-            'request_uuid' => $data->requestUuid, 'employee_id' => $employee->id, 'user_id' => $user->id, 'direction' => $data->direction,
-            'latitude' => $data->latitude, 'longitude' => $data->longitude, 'accuracy_meters' => round($data->accuracyMeters, 2),
+            'request_uuid' => $data->requestUuid, 'channel' => $data->channel, 'employee_id' => $employee->id, 'user_id' => $user->id,
+            'direction' => $data->direction, 'latitude' => $data->latitude, 'longitude' => $data->longitude,
+            'accuracy_meters' => $data->accuracyMeters !== null ? round($data->accuracyMeters, 2) : null,
             'is_mock_location' => $data->isMockLocation, 'device_time' => $data->deviceTime?->utc(), 'server_time' => $now,
             'time_drift_seconds' => $data->deviceTime !== null ? (int) $data->deviceTime->utc()->diffInSeconds($now, false) * -1 : null,
             'device_identifier' => $data->deviceIdentifier, 'platform' => $data->platform, 'app_version' => $data->appVersion,
@@ -84,15 +94,27 @@ class MobileCheckIn
 
         if (! $resolved->isEmployed()) {
             $reject[] = AttemptReason::NOT_EMPLOYED;
-        } elseif (! $policy->mobile_checkin_enabled) {
-            $reject[] = AttemptReason::MOBILE_DISABLED;
+        } elseif ($isWeb ? ! $policy->web_checkin_enabled : ! $policy->mobile_checkin_enabled) {
+            $reject[] = $isWeb ? AttemptReason::WEB_DISABLED : AttemptReason::MOBILE_DISABLED;
         }
 
-        if ($data->accuracyMeters > $policy->gps_max_accuracy_meters) {
-            $reject[] = AttemptReason::POOR_ACCURACY;
-        }
+        if (! $data->hasPosition()) {
+            if ($enforceGeofence) {
+                $reject[] = AttemptReason::LOCATION_REQUIRED;
+            }
 
-        $attributes += $this->geofence($employee, $resolved, $workDate, $data, $policy, $reject);
+            $attributes += ['branch_location_id' => null, 'distance_meters' => null, 'allowed_radius_meters' => null, 'within_geofence' => false, 'allow_anywhere' => false];
+        } elseif ($enforceGeofence) {
+            if ($data->accuracyMeters > $policy->gps_max_accuracy_meters) {
+                $reject[] = AttemptReason::POOR_ACCURACY;
+            }
+
+            $attributes += $this->geofence($employee, $resolved, $workDate, $data, $policy, $reject);
+        } else {
+            // Not enforced for this web attempt: measured for the record only.
+            $ignored = [];
+            $attributes += $this->geofence($employee, $resolved, $workDate, $data, $policy, $ignored);
+        }
 
         if ($data->isMockLocation) {
             $this->apply($policy->gps_mock_location_action, AttemptReason::MOCK_LOCATION, $reject, $review);
@@ -164,14 +186,16 @@ class MobileCheckIn
      */
     public function record(AttendanceMobileAttempt $attempt, ?User $reviewer): void
     {
+        $channel = $attempt->channel ?? CheckInChannel::Mobile;
         $event = $this->recorder->record(RawEventData::punch(
-            RawEventSource::MobileGps, $attempt->employee_id, $attempt->server_time, $attempt->direction, $attempt->timezone,
-            'mobile:'.$attempt->request_uuid,
+            $channel->rawEventSource(), $attempt->employee_id, $attempt->server_time, $attempt->direction, $attempt->timezone,
+            $channel->idempotencyPrefix().':'.$attempt->request_uuid,
             sourceReference: mb_substr(trim(($attempt->platform ?? 'app').' '.($attempt->device_identifier ?? '')), 0, 191),
             payload: array_filter([
-                'latitude' => (float) $attempt->latitude,
-                'longitude' => (float) $attempt->longitude,
-                'accuracy_meters' => (float) $attempt->accuracy_meters,
+                'channel' => $channel->value,
+                'latitude' => $attempt->latitude !== null ? (float) $attempt->latitude : null,
+                'longitude' => $attempt->longitude !== null ? (float) $attempt->longitude : null,
+                'accuracy_meters' => $attempt->accuracy_meters !== null ? (float) $attempt->accuracy_meters : null,
                 'distance_meters' => $attempt->distance_meters,
                 'branch_location_id' => $attempt->branch_location_id,
                 'mobile_attempt_id' => $attempt->id,

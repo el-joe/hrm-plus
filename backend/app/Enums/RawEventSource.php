@@ -9,6 +9,8 @@ enum RawEventSource: string
 {
     case Device = 'device';
     case MobileGps = 'mobile_gps';
+    // Check-in / check-out from the employee web portal (browser geolocation), validated like mobile_gps.
+    case WebPortal = 'web_portal';
     case Manual = 'manual';
     case Import = 'import';
 

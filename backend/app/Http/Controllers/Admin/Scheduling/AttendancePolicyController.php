@@ -45,6 +45,7 @@ class AttendancePolicyController extends StructureController
         'approvals' => ['manual_entry_requires_approval', 'correction_requires_approval'],
         'mobile' => ['mobile_checkin_enabled', 'gps_max_accuracy_meters', 'gps_accuracy_tolerance_meters', 'gps_checkout_extra_meters',
             'gps_max_time_drift_seconds', 'gps_mock_location_action', 'gps_outside_window_action', 'gps_repeated_attempts_threshold'],
+        'web' => ['web_checkin_enabled', 'web_checkin_requires_geofence'],
         'face' => ['face_verification_mode', 'face_max_attempts', 'face_failure_action'],
     ];
 

@@ -13,6 +13,10 @@ final class AttemptReason
 
     public const MOBILE_DISABLED = 'mobile_disabled';
 
+    public const WEB_DISABLED = 'web_disabled';
+
+    public const LOCATION_REQUIRED = 'location_required';
+
     public const POOR_ACCURACY = 'poor_accuracy';
 
     public const NO_LOCATION = 'no_location_configured';
@@ -39,7 +43,7 @@ final class AttemptReason
 
     /** @var list<string> */
     public const ALL = [
-        self::NOT_EMPLOYED, self::MOBILE_DISABLED, self::POOR_ACCURACY, self::NO_LOCATION, self::OUTSIDE_GEOFENCE, self::FACE_REQUIRED,
+        self::NOT_EMPLOYED, self::MOBILE_DISABLED, self::WEB_DISABLED, self::LOCATION_REQUIRED, self::POOR_ACCURACY, self::NO_LOCATION, self::OUTSIDE_GEOFENCE, self::FACE_REQUIRED,
         self::FACE_RETRY, self::MOCK_LOCATION, self::OUTSIDE_SHIFT_WINDOW, self::FACE_FAILED, self::FACE_NOT_ENROLLED, self::TIME_DRIFT,
         self::REPEATED_ATTEMPTS,
     ];

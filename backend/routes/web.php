@@ -331,6 +331,9 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         Route::get('attendance', [Employee\AttendanceController::class, 'index'])->name('attendance');
         Route::post('attendance/corrections', [Employee\AttendanceController::class, 'storeCorrection'])->name('attendance.corrections.store');
         Route::post('attendance/corrections/{correction}/cancel', [Employee\AttendanceController::class, 'cancelCorrection'])->whereNumber('correction')->name('attendance.corrections.cancel');
+        // Check-in / check-out from the browser (JSON; same validation as the app API: MobileCheckIn, channel "web").
+        Route::post('attendance/check-in', [Employee\AttendanceCheckInController::class, 'checkIn'])->middleware('throttle:portal-checkin')->name('attendance.check-in');
+        Route::post('attendance/check-out', [Employee\AttendanceCheckInController::class, 'checkOut'])->middleware('throttle:portal-checkin')->name('attendance.check-out');
 
         // My leaves (own record only): balances, requests, cancellation, attachments.
         Route::get('leaves', [Employee\LeaveController::class, 'index'])->name('leaves');

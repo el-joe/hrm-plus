@@ -73,14 +73,18 @@
                         </dl>
                     </div>
                 </div>
-                @if ($today['employed'] && $today['shifts'] !== [] && $today['state'] !== 'checked_out')
-                    <p class="mt-4 flex items-start gap-2 rounded-md bg-surface-muted px-3 py-2 text-body-sm text-text-secondary" data-checkin-hint>
-                        <x-icon name="smartphone" size="sm" class="mt-0.5 shrink-0 text-text-tertiary" />
-                        <span>{{ $today['mobile_checkin_enabled'] ? __('app.home.hint_mobile_'.$today['next_action']) : __('app.home.hint_device') }}</span>
-                    </p>
-                @endif
-                @if ($today['pending_reviews'])
-                    <p class="mt-2 text-body-sm text-text-secondary">{{ $digits(trans_choice('app.home.pending_reviews', $today['pending_reviews'], ['count' => $today['pending_reviews']])) }}</p>
+                @if ($checkIn && ! $checkIn['blocked'])
+                    @include('employee._check-in', ['checkInId' => 'home-check-in'])
+                @else
+                    @if ($today['employed'] && $today['shifts'] !== [] && $today['state'] !== 'checked_out')
+                        <p class="mt-4 flex items-start gap-2 rounded-md bg-surface-muted px-3 py-2 text-body-sm text-text-secondary" data-checkin-hint>
+                            <x-icon name="smartphone" size="sm" class="mt-0.5 shrink-0 text-text-tertiary" />
+                            <span>{{ $today['mobile_checkin_enabled'] ? __('app.home.hint_mobile_'.$today['next_action']) : __('app.home.hint_device') }}</span>
+                        </p>
+                    @endif
+                    @if ($checkIn)
+                        @include('employee._check-in', ['checkInId' => 'home-check-in'])
+                    @endif
                 @endif
                 <x-slot:footer>
                     <x-button variant="secondary" size="sm" :href="route('portal.attendance')" icon="clock">{{ __('app.nav.my_attendance') }}</x-button>

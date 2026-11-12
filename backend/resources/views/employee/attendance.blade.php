@@ -14,6 +14,14 @@
         </div>
     </div>
 
+    @php $checkInTone = ['checked_in' => 'success', 'checked_out' => 'neutral', 'not_checked_in' => 'warning'][$checkIn['state']] ?? 'neutral'; @endphp
+    <x-card :title="__('mobile.web.title')" class="min-w-0" data-region="my-check-in">
+        <x-slot:actions>
+            <x-badge :tone="$checkInTone" dot data-attendance-state="{{ $checkIn['state'] }}">{{ __('app.home.states.'.$checkIn['state']) }}</x-badge>
+        </x-slot:actions>
+        @include('employee._check-in', ['checkInId' => 'attendance-check-in'])
+    </x-card>
+
     @include('admin.attendance._summary')
 
     <div class="grid gap-4 lg:grid-cols-3 lg:gap-6">

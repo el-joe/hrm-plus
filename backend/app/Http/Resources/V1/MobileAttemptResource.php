@@ -26,6 +26,7 @@ class MobileAttemptResource extends JsonResource
 
         return [
             'request_uuid' => $this->request_uuid,
+            'channel' => $this->channel?->value,
             'direction' => $this->direction->value,
             'outcome' => $this->outcome->value,
             'review_status' => $this->review_status?->value,
@@ -41,7 +42,7 @@ class MobileAttemptResource extends JsonResource
                 'allowed_radius_meters' => $this->allowed_radius_meters,
                 'within_geofence' => $this->within_geofence,
                 'allow_anywhere' => $this->allow_anywhere,
-                'accuracy_meters' => (float) $this->accuracy_meters,
+                'accuracy_meters' => $this->accuracy_meters !== null ? (float) $this->accuracy_meters : null,
             ],
             'within_shift_window' => $this->within_shift_window,
             'time_drift_seconds' => $this->time_drift_seconds,

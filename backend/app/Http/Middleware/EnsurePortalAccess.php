@@ -38,6 +38,9 @@ class EnsurePortalAccess
             return redirect()->route(AuthArea::Portal->loginRoute())->withErrors(['email' => __('auth.inactive')]);
         }
 
+        // fetch() calls (check-in, notification count) get a status instead of the HTML login page.
+        abort_if($request->expectsJson(), 401);
+
         return redirect()->guest(route(AuthArea::Portal->loginRoute()));
     }
 }

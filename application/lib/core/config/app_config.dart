@@ -16,7 +16,7 @@ class AppConfig {
   factory AppConfig.fromEnvironment() => const AppConfig(
     apiBaseUrl: String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://hrm-plus.loc/api/v1',
+      defaultValue: 'https://hrm.codefanz.com/api/v1',
     ),
     appVersion: String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0'),
   );

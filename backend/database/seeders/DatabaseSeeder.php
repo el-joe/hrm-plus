@@ -19,6 +19,12 @@ class DatabaseSeeder extends Seeder
         $this->call(AttendanceDefaultsSeeder::class);
         $this->call(LeaveDefaultsSeeder::class);
         $this->call(PayrollDefaultsSeeder::class);
+        // Phase 8a: approval workflows and reference data (rating scale, competencies,
+        // asset categories, violation types) of performance, training, assets and disciplinary.
+        $this->call(PerformanceDefaultsSeeder::class);
+        $this->call(TrainingDefaultsSeeder::class);
+        $this->call(AssetDefaultsSeeder::class);
+        $this->call(DisciplinaryDefaultsSeeder::class);
 
         if (! app()->isProduction()) {
             $this->call(OrganisationStructureSeeder::class);
@@ -30,6 +36,10 @@ class DatabaseSeeder extends Seeder
             $this->call(LeaveDemoSeeder::class);
             $this->call(PayrollDemoSeeder::class);
             $this->call(PayrollRunDemoSeeder::class);
+            $this->call(PerformanceDemoSeeder::class);
+            $this->call(TrainingDemoSeeder::class);
+            $this->call(AssetDemoSeeder::class);
+            $this->call(DisciplinaryDemoSeeder::class);
         }
     }
 }

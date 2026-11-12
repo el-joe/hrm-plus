@@ -74,7 +74,7 @@ Hiding a link is never the protection — the route must enforce the same permis
 |---|---|
 | `x-button` | `variant` primary/secondary/ghost/danger, `size` sm/md/lg, `href` → `<a>`, `icon`, `icon-end`, `loading`. Default `type="submit"`; pass `type="button"` for JS triggers. |
 | `x-icon-button` | Icon-only; `label` is required (aria-label + tooltip). |
-| `x-icon` | `name`, `size` sm/md/lg, `flip`. Add new outline icons (24 grid, 1.75 stroke) to the map inside the file. |
+| `x-icon` | `name`, `size` sm/md/lg, `flip` (Phase 8a added `laptop`, `target`, `book-open`). Add new outline icons (24 grid, 1.75 stroke) to the map inside the file. |
 | `x-form.input` / `.select` / `.textarea` / `.file-input` | Label, help and error built in. `name` drives the id and the error-bag key (`scopes[branch]` → `scopes.branch`); `error-keys` adds keys such as `roles.*`; `hide-label` for filter bars. Other attributes (`required`, `value`, `maxlength`, `:disabled`) go on the control. Use `:required="$bool"`, not `@required()`, inside component tags. |
 | `x-form.checkbox` / `.radio` / `.switch` | Inline label; `:checked="…"`. |
 | `x-form.field` | Wrapper for a custom control (keeps label / help / error markup consistent). |
@@ -93,7 +93,7 @@ Hiding a link is never the protection — the route must enforce the same permis
 | `x-filter-bar` | GET form with Reset + Filter; keeps `sort`/`direction`. |
 | `x-tabs` | Link tabs (`url`, `active`) or client tabs (`id` → panel `<div id data-tab-panel>`). |
 | `x-breadcrumbs`, `x-page-header` | Used by the admin layout; available for custom headers. |
-| `x-dropdown`, `x-dropdown.item`, `x-dropdown.divider` | `<details>` menu; items are links (`href`) or POST/DELETE forms (`action`, `method`). |
+| `x-dropdown`, `x-dropdown.item`, `x-dropdown.divider` | `<details>` menu; items are links (`href`) or POST/DELETE forms (`action`, `method`). `direction="up"` opens above the trigger (bottom bars). |
 | `x-modal` | Native `<dialog>`; `id`, `title`, `size` sm/md/lg; slot `footer`. |
 | `x-confirm-dialog`, `x-toast-region`, `x-toast` | Already in every app layout. Session `status` / `error` flashes become toasts. |
 | `x-detail-list`, `x-detail-item` | Label/value grid for show pages. |
@@ -200,6 +200,23 @@ template `payslips/pdf` is plain tables + inline CSS for mPDF; wrap dates / refe
 (mPDF's bidi otherwise reorders hyphenated numbers in Arabic). Money stat grids use
 `grid-cols-1 sm:grid-cols-2 lg:grid-cols-N` (large amounts do not fit two per row at 375 px). Inside a page that sets
 `$currency`, pass `'currency' => null` to `admin.payroll._money` in table cells — includes inherit parent variables.
+
+**Phase 8a module screens** — `admin/performance/*`, `admin/training/*`, `admin/assets/*`, `admin/disciplinary/*` and the portal
+`employee/{performance,training,assets,disciplinary}/*`; strings in `lang/*/{performance,training,assets,disciplinary}.php`. They reuse
+the payroll form helpers (`select[data-switch]`, `[data-repeater]` from `pages/payroll.js`) — no new JS. Partials worth reusing:
+`admin/assets/_status`, `_condition`, `_return-forms`; `admin/training/_level` (skill level dots), `_validity` (certificate
+valid / expiring / expired), `_session-when`. Wide grids (skills matrix) sit in a `relative overflow-x-auto` container (sr-only
+labels otherwise widen the page); a `lg:col-span-*` column holding cards needs `min-w-0`. Disciplinary pages show the
+"restricted — every view is logged" alert; never render case details outside a `disciplinary.view` check.
+
+**Employee profile module tabs** — a module adds a tab by implementing `App\Services\Employees\Contracts\ProfileTab`
+(`visibleTo()`, `data()`) and registering it in `EmployeeProfile::MODULE_TABS` (view `admin/employees/tabs/{tab}`); timeline
+events come from a `TimelineSource` registered in `EmployeeProfile::TIMELINE_SOURCES` and render as kind `event`
+(`title`, `description`, `url`, `badge`, `tone`, `module` → dot colour). Return base collections (`->toBase()`), not Eloquent ones.
+
+**Portal navigation overflow** — portal items flagged `'more' => true` in `config/navigation.php` go into the *More* menu
+(desktop dropdown in the top bar; on mobile the bottom bar shows the first four primary items plus *More*, which opens upwards:
+`<x-dropdown direction="up">`, scrollable at 70 vh). Add new portal pages as `more` items.
 
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.

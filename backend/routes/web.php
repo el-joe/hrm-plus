@@ -243,6 +243,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         // Payroll components: salary structures, allowances, deductions, statutory tables, loans (Phase 7a).
         require __DIR__.'/admin/payroll.php';
 
+        // Performance, training, assets and disciplinary actions (Phase 8a).
+        require __DIR__.'/admin/performance.php';
+        require __DIR__.'/admin/training.php';
+        require __DIR__.'/admin/assets.php';
+        require __DIR__.'/admin/disciplinary.php';
+
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.
         Route::resource('admin-users', Admin\AdminUserController::class);
@@ -318,6 +324,12 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         Route::get('payroll', [Employee\PayrollController::class, 'index'])->name('payroll');
         Route::get('payroll/payslips/{payslip}', [Employee\PayrollController::class, 'show'])->whereNumber('payslip')->name('payroll.show');
         Route::get('payroll/payslips/{payslip}/pdf', [Employee\PayrollController::class, 'pdf'])->whereNumber('payslip')->name('payroll.pdf');
+
+        // My performance, training, assets and disciplinary notices (Phase 8a, own record only).
+        require __DIR__.'/portal/performance.php';
+        require __DIR__.'/portal/training.php';
+        require __DIR__.'/portal/assets.php';
+        require __DIR__.'/portal/disciplinary.php';
 
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');

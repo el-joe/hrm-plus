@@ -161,6 +161,33 @@ return [
         'offer_validity_days' => ['type' => 'integer', 'default' => 7, 'rules' => ['required', 'integer', 'between:1,90']],
     ],
 
+    // Performance (Phase 8a).
+    'performance' => [
+        // Employees may add their own goals in the portal (the manager still reviews and weighs them).
+        'employees_can_add_goals' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Days the employee has to acknowledge an approved review before HR is reminded.
+        'acknowledgement_days' => ['type' => 'integer', 'default' => 14, 'rules' => ['required', 'integer', 'between:1,90']],
+    ],
+
+    // Training (Phase 8a).
+    'training' => [
+        'self_requests_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Certificates expiring within this many days are reminded (employee + training managers).
+        'certificate_reminder_days' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'between:1,365']],
+        // Attendance rate (%) needed to mark an enrolment completed.
+        'completion_min_attendance_percent' => ['type' => 'integer', 'default' => 80, 'rules' => ['required', 'integer', 'between:0,100']],
+    ],
+
+    // Disciplinary actions (Phase 8a).
+    'disciplinary' => [
+        // Approved warnings count for escalation for this many months.
+        'warning_validity_months' => ['type' => 'integer', 'default' => 12, 'rules' => ['required', 'integer', 'between:1,60']],
+        // Days the employee has to respond to an issued action.
+        'response_days' => ['type' => 'integer', 'default' => 7, 'rules' => ['required', 'integer', 'between:1,60']],
+        // Deduction component (code) used for disciplinary salary deductions.
+        'deduction_component' => ['type' => 'string', 'default' => 'PENALTY', 'rules' => ['nullable', 'string', 'max:40']],
+    ],
+
     // Onboarding and offboarding (Phase 4).
     'lifecycle' => [
         'auto_start_onboarding' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],

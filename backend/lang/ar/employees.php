@@ -113,6 +113,10 @@ return [
         'financial' => 'البيانات المالية',
         'compensation' => 'التعويضات',
         'leave' => 'الإجازات',
+        'performance' => 'الأداء',
+        'training' => 'التدريب',
+        'assets' => 'العهد',
+        'disciplinary' => 'التأديب',
         'history' => 'السجل',
     ],
 

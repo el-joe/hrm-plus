@@ -28,6 +28,8 @@ class OrganisationStructureSeeder extends Seeder
         // The demo company is in Egypt: its timezone matches the branches (Africa/Cairo),
         // so "today" on the dashboards is Cairo's today.
         app(SettingsService::class)->set('localisation.timezone', 'Africa/Cairo');
+        // ... and its currency is the Egyptian pound (salaries, payroll and asset values are in EGP).
+        app(SettingsService::class)->set('localisation.currency_code', 'EGP');
 
         $grades = $this->jobGrades();
         $titles = $this->jobTitles();

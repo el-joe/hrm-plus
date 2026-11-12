@@ -121,12 +121,28 @@ return [
         'deductions' => [...$crud, 'approve', 'reject', 'export'],
         'statutory_rules' => $crud,
         'loans' => [...$crud, 'approve', 'reject', 'export'],
+        // Phase 8a. performance.view: reviews of the admin's own reporting line (direct and
+        // indirect reports, or reviews they are the reviewer of) inside the data scope;
+        // performance.manage: every review in scope plus cycles, rating scales and
+        // competencies; create/update: goals and the manager assessment; approve/reject: the
+        // "performance_review" calibration workflow; export: review lists.
         'performance' => [...$crud, 'approve', 'reject', 'export', 'manage'],
-        'training' => [...$crud, 'export', 'manage'],
+        // training.view: catalogue, sessions, enrolments, certificates, skills, budgets in scope;
+        // create: nominate employees (enrolled at once with training.manage, otherwise sent for
+        // approval); update: attendance, completion, certificates, skills; approve/reject: the
+        // "training_enrolment" workflow; manage: providers, programmes, courses, skills, budgets.
+        'training' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        // assets.view: catalogue and custody in scope (asset branch); create: new assets;
+        // update: assign, return, maintenance, lost / damaged; delete: retire; manage: categories.
         'assets' => [...$crud, 'export', 'manage'],
         'hr_requests' => [...$crud, 'approve', 'reject', 'manage'],
         'announcements' => $crud,
-        'disciplinary' => [...$crud, 'approve', 'reject'],
+        // Restricted (Phase 8a). disciplinary.view: case files, investigations, evidence and
+        // actions in scope — every view is written to the sensitive-data access log; without
+        // it an admin holding disciplinary.create can only report incidents and follow the
+        // status of the cases they reported. update: investigate, propose actions, close;
+        // approve/reject: the "disciplinary_action" workflow; manage: violation types.
+        'disciplinary' => [...$crud, 'approve', 'reject', 'export', 'manage'],
         'reports' => ['view', 'export'],
         'notifications' => ['view', 'manage'],
         'approvals' => ['view', 'manage'],
@@ -177,7 +193,7 @@ return [
                 'assets.view', 'assets.create', 'assets.update',
                 'hr_requests.view', 'hr_requests.create', 'hr_requests.update',
                 'announcements.view', 'announcements.create', 'announcements.update',
-                'disciplinary.view', 'disciplinary.create',
+                'disciplinary.create',
                 'reports.view', 'notifications.view',
             ],
         ],
@@ -228,8 +244,8 @@ return [
                 'leaves.view', 'leaves.approve', 'leaves.reject', 'leave_types.view', 'leave_balances.view',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
-                'training.view', 'assets.view', 'announcements.view', 'announcements.create',
-                'disciplinary.view', 'disciplinary.create', 'interviews.view',
+                'training.view', 'training.create', 'assets.view', 'announcements.view', 'announcements.create',
+                'disciplinary.create', 'interviews.view',
                 'reports.view', 'reports.export', 'notifications.view',
             ],
         ],
@@ -243,7 +259,8 @@ return [
                 'leaves.view', 'leaves.approve', 'leaves.reject', 'leave_types.view', 'leave_balances.view',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update', 'performance.approve', 'performance.reject',
-                'training.view', 'announcements.view', 'announcements.create', 'interviews.view',
+                'training.view', 'training.create', 'announcements.view', 'announcements.create', 'interviews.view',
+                'disciplinary.create',
                 'reports.view', 'notifications.view',
             ],
         ],
@@ -255,6 +272,7 @@ return [
                 'leaves.view', 'leaves.approve', 'leaves.reject', 'leave_types.view', 'leave_balances.view',
                 'hr_requests.view', 'hr_requests.approve', 'hr_requests.reject',
                 'performance.view', 'performance.create', 'performance.update',
+                'disciplinary.create',
                 'interviews.view', 'notifications.view',
             ],
         ],

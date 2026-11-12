@@ -7,6 +7,10 @@ use App\Models\ApprovalAction;
 use App\Models\ApprovalRequest;
 use App\Models\ApprovalWorkflow;
 use App\Models\ApprovalWorkflowStep;
+use App\Models\Asset;
+use App\Models\AssetAssignment;
+use App\Models\AssetCategory;
+use App\Models\AssetEvent;
 use App\Models\AttendanceAdjustment;
 use App\Models\AttendanceCorrection;
 use App\Models\AttendanceDay;
@@ -31,8 +35,13 @@ use App\Models\Candidate;
 use App\Models\CandidateAttachment;
 use App\Models\CandidateNote;
 use App\Models\Company;
+use App\Models\Competency;
 use App\Models\CostCenter;
 use App\Models\Department;
+use App\Models\DisciplinaryAction;
+use App\Models\DisciplinaryCase;
+use App\Models\DisciplinaryCaseNote;
+use App\Models\DisciplinaryEvidence;
 use App\Models\Employee;
 use App\Models\EmployeeAssignment;
 use App\Models\EmployeeBankAccount;
@@ -44,6 +53,7 @@ use App\Models\EmployeeEmergencyContact;
 use App\Models\EmployeeGroup;
 use App\Models\EmployeeLoan;
 use App\Models\EmployeeSalary;
+use App\Models\EmployeeSkill;
 use App\Models\EmploymentType;
 use App\Models\EvaluationForm;
 use App\Models\FaceConsent;
@@ -77,7 +87,15 @@ use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Models\Payslip;
 use App\Models\PayslipPayment;
+use App\Models\PerformanceCycle;
+use App\Models\PerformanceCycleCompetency;
+use App\Models\PerformanceGoal;
+use App\Models\PerformanceGoalUpdate;
+use App\Models\PerformanceReview;
+use App\Models\PerformanceReviewCompetency;
 use App\Models\Position;
+use App\Models\RatingScale;
+use App\Models\RatingScaleLevel;
 use App\Models\RecruitmentStage;
 use App\Models\Role;
 use App\Models\SalaryComponent;
@@ -90,11 +108,22 @@ use App\Models\ScheduleOverride;
 use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\ShiftBreak;
+use App\Models\Skill;
 use App\Models\StatutoryRuleSet;
 use App\Models\StatutoryRuleVersion;
 use App\Models\Team;
+use App\Models\TrainingAttendance;
+use App\Models\TrainingBudget;
+use App\Models\TrainingCertificate;
+use App\Models\TrainingCourse;
+use App\Models\TrainingCourseSkill;
+use App\Models\TrainingEnrolment;
+use App\Models\TrainingProgramme;
+use App\Models\TrainingProvider;
+use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Models\ViolationType;
 use App\Models\WorkSchedule;
 use App\Models\WorkScheduleDay;
 use App\Policies\AdminUserPolicy;
@@ -247,6 +276,36 @@ class AppServiceProvider extends ServiceProvider
             'payroll_adjustment' => PayrollAdjustment::class,
             'payslip' => Payslip::class,
             'payslip_payment' => PayslipPayment::class,
+            // Phase 8a: performance, training, assets, disciplinary.
+            'rating_scale' => RatingScale::class,
+            'rating_scale_level' => RatingScaleLevel::class,
+            'competency' => Competency::class,
+            'performance_cycle' => PerformanceCycle::class,
+            'performance_cycle_competency' => PerformanceCycleCompetency::class,
+            'performance_review' => PerformanceReview::class,
+            'performance_goal' => PerformanceGoal::class,
+            'performance_goal_update' => PerformanceGoalUpdate::class,
+            'performance_review_competency' => PerformanceReviewCompetency::class,
+            'training_provider' => TrainingProvider::class,
+            'training_programme' => TrainingProgramme::class,
+            'skill' => Skill::class,
+            'training_course' => TrainingCourse::class,
+            'training_course_skill' => TrainingCourseSkill::class,
+            'training_session' => TrainingSession::class,
+            'training_enrolment' => TrainingEnrolment::class,
+            'training_attendance' => TrainingAttendance::class,
+            'training_certificate' => TrainingCertificate::class,
+            'employee_skill' => EmployeeSkill::class,
+            'training_budget' => TrainingBudget::class,
+            'asset_category' => AssetCategory::class,
+            'asset' => Asset::class,
+            'asset_assignment' => AssetAssignment::class,
+            'asset_event' => AssetEvent::class,
+            'violation_type' => ViolationType::class,
+            'disciplinary_case' => DisciplinaryCase::class,
+            'disciplinary_case_note' => DisciplinaryCaseNote::class,
+            'disciplinary_evidence' => DisciplinaryEvidence::class,
+            'disciplinary_action' => DisciplinaryAction::class,
         ]);
     }
 
@@ -278,6 +337,13 @@ class AppServiceProvider extends ServiceProvider
         // Leave reports (Phase 6): leave staff and report viewers.
         Gate::define('viewLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.view') || $user->can('reports.view')));
         Gate::define('exportLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.export') || $user->can('reports.export')));
+
+        // Disciplinary (Phase 8a): case files need disciplinary.view (restricted); holders of
+        // disciplinary.create without it may report incidents and follow the cases they reported.
+        Gate::define('accessDisciplinary', fn (User $user): bool => $user->isAdmin() && ($user->can('disciplinary.view') || $user->can('disciplinary.create')));
+        // Portal navigation: employees who were issued a disciplinary action.
+        Gate::define('viewOwnDisciplinary', fn (User $user): bool => $user->employee_id !== null
+            && DisciplinaryAction::query()->withoutGlobalScopes()->where('employee_id', $user->employee_id)->whereNotNull('issued_at')->exists());
 
         Gate::before(function (User $user, string $ability): ?bool {
             return str_contains($ability, '.') && $user->isSuperAdmin() ? true : null;

@@ -229,3 +229,26 @@ Background calculation: runs above `payroll.sync_calculation_limit` employees (d
 `php artisan queue:work`. Scheduled: `payroll:scan-corrections` (02:45). Phase 7b added the permissions
 `payroll_finalisation.manage` and `payslips.view / export / manage` (and grants `payroll.approve / reject` to the
 HR Manager) — run `php artisan permissions:sync` on existing databases.
+
+## Performance, training, assets and disciplinary demo data (Phase 8a)
+
+The dev seed now sets *Settings → Localisation → currency* to **EGP** (salaries, payroll and asset values).
+
+Defaults seeders (every environment): approval workflows `performance_review` (one step *HR calibration*, permission
+`performance.approve`), `training_enrolment` (`training.approve`) and `disciplinary_action` (*HR approval*,
+`disciplinary.approve`); the 1–5 rating scale **STD5** and 8 competencies; asset categories (and the onboarding task
+"Assign company assets" linked to the handover form); six violation types (LATE, ABSENT, POLICY, CONDUCT, SAFETY, ASSETS).
+Demo seeders (not in production), through the real actions:
+
+| Module | What | Try it |
+|---|---|---|
+| Performance | **ANN-2025** closed (52 completed reviews, mixed ratings); **H2-2026** active: reviews at self-assessment (incl. **employee2@**), manager assessment (incl. **employee1@** — reviewer **direct.manager@**), HR calibration, awaiting acknowledgement, completed; goals and KPIs with progress history; a draft probation cycle | Assess employee1@'s review as **direct.manager@** (Performance → Reviews → *Awaiting my assessment*), calibrate / approve as **hr.manager@**, acknowledge as **employee1@** (portal *More → My performance*). department.manager@ has a draft assessment for EMP-00016 |
+| Training | 4 providers, 2 programmes, 8 courses, 10 skills, 12 sessions (completed with attendance / scores / certificates — 7 expiring within 30 days, 3 expired; one in progress `TRS-2026-00004`; upcoming, some nearly full; one cancelled), 66 enrolments, ~98 skill levels, budgets for this year (Sales Cairo over budget) | Approve employee1@'s self-request or department.manager@'s nomination as **hr.manager@** (Training → Enrolments); record attendance / outcomes on `TRS-2026-00004`; employees request sessions and upload certificates in *My training* |
+| Assets | 80 assets in 8 categories (CAI / GIZ / ALX, EGP values), 46 in custody (9 unacknowledged), 2 in maintenance, 1 lost, 1 retired, a damaged return; offboarding case of **EMP-00005** has two asset clearance items (one returned, one pending) | **employee1@** confirms receipt of LT-0001 (*My assets*); record the return of LT-0008 as **hr.manager@** → its clearance item on the offboarding case is completed |
+| Disciplinary | 7 cases: closed verbal warning (employee1@, with response), written warning escalated from it awaiting employee1@'s response, issued salary deduction (pending pay entry DED-…, approve as **finance.officer@**), unpaid suspension awaiting approval (approve as **hr.manager@**), investigation with notes + evidence, a report by branch.manager@ (reporter-only view), a dismissed case | Only **hr.manager@** / super.admin@ hold `disciplinary.view`; **hr.specialist@** and **branch.manager@** see only the cases they reported (status only). Every view is in the audit log as `sensitive_access.disciplinary` |
+
+Scheduled commands added: `training:send-certificate-reminders` (07:10, once per certificate) and
+`performance:send-acknowledgement-reminders` (07:20). Phase 8a added `training.approve/reject`, `disciplinary.export/manage`
+and changed default grants: **HR Specialist, Branch / Department / Direct Manager no longer hold `disciplinary.view`** (they keep
+or gained `disciplinary.create`); Branch / Department Managers gained `training.create`. `permissions:sync` only adds grants — on
+an existing database remove `disciplinary.view` from those roles by hand (Access control → Roles).

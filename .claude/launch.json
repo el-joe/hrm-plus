@@ -50,6 +50,16 @@
         "--port=8060"
       ],
       "port": 8060
+    },
+    {
+      "name": "hrm-plus-8070",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "backend/artisan",
+        "serve",
+        "--port=8070"
+      ],
+      "port": 8070
     }
   ]
 }

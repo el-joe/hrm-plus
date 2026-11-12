@@ -37,9 +37,10 @@ class NavigationBuilder
     }
 
     /**
-     * Top-level items of the employee portal.
+     * Top-level items of the employee portal. Items flagged "more" belong in the
+     * overflow menu (the layout shows the others in the bar).
      *
-     * @return list<array{key: string, label: string, url: string, icon: string, active: bool}>
+     * @return list<array{key: string, label: string, url: string, icon: string, active: bool, more: bool}>
      */
     public function portal(User $user, ?string $currentRoute = null): array
     {
@@ -48,7 +49,7 @@ class NavigationBuilder
 
     /**
      * @param  list<array{key: string, route: string, ability: ?string, icon: string, active?: list<string>}>  $items
-     * @return list<array{key: string, label: string, url: string, icon: string, active: bool}>
+     * @return list<array{key: string, label: string, url: string, icon: string, active: bool, more: bool}>
      */
     private function visibleItems(array $items, User $user, ?string $currentRoute): array
     {
@@ -69,6 +70,7 @@ class NavigationBuilder
                 'url' => route($item['route']),
                 'icon' => $item['icon'],
                 'active' => $currentRoute !== null && Str::is($item['active'] ?? [$item['route']], $currentRoute),
+                'more' => (bool) ($item['more'] ?? false),
             ];
         }
 

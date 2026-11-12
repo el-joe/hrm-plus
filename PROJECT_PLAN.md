@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–7 complete (6 and 7: tests written, not run yet); Phase 8 (remaining HR modules, dashboard widgets, reports centre) next**
+Last updated: 2026-11-12 · Status: **Phases 0–7 complete (6 and 7: tests written, not run yet); Phase 8a (performance, training, assets, disciplinary) done — tests written, not run; 8b (HR requests, announcements, notifications, settings) and 8c (dashboard widgets, reports centre) next**
 
 ---
 
@@ -197,16 +197,55 @@ Must finish before any UI code is written.
 **Notes for Phase 8 (dashboard and reports reading payroll).** Contract in `backend/docs/PAYROLL_ENGINE.md` §10: live pay of a period = `payroll_items` with `pay_slot = 'regular'` in runs with status `finalised` (reversed runs are excluded; reversal runs carry negative mirrors); component totals from `payroll_item_lines` (`code`, `kind`, `category`, `source`, signed `amount`); group by the period-end placement stored on the item (`branch_id`, `department_id`, `team_id`, `position_id`, `cost_center_id`); employer cost `employer_contributions`; payment state on `payslips`. `PayrollItem` and `Payslip` are data-scoped. The dashboard already shows "payroll runs awaiting approval" (real count). Reports still to build: payroll register / by component / by branch / variance, statutory (tax, insurance) summaries, bank payments, loan recovery.
 
 ### Phase 8 — Remaining HR modules · L
-- [ ] Performance: cycles, goals, KPIs, self and manager assessment, competencies, scoring, approval
-- [ ] Training: programmes, courses, providers, enrolment, sessions, attendance, certificates, skills, budgets, expiry reminders
-- [ ] Assets: catalogue, assignment, handover, return, condition, acknowledgement, offboarding clearance
+- [x] Performance: cycles, goals, KPIs, self and manager assessment, competencies, scoring, approval
+- [x] Training: programmes, courses, providers, enrolment, sessions, attendance, certificates, skills, budgets, expiry reminders
+- [x] Assets: catalogue, assignment, handover, return, condition, acknowledgement, offboarding clearance
 - [ ] HR requests: categories, priority, assignment, internal notes, employee-visible replies, escalation, history
 - [ ] Announcements: targeting by company, branch, department, group; attachments; read status
-- [ ] Disciplinary: warnings, violations, investigations, employee response, approval, restricted access
+- [x] Disciplinary: warnings, violations, investigations, employee response, approval, restricted access
 - [ ] Notifications: in-app, email, push; templates; preferences; queued delivery; scheduled jobs (contract expiry, birthdays, missing checkout, reminders)
 - [ ] Admin dashboard: all 22 widgets from live queries, permission-aware, filterable
 - [ ] Reports centre: 48 reports across employee, attendance, leave, payroll, recruitment, performance; shared filters; Excel, CSV and Arabic PDF export; data-scope enforcement
 - [ ] Remaining settings screens
+
+**Phase 8a delivered (Performance, Training, Assets, Disciplinary — spec modules 10, 11, 12, 15).** Schema in
+`backend/database/migrations/2026_11_19_1000*`–`1003*`; screens under `admin/{performance,training,assets,disciplinary}`,
+portal *More* menu (My performance / training / assets / disciplinary notices), API `me/performance*`, `me/training*`,
+`me/assets*` (no disciplinary API: no mobile screen in the spec). Approval workflows `performance_review` (HR calibration,
+`performance.approve`), `training_enrolment` (`training.approve`), `disciplinary_action` (`disciplinary.approve`); disciplinary
+deductions become pending `pay_entries` (source = the action) in the existing `payroll_deduction` workflow. Assets plug into
+offboarding (`AssetClearanceHandover`: one clearance item per open custody, completed by recording the return) and onboarding
+(task action *Issue assets*). Employee profile gained four module tabs and module events in the History timeline
+(`App\Services\Employees\Contracts\{ProfileTab,TimelineSource}`). Decisions: `disciplinary.view` is restricted (HR Manager only by
+default; HR Specialist / managers keep `disciplinary.create` = report incidents and follow their own reports); performance
+`view` without `manage` = the admin's reporting line only. Dev seed currency is now **EGP**.
+
+**Notes for 8c (dashboard widgets and reports reading Phase 8a).**
+- *Performance:* a review is finalised when `performance_reviews.status` ∈ {`acknowledgement`, `completed`} (scope `finalised()`;
+  `completed` = acknowledged too); open = `self_assessment`, `manager_assessment`, `pending_approval`; ignore `cancelled`. Scores
+  `goals_score`, `competencies_score`, `overall_score` (+ `self_*`) are DECIMAL(5,2) on the cycle's scale — take the max from the
+  scale's highest level, never assume 5. Final band `final_rating_level_id` → `rating_scale_levels` (`value`, `label_ar/en`, `color`),
+  `calibrated` = HR override. Group by the snapshot `branch_id` / `department_id`, `performance_cycle_id`, `reviewer_id`. Goals:
+  `performance_goals.progress` (0–100), `weight`, `status` (active/completed/cancelled), `type` (goal/kpi), `due_date` (overdue =
+  active + past due); history in `performance_goal_updates`. Data-scoped through the employee; managers without `performance.manage`
+  must also go through `App\Services\Performance\PerformanceVisibility::reviews()/goals()`.
+- *Training progress:* `training_enrolments` (+ `training_sessions.start_date/end_date/status`, `training_course_id`); statuses pending,
+  enrolled, completed, failed, no_show, rejected, cancelled; seats taken = enrolled + completed + failed + no_show; snapshots
+  `branch_id`, `department_id`, `cost` (DECIMAL), `source` (hr/manager/self); outcome `score`, `completed_at`; attendance rate
+  `TrainingEnrolment::attendanceRate()`. Certificates: `training_certificates.expires_on`, scopes `expiringWithin($days)`, `expired()`.
+  Budgets: `App\Services\Training\TrainingBudgets::forYear($year)` (budget, spent, committed, remaining, used_percent, over — bcmath,
+  exact department match, company row = total). Enrolments, certificates and employee skills are data-scoped through the employee.
+- *Assets:* in service = status ∈ {available, assigned, in_maintenance, damaged}; value = `sum(assets.purchase_cost)` (bcmath);
+  group by `assets.branch_id` (the asset data scope) / `asset_category_id`. Custody: `asset_assignments` (`active`/`returned`/`lost`),
+  unacknowledged = `acknowledged_at is null`, overdue = active and `expected_return_on < today` (scoped through the employee).
+  Trends from `asset_events` (`type`, `occurred_on`, `employee_id`). Pending clearance = `offboarding_items` with
+  `itemable_type = 'asset_assignment'` and status `pending`.
+- *Disciplinary (restricted):* any widget/report needs `disciplinary.view` (not `reports.view` alone) and must log
+  `SensitiveDataAccessLog::DISCIPLINARY`; aggregate counts only on the general dashboard. Cases by `disciplinary_cases.status`
+  (reported, investigating, pending_approval, action_issued, closed, dismissed), `violation_type_id` → `severity`, snapshot
+  `branch_id`/`department_id`, `incident_date`. Issued outcomes = `disciplinary_actions.status = 'approved'` and `issued_at` set (by
+  `type`); active warnings = `DisciplinaryAction::activeWarnings()`; awaiting response = approved, `responded_at` null; deductions
+  `deduction_amount` / `pay_entry_id`. Both models are data-scoped through the employee.
 
 ### Phase 9 — Employee web portal · M
 - [ ] Home, profile with change requests, attendance with correction requests, leaves, payroll and payslips, HR requests, announcements, notifications, performance, training, assets, documents, account settings

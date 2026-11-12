@@ -7,6 +7,9 @@
 return [
 
     'groups' => [
+        'performance' => 'الأداء',
+        'training' => 'التدريب',
+        'disciplinary' => 'الإجراءات التأديبية',
         'localisation' => 'اللغة والمنطقة',
         'attendance' => 'الحضور',
         'payroll' => 'الرواتب',
@@ -22,6 +25,20 @@ return [
         'face_verification' => 'التحقق بالوجه',
     ],
     'keys' => [
+        'performance' => [
+            'employees_can_add_goals' => 'السماح للموظفين بإضافة أهدافهم',
+            'acknowledgement_days' => 'أيام الإقرار بالتقييم المعتمد',
+        ],
+        'training' => [
+            'self_requests_enabled' => 'السماح للموظفين بطلب التدريب',
+            'certificate_reminder_days' => 'التذكير بانتهاء الشهادات (أيام قبل الانتهاء)',
+            'completion_min_attendance_percent' => 'نسبة الحضور اللازمة لإتمام الدورة (%)',
+        ],
+        'disciplinary' => [
+            'warning_validity_months' => 'مدة احتساب الإنذارات في التصعيد (أشهر)',
+            'response_days' => 'أيام رد الموظف',
+            'deduction_component' => 'رمز بند الخصم للخصومات التأديبية',
+        ],
         'loans' => [
             'employee_requests_enabled' => 'يمكن للموظفين طلب القروض والسلف',
             'min_service_months' => 'الحد الأدنى للخدمة (بالأشهر)',

@@ -68,6 +68,24 @@ return [
             'report' => false,
         ],
 
+        // Training certificates (Phase 8a).
+        'training_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/training'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
+        // Disciplinary evidence (Phase 8a): restricted, streamed only after the policy check.
+        'disciplinary_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/disciplinary'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**70 files, 637 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**88 files, 799 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -18,19 +18,23 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Admin | 5 | 61 |
 | Feature/Api | 2 | 23 |
 | Feature/Approvals | 1 | 14 |
+| Feature/Assets | 4 | 35 |
 | Feature/Attendance | 8 | 87 |
 | Feature/Audit | 1 | 9 |
 | Feature/Auth | 4 | 32 |
 | Feature/Authorization | 4 | 32 |
-| Feature/Employees | 9 | 73 |
+| Feature/Disciplinary | 4 | 38 |
+| Feature/Employees | 10 | 76 |
 | Feature/Frontend | 4 | 16 |
 | Feature/Leave | 3 | 52 |
 | Feature/Lifecycle | 2 | 12 |
 | Feature | 1 | 8 |
 | Feature/Payroll | 13 | 145 |
+| Feature/Performance | 3 | 32 |
 | Feature/Recruitment | 3 | 22 |
 | Feature/Settings | 1 | 6 |
 | Feature/Structure | 9 | 45 |
+| Feature/Training | 6 | 54 |
 
 ## Feature/Admin
 
@@ -159,6 +163,55 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - cancel › lets the requester withdraw a pending request
 - cancel › does not let anyone else withdraw it
 - pendingFor › lists only the pending requests waiting on the user at their current step
+
+## Feature/Assets
+
+### `tests/Feature/Assets/AssetCustodyTest.php` (12)
+
+- hands an available asset over and records the event
+- notifies the employee account to acknowledge receipt
+- refuses to hand over an asset that is not available
+- refuses a handover to a terminated employee or before the hire date
+- records the acknowledgement once
+- makes the asset available again after a return in good condition
+- leaves a damaged return out of service
+- refuses a return dated before the handover or of a closed handover
+- closes the handover as lost when an assigned asset is reported lost
+- keeps the full history of an asset across custodians
+- allows only the status transitions of the life cycle
+- requires a serial number for categories that need one and keeps tags unique per asset
+
+### `tests/Feature/Assets/AssetOffboardingTest.php` (7)
+
+- adds one clearance item per asset the employee holds when the case opens
+- completes the clearance item when the asset is returned
+- refuses to tick an asset item done while the asset is still out, but allows waiving it
+- adds an item to the open case when an asset is handed over during offboarding
+- blocks completing the case while an asset item is pending
+- links the onboarding task to the handover form and completes it on handover
+- refuses an onboarding task of another employee
+
+### `tests/Feature/Assets/AssetPortalApiTest.php` (6)
+
+- shows the employee their own assets in the portal
+- lets the employee acknowledge receipt in the portal
+- answers 404 when acknowledging another employee's asset
+- returns current custody and history through the API
+- acknowledges through the API once and keeps others' records out of reach
+- refuses admin tokens on the assets API
+
+### `tests/Feature/Assets/AssetScreensTest.php` (10)
+
+- lists the register for admins with assets.view and hides it from others
+- limits a branch-scoped admin to the assets of their branch
+- limits the custody list to employees inside the scope
+- registers an asset through the form and shows it
+- rejects duplicate tags and serial numbers
+- hands over, records a return and retires through the screens
+- needs assets.delete to retire and assets.update to hand over
+- keeps categories behind assets.manage and protects categories in use
+- exports the register and the custody list for admins with assets.export
+- shows the assets tab on the employee profile to asset viewers only
 
 ## Feature/Attendance
 
@@ -379,6 +432,58 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - a Super Admin passes a permission that exists in the catalogue but was never granted in the database
 - hides navigation links the admin has no permission for
 
+## Feature/Disciplinary
+
+### `tests/Feature/Disciplinary/DisciplinaryAccessTest.php` (12)
+
+- shows the full case file to disciplinary viewers and logs the view
+- logs every evidence download
+- logs the list view of case files
+- logs opening the employee profile tab
+- hides case files from HR viewers without disciplinary.view
+- shows a reporter only the status of the cases they reported
+- keeps case files inside the data scope
+- never shows an admin a case about themselves
+- lets only approvers decide and only update holders propose
+- exports case lists for export holders and logs it
+- reserves the violation catalogue to disciplinary.manage
+- withholds disciplinary entries from the history timeline without disciplinary.view
+
+### `tests/Feature/Disciplinary/DisciplinaryFlowTest.php` (15)
+
+- runs a case from the report to closure with the employee response
+- lets the employee respond only once
+- sends the case back to investigation when the action is rejected
+- requires a reason to reject
+- never lets the proposer approve their own proposal
+- never lets an approver decide an action about themselves
+- allows only one pending proposal per case
+- withdraws a pending proposal and reopens the investigation
+- dismisses a case without action
+- refuses a report about yourself
+- validates suspension dates and deduction amounts
+- salary deduction › files a pending deduction pay entry with the action as its source
+- salary deduction › records an unpaid suspension amount as a deduction too
+- salary deduction › issues the action without a pay entry when the component is missing
+- notifies approvers when an action is proposed
+
+### `tests/Feature/Disciplinary/DisciplinaryPortalTest.php` (5)
+
+- lists and shows the employee's issued notices without investigation details
+- never shows proposals that are not issued
+- never shows another employee's notice
+- records the acknowledgement and one response and tells HR
+- shows the portal menu entry only to employees with a notice
+
+### `tests/Feature/Disciplinary/WarningEscalationTest.php` (6)
+
+- suggests the violation default for a first offence
+- escalates verbal to written to final and caps at final
+- ignores warnings past their validity
+- follows the warning validity setting
+- keeps a stronger violation default over the next warning level
+- requires a justification below the suggested level and stores the suggestion
+
 ## Feature/Employees
 
 ### `tests/Feature/Employees/EmployeeApiTest.php` (4)
@@ -480,6 +585,12 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - masks the national id but shows its last digits
 - lets an admin linked to an employee open their own portal profile
 - answers 404 when the account has no employee profile
+
+### `tests/Feature/Employees/ProfileModuleTabsTest.php` (3)
+
+- renders the history timeline of an employee without any module records
+- opens every module tab for an admin holding the module permissions
+- refuses the disciplinary tab to an HR specialist (restricted permission)
 
 ## Feature/Frontend
 
@@ -793,6 +904,49 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - basic salary and pay basis › keeps employee_salaries as the only source, with the pay basis carried over and mirrored
 - basic salary and pay basis › splits a period at mid-period salary changes, including scheduled ones
 
+## Feature/Performance
+
+### `tests/Feature/Performance/PerformanceAccessTest.php` (14)
+
+- manager scope › computes the reporting line through every level
+- manager scope › lists only the reporting line for a manager, and never their own review
+- manager scope › limits goals the same way
+- manager scope › lets only the assigned reviewer (or HR) assess
+- HR and data scope › shows HR every review in the data scope
+- HR and data scope › exports the visible reviews
+- HR and data scope › keeps configuration to performance.manage
+- HR and data scope › needs performance.view for the review list
+- portal ownership › shows the employee only their own goals and reviews
+- portal ownership › lets the employee add goals to an open cycle only when allowed
+- portal ownership › hides the manager part until HR approved the review
+- mobile API › returns the summary, goals and reviews of the token owner
+- mobile API › takes progress and the self-assessment, and refuses other employees' records
+- mobile API › refuses admin tokens
+
+### `tests/Feature/Performance/PerformanceScoringTest.php` (6)
+
+- averages ratings by weight and skips unrated or weightless items
+- rounds half up to two decimals
+- combines the goals and competencies scores with the cycle split
+- maps a score to the highest level whose threshold it reaches
+- derives KPI progress from the actual value, capped at 100
+- adds weights exactly
+
+### `tests/Feature/Performance/PerformanceWorkflowTest.php` (12)
+
+- launches a cycle: one review per active employee, reviewer = manager, competencies copied
+- refuses a split or competency weights that do not total 100
+- reviews only employees whose probation ends inside a probation cycle
+- the review workflow › runs self → manager → calibration (override) → acknowledgement
+- the review workflow › returns a rejected review to the manager with the reason
+- the review workflow › requires every item rated and goal weights totalling 100 to submit
+- the review workflow › leaves cancelled goals out of weights and scores
+- the review workflow › never lets the submitting manager or the employee approve
+- the review workflow › locks the goals of a review once submitted
+- the review workflow › records KPI progress from the actual value with history
+- the review workflow › completes the cycle goals when the cycle closes
+- the review workflow › reminds the employee to acknowledge every N days after approval
+
 ## Feature/Recruitment
 
 ### `tests/Feature/Recruitment/CareerPageTest.php` (5)
@@ -910,3 +1064,77 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 
 - renders every company structure screen in both directions
 - shows the structure sidebar entries an HR Specialist may open
+
+## Feature/Training
+
+### `tests/Feature/Training/CertificateReminderTest.php` (4)
+
+- reminds the employee and the training managers once per certificate
+- respects the window: not expired, not later than the reminder days
+- does not remind training managers outside the employee's data scope
+- re-arms the reminder when the expiry date changes
+
+### `tests/Feature/Training/TrainingBudgetTest.php` (4)
+
+- sums the cost of seats taken per department without float drift
+- reports budget, spent, pending, remaining and % used; the company-wide row covers every department
+- keeps one budget per year and department
+- shows the figures on the budgets page
+
+### `tests/Feature/Training/TrainingCompletionTest.php` (7)
+
+- records attendance only on session days that have come
+- computes the attendance rate over the session days (late counts, absent and excused do not)
+- refuses "completed" below the attendance threshold but accepts "failed"
+- completes: raises the skills and issues the certificate valid for the course months
+- never lowers a skill level the employee already has
+- does not record outcomes before the session starts or for pending places
+- removes a manual skill with level 0
+
+### `tests/Feature/Training/TrainingEnrolmentTest.php` (16)
+
+- nominations › enrols an HR nomination at once with the cost and placement snapshot
+- nominations › uses the session cost override instead of the course cost
+- nominations › sends a manager nomination for approval and enrols it when approved
+- nominations › refuses the same employee twice on a session
+- nominations › refuses cancelled and already started sessions
+- employee requests › sends the own request for approval and records a rejection with its reason
+- employee requests › reuses the row when the employee asks again after a rejection
+- employee requests › refuses requests while the setting is off
+- employee requests › lets the employee withdraw a pending request, closing its approval run
+- employee requests › does not let an approver decide on their own training
+- capacity › refuses a nomination when every seat is taken
+- capacity › refuses to approve a request once the session filled up meanwhile
+- capacity › does not count pending, rejected or cancelled places as seats
+- capacity › never lowers the capacity below the seats taken
+- session cancellation › cancels pending and enrolled places with the session
+- session cancellation › creates sessions with a yearly TRS reference
+
+### `tests/Feature/Training/TrainingPortalApiTest.php` (10)
+
+- portal › shows only the employee's own training, certificates and open sessions
+- portal › answers 404 for someone else's enrolment and certificate file
+- portal › sends a request for approval and lets the employee withdraw it
+- portal › does not let the employee cancel an enrolment HR made (only pending requests)
+- portal › uploads a certificate to the private disk with validated files
+- API › returns the summary of the token owner
+- API › lists enrolments and certificates of the owner only, 404 for others
+- API › offers open sessions and creates a pending request (201), then a withdrawal
+- API › validates the request and refuses a full session
+- API › uploads a certificate (multipart) and refuses admin tokens
+
+### `tests/Feature/Training/TrainingScreensTest.php` (13)
+
+- permissions › opens every training list for training.view and refuses admins without it
+- permissions › keeps the catalogue, sessions and budgets to training.manage
+- permissions › sends a nomination by a manager without training.manage for approval
+- permissions › requires a reason to reject and refuses decisions to admins without training.approve
+- data scope › shows a branch-scoped admin only the participants and certificates of their branch
+- catalogue › creates a course with the skills it teaches
+- catalogue › does not delete a course that has sessions (deactivate instead)
+- session workflow over HTTP › validates the session form (online sessions need a link)
+- session workflow over HTTP › nominates, records attendance and outcomes, which issue the certificate
+- session workflow over HTTP › reports the employees that could not be nominated (session full)
+- exports and profile › exports enrolments and certificates with training.export
+- exports and profile › shows the training tab on the employee profile to training viewers only
+- exports and profile › adds completed courses and certificates to the history timeline

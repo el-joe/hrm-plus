@@ -13,10 +13,20 @@ use App\Models\PayEntry;
 use App\Models\SalaryStructure;
 use App\Models\SalaryStructureAssignment;
 use App\Models\User;
+use App\Services\Assets\AssetTimeline;
+use App\Services\Assets\EmployeeAssetsTab;
+use App\Services\Disciplinary\DisciplinaryTimeline;
+use App\Services\Disciplinary\EmployeeDisciplinaryTab;
+use App\Services\Employees\Contracts\ProfileTab;
+use App\Services\Employees\Contracts\TimelineSource;
 use App\Services\Leave\LeaveBalanceCalculator;
 use App\Services\Leave\LeaveYear;
 use App\Services\Payroll\PayEntryResolver;
 use App\Services\Payroll\SalaryStructureResolver;
+use App\Services\Performance\EmployeePerformanceTab;
+use App\Services\Performance\PerformanceTimeline;
+use App\Services\Training\EmployeeTrainingTab;
+use App\Services\Training\TrainingTimeline;
 use App\Support\SensitiveValue;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
@@ -35,6 +45,30 @@ use Illuminate\Support\Collection;
  */
 class EmployeeProfile
 {
+    /**
+     * Module tabs (Phase 8a), in display order before "history".
+     *
+     * @var array<string, class-string<ProfileTab>>
+     */
+    public const MODULE_TABS = [
+        'performance' => EmployeePerformanceTab::class,
+        'training' => EmployeeTrainingTab::class,
+        'assets' => EmployeeAssetsTab::class,
+        'disciplinary' => EmployeeDisciplinaryTab::class,
+    ];
+
+    /**
+     * Module events merged into the history timeline (Phase 8a).
+     *
+     * @var list<class-string<TimelineSource>>
+     */
+    public const TIMELINE_SOURCES = [
+        PerformanceTimeline::class,
+        TrainingTimeline::class,
+        AssetTimeline::class,
+        DisciplinaryTimeline::class,
+    ];
+
     public function __construct(
         private readonly SensitiveDataAccessLog $accessLog,
         private readonly ManagerResolver $managers,
@@ -59,6 +93,12 @@ class EmployeeProfile
 
         if ($user->can('leaves.view') || $user->can('leave_balances.view')) {
             $tabs[] = 'leave';
+        }
+
+        foreach (self::MODULE_TABS as $tab => $class) {
+            if (app($class)->visibleTo($user, $employee)) {
+                $tabs[] = $tab;
+            }
         }
 
         $tabs[] = 'history';
@@ -86,7 +126,16 @@ class EmployeeProfile
             'compensation' => $this->compensation($user, $employee),
             'leave' => $this->leave($employee),
             'history' => $this->history($user, $employee),
+            default => app(self::MODULE_TABS[$tab])->data($user, $employee),
         };
+    }
+
+    /**
+     * False only for a module tab the admin may not open (other tabs are checked by the controller).
+     */
+    public function moduleTabVisible(User $user, Employee $employee, string $tab): bool
+    {
+        return ! isset(self::MODULE_TABS[$tab]) || app(self::MODULE_TABS[$tab])->visibleTo($user, $employee);
     }
 
     /**
@@ -217,6 +266,10 @@ class EmployeeProfile
             $entries = $entries->merge($employee->salaries()->with('creator')->get()->map(fn (EmployeeSalary $salary): array => [
                 'date' => $salary->effective_date, 'kind' => 'salary', 'record' => $salary, 'id' => $salary->id,
             ]));
+        }
+
+        foreach (self::TIMELINE_SOURCES as $source) {
+            $entries = $entries->toBase()->merge(app($source)->entries($user, $employee)->toBase()->all());
         }
 
         return [

@@ -43,6 +43,7 @@ return [
     ],
 
     'task_actions' => [
+        'issue_assets' => 'فتح نموذج تسليم العهد',
         'assign_schedule' => 'فتح شاشة إسناد جدول العمل',
     ],
 

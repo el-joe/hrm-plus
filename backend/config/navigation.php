@@ -123,6 +123,45 @@ return [
             ],
         ],
         [
+            'key' => 'performance',
+            'items' => [
+                ['key' => 'performance_reviews', 'route' => 'admin.performance-reviews.index', 'ability' => 'performance.view', 'icon' => 'award', 'active' => ['admin.performance-reviews.*']],
+                ['key' => 'performance_goals', 'route' => 'admin.performance-goals.index', 'ability' => 'performance.view', 'icon' => 'target', 'active' => ['admin.performance-goals.*']],
+                ['key' => 'performance_cycles', 'route' => 'admin.performance-cycles.index', 'ability' => 'performance.manage', 'icon' => 'refresh', 'active' => ['admin.performance-cycles.*']],
+                ['key' => 'competencies', 'route' => 'admin.competencies.index', 'ability' => 'performance.manage', 'icon' => 'layers', 'active' => ['admin.competencies.*']],
+                ['key' => 'rating_scales', 'route' => 'admin.rating-scales.index', 'ability' => 'performance.manage', 'icon' => 'bar-chart', 'active' => ['admin.rating-scales.*']],
+            ],
+        ],
+        [
+            'key' => 'training',
+            'items' => [
+                ['key' => 'training_sessions', 'route' => 'admin.training-sessions.index', 'ability' => 'training.view', 'icon' => 'calendar', 'active' => ['admin.training-sessions.*']],
+                ['key' => 'training_enrolments', 'route' => 'admin.training-enrolments.index', 'ability' => 'training.view', 'icon' => 'inbox', 'active' => ['admin.training-enrolments.*']],
+                ['key' => 'training_courses', 'route' => 'admin.training-courses.index', 'ability' => 'training.view', 'icon' => 'book-open', 'active' => ['admin.training-courses.*']],
+                ['key' => 'training_certificates', 'route' => 'admin.training-certificates.index', 'ability' => 'training.view', 'icon' => 'award', 'active' => ['admin.training-certificates.*']],
+                ['key' => 'skills_matrix', 'route' => 'admin.skills-matrix', 'ability' => 'training.view', 'icon' => 'layout-grid', 'active' => ['admin.skills-matrix']],
+                ['key' => 'training_budgets', 'route' => 'admin.training-budgets.index', 'ability' => 'training.view', 'icon' => 'coins', 'active' => ['admin.training-budgets.*']],
+                ['key' => 'training_providers', 'route' => 'admin.training-providers.index', 'ability' => 'training.manage', 'icon' => 'building', 'active' => ['admin.training-providers.*']],
+                ['key' => 'training_programmes', 'route' => 'admin.training-programmes.index', 'ability' => 'training.manage', 'icon' => 'layers', 'active' => ['admin.training-programmes.*']],
+                ['key' => 'skills', 'route' => 'admin.skills.index', 'ability' => 'training.manage', 'icon' => 'shield-check', 'active' => ['admin.skills.*']],
+            ],
+        ],
+        [
+            'key' => 'assets',
+            'items' => [
+                ['key' => 'assets', 'route' => 'admin.assets.index', 'ability' => 'assets.view', 'icon' => 'laptop', 'active' => ['admin.assets.*']],
+                ['key' => 'asset_assignments', 'route' => 'admin.asset-assignments.index', 'ability' => 'assets.view', 'icon' => 'users', 'active' => ['admin.asset-assignments.*']],
+                ['key' => 'asset_categories', 'route' => 'admin.asset-categories.index', 'ability' => 'assets.manage', 'icon' => 'layers', 'active' => ['admin.asset-categories.*']],
+            ],
+        ],
+        [
+            'key' => 'disciplinary',
+            'items' => [
+                ['key' => 'disciplinary_cases', 'route' => 'admin.disciplinary-cases.index', 'ability' => 'accessDisciplinary', 'icon' => 'alert-triangle', 'active' => ['admin.disciplinary-cases.*']],
+                ['key' => 'violation_types', 'route' => 'admin.violation-types.index', 'ability' => 'disciplinary.manage', 'icon' => 'layers', 'active' => ['admin.violation-types.*']],
+            ],
+        ],
+        [
             'key' => 'structure',
             'items' => [
                 ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],
@@ -160,9 +199,14 @@ return [
         ['key' => 'my_attendance', 'route' => 'portal.attendance', 'ability' => null, 'icon' => 'clock', 'active' => ['portal.attendance*']],
         ['key' => 'my_leaves', 'route' => 'portal.leaves', 'ability' => null, 'icon' => 'calendar', 'active' => ['portal.leaves*']],
         ['key' => 'my_payroll', 'route' => 'portal.payroll', 'ability' => null, 'icon' => 'coins', 'active' => ['portal.payroll*']],
-        ['key' => 'my_loans', 'route' => 'portal.loans', 'ability' => null, 'icon' => 'wallet', 'active' => ['portal.loans*']],
-        ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding']],
-        ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*']],
+        // "more" => true: listed under the "More" menu (desktop) / sheet (mobile bottom bar).
+        ['key' => 'my_loans', 'route' => 'portal.loans', 'ability' => null, 'icon' => 'wallet', 'active' => ['portal.loans*'], 'more' => true],
+        ['key' => 'my_performance', 'route' => 'portal.performance', 'ability' => null, 'icon' => 'award', 'active' => ['portal.performance*'], 'more' => true],
+        ['key' => 'my_training', 'route' => 'portal.training', 'ability' => null, 'icon' => 'book-open', 'active' => ['portal.training*'], 'more' => true],
+        ['key' => 'my_assets', 'route' => 'portal.assets', 'ability' => null, 'icon' => 'laptop', 'active' => ['portal.assets*'], 'more' => true],
+        ['key' => 'my_disciplinary', 'route' => 'portal.disciplinary', 'ability' => 'viewOwnDisciplinary', 'icon' => 'alert-triangle', 'active' => ['portal.disciplinary*'], 'more' => true],
+        ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding'], 'more' => true],
+        ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*'], 'more' => true],
     ],
 
 ];

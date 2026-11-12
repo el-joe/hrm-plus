@@ -43,6 +43,7 @@ return [
     ],
 
     'task_actions' => [
+        'issue_assets' => 'Open the asset handover form',
         'assign_schedule' => 'Open the schedule assignment screen',
     ],
 

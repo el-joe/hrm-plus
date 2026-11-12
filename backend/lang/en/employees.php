@@ -113,6 +113,10 @@ return [
         'financial' => 'Financial',
         'compensation' => 'Compensation',
         'leave' => 'Leave',
+        'performance' => 'Performance',
+        'training' => 'Training',
+        'assets' => 'Assets',
+        'disciplinary' => 'Disciplinary',
         'history' => 'History',
     ],
 

@@ -51,7 +51,7 @@
                             <p class="text-body-sm text-text-secondary">{{ $task->description }}</p>
                         @endif
                         @if ($task->action && ! $task->status->isFinished())
-                            @php $target = $task->action->target($onboarding->employee_id); @endphp
+                            @php $target = $task->action->target($onboarding->employee_id, $task->id); @endphp
                             @if (Route::has($target['route']) && auth()->user()->can($target['ability']))
                                 <a href="{{ route($target['route'], $target['parameters']) }}" class="inline-flex items-center gap-1 text-label-md text-text-link hover:underline" data-task-action="{{ $task->action->value }}">
                                     {{ $task->action->label() }} <x-icon name="arrow-right" size="sm" flip />

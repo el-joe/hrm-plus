@@ -5,6 +5,7 @@ namespace App\Actions\Offboarding;
 use App\Actions\Employees\TerminateEmployee;
 use App\Enums\OffboardingStatus;
 use App\Enums\TaskStatus;
+use App\Models\AssetAssignment;
 use App\Models\OffboardingCase;
 use App\Models\OffboardingItem;
 use App\Models\User;
@@ -29,6 +30,16 @@ class ManageOffboardingCase
     public function updateItem(OffboardingItem $item, TaskStatus $status, User $actor, ?string $note = null): OffboardingItem
     {
         $this->ensureOpen($item->offboardingCase);
+
+        // Asset clearance items (Phase 8a) are completed by recording the return on the asset;
+        // they can be waived (skipped) here, never ticked done while the asset is still out.
+        if ($status === TaskStatus::Done && $item->itemable_type === (new AssetAssignment)->getMorphClass()) {
+            $assignment = AssetAssignment::query()->withoutGlobalScopes()->find($item->itemable_id);
+
+            if ($assignment !== null && $assignment->isActive()) {
+                throw ValidationException::withMessages(['status' => __('assets.clearance.returned_first')]);
+            }
+        }
 
         $item->forceFill([
             'status' => $status,

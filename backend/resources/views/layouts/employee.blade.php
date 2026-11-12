@@ -9,6 +9,9 @@
 --}}
 @php
     $user = auth()->user();
+    $primaryNavigation = array_values(array_filter($navigation, fn (array $item): bool => ! $item['more']));
+    $moreNavigation = array_values(array_filter($navigation, fn (array $item): bool => $item['more']));
+    $moreActive = collect($moreNavigation)->contains('active', true);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ config('app.supported_locales.'.app()->getLocale(), 'rtl') }}">
@@ -24,16 +27,32 @@
 
             <nav data-region="navigation" aria-label="{{ __('app.nav.main') }}" class="hidden md:block">
                 <ul class="flex items-center gap-1">
-                    @foreach ($navigation as $item)
+                    @foreach ($primaryNavigation as $item)
                         <li>
                             <a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif
                                 @class([
-                                    'inline-flex h-10 items-center rounded-md px-4 text-label-md transition-colors',
+                                    'inline-flex h-10 items-center rounded-md px-3 text-label-md transition-colors lg:px-4',
                                     'bg-action-primary-subtle text-text-link' => $item['active'],
                                     'text-text-secondary hover:bg-action-neutral-hover hover:text-text-primary' => ! $item['active'],
                                 ])>{{ $item['label'] }}</a>
                         </li>
                     @endforeach
+                    @if ($moreNavigation !== [])
+                        <li>
+                            <x-dropdown align="start" :label="__('app.nav.more')" data-region="portal-more">
+                                <x-slot:trigger>
+                                    <span @class([
+                                        'inline-flex h-10 items-center gap-1 rounded-md px-3 text-label-md transition-colors lg:px-4',
+                                        'bg-action-primary-subtle text-text-link' => $moreActive,
+                                        'text-text-secondary hover:bg-action-neutral-hover hover:text-text-primary' => ! $moreActive,
+                                    ])>{{ __('app.nav.more') }} <x-icon name="chevron-down" size="sm" /></span>
+                                </x-slot:trigger>
+                                @foreach ($moreNavigation as $item)
+                                    <x-dropdown.item :href="$item['url']" :icon="$item['icon']" :aria-current="$item['active'] ? 'page' : null">{{ $item['label'] }}</x-dropdown.item>
+                                @endforeach
+                            </x-dropdown>
+                        </li>
+                    @endif
                 </ul>
             </nav>
 
@@ -96,7 +115,7 @@
     {{-- Bottom navigation (mobile). --}}
     <nav aria-label="{{ __('app.nav.main') }}" class="fixed inset-x-0 bottom-0 z-30 h-18 border-t border-border-subtle bg-surface-default md:hidden">
         <ul class="flex h-full items-stretch justify-around">
-            @foreach ($navigation as $item)
+            @foreach (array_slice($primaryNavigation, 0, 4) as $item)
                 <li class="flex-1">
                     <a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif
                         @class([
@@ -109,6 +128,26 @@
                     </a>
                 </li>
             @endforeach
+            @php($overflow = [...array_slice($primaryNavigation, 4), ...$moreNavigation])
+            @if ($overflow !== [])
+                <li class="flex-1">
+                    <x-dropdown direction="up" :label="__('app.nav.more')" class="h-full" data-region="portal-more-mobile">
+                        <x-slot:trigger>
+                            <span @class([
+                                'flex h-18 flex-col items-center justify-center gap-1 text-caption-md',
+                                'text-text-link' => collect($overflow)->contains('active', true),
+                                'text-text-tertiary' => ! collect($overflow)->contains('active', true),
+                            ])>
+                                <x-icon name="more" />
+                                {{ __('app.nav.more') }}
+                            </span>
+                        </x-slot:trigger>
+                        @foreach ($overflow as $item)
+                            <x-dropdown.item :href="$item['url']" :icon="$item['icon']" :aria-current="$item['active'] ? 'page' : null">{{ $item['label'] }}</x-dropdown.item>
+                        @endforeach
+                    </x-dropdown>
+                </li>
+            @endif
         </ul>
     </nav>
 

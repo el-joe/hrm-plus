@@ -41,6 +41,20 @@
                                 @if ($item->note)
                                     <p class="text-body-sm text-text-secondary">{{ $item->note }}</p>
                                 @endif
+                                @if ($item->itemable_type === 'asset_assignment' && ($clearance = $item->itemable) && ($clearanceAsset = $clearance->asset()->withoutGlobalScopes()->first()))
+                                    {{-- Asset clearance (Phase 8a): completed by recording the return on the asset. --}}
+                                    <div class="mt-1 flex flex-wrap items-center gap-2" data-asset-clearance="{{ $clearance->id }}">
+                                        <x-badge :tone="$clearance->status->tone()">{{ $clearance->status->label() }}</x-badge>
+                                        @can('view', $clearanceAsset)
+                                            <a class="text-body-sm text-text-link hover:underline" href="{{ route('admin.assets.show', $clearanceAsset) }}">{{ __('assets.clearance.open_asset') }}</a>
+                                        @endcan
+                                        @if ($clearance->isActive())
+                                            @can('update', $clearance)
+                                                <x-button size="sm" variant="secondary" icon="check" :href="route('admin.assets.show', $clearanceAsset).'#custodian'">{{ __('assets.clearance.record_return') }}</x-button>
+                                            @endcan
+                                        @endif
+                                    </div>
+                                @endif
                                 @if ($item->itemable_type === $case->getMorphClass() && $item->itemable_id === $case->id)
                                     @if ($settlementRun)
                                         @can('view', $settlementRun)

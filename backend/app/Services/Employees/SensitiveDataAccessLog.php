@@ -35,6 +35,9 @@ class SensitiveDataAccessLog
     /** Payroll run employee breakdowns and payroll exports (Phase 7b). */
     public const PAYROLL = 'sensitive_access.payroll';
 
+    /** Disciplinary case files, evidence and actions (Phase 8a): every view by an admin. */
+    public const DISCIPLINARY = 'sensitive_access.disciplinary';
+
     public function __construct(private readonly AuditLogger $audit) {}
 
     /**

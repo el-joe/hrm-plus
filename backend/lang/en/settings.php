@@ -7,6 +7,9 @@
 return [
 
     'groups' => [
+        'performance' => 'Performance',
+        'training' => 'Training',
+        'disciplinary' => 'Disciplinary actions',
         'localisation' => 'Localisation',
         'attendance' => 'Attendance',
         'payroll' => 'Payroll',
@@ -22,6 +25,20 @@ return [
         'face_verification' => 'Face verification',
     ],
     'keys' => [
+        'performance' => [
+            'employees_can_add_goals' => 'Employees may add their own goals',
+            'acknowledgement_days' => 'Days to acknowledge an approved review',
+        ],
+        'training' => [
+            'self_requests_enabled' => 'Employees may request training',
+            'certificate_reminder_days' => 'Certificate expiry reminder (days before)',
+            'completion_min_attendance_percent' => 'Attendance needed to complete a course (%)',
+        ],
+        'disciplinary' => [
+            'warning_validity_months' => 'Warnings count for escalation (months)',
+            'response_days' => 'Days for the employee to respond',
+            'deduction_component' => 'Deduction component code for disciplinary deductions',
+        ],
         'loans' => [
             'employee_requests_enabled' => 'Employees may request loans and advances',
             'min_service_months' => 'Minimum service (months)',

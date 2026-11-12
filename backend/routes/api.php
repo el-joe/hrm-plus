@@ -75,6 +75,10 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::get('payslips/summary', [V1\PayslipController::class, 'summary'])->name('payslips.summary');
             Route::get('payslips/{payslip}', [V1\PayslipController::class, 'show'])->whereNumber('payslip')->name('payslips.show');
             Route::get('payslips/{payslip}/pdf', [V1\PayslipController::class, 'pdf'])->whereNumber('payslip')->name('payslips.pdf');
+            // Performance, training and assets (Phase 8a).
+            require __DIR__.'/api/performance.php';
+            require __DIR__.'/api/training.php';
+            require __DIR__.'/api/assets.php';
             Route::post('face/enrol', [V1\FaceController::class, 'enrol'])->middleware('throttle:attendance-checkin')->name('face.enrol');
         });
 

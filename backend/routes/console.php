@@ -31,3 +31,7 @@ Schedule::command('leave:rollover')->dailyAt('00:30')->withoutOverlapping()->onO
 Schedule::command('leave:accrue')->dailyAt('00:40')->withoutOverlapping()->onOneServer();
 // Payroll (Phase 7b): attendance / leave changes after a period was finalised become pending adjustments.
 Schedule::command('payroll:scan-corrections')->dailyAt('02:45')->withoutOverlapping()->onOneServer();
+// Phase 8a: training certificates expiring within the reminder window (employee + training managers, once
+// per certificate), and approved performance reviews not acknowledged in time (reminder to the employee).
+Schedule::command('training:send-certificate-reminders')->dailyAt('07:10')->withoutOverlapping()->onOneServer();
+Schedule::command('performance:send-acknowledgement-reminders')->dailyAt('07:20')->withoutOverlapping()->onOneServer();

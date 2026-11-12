@@ -64,6 +64,10 @@ describe('portal', function () {
     });
 
     it('refuses a wrong current password, a weak or unconfirmed new one', function () {
+        // No session listing here: on the database driver the validation errors are flashed to the
+        // middleware's store, not to the store the test assertions read.
+        config(['session.driver' => 'array']);
+
         $this->actingAs($this->user, 'employee')->put(route('portal.account.password'), [
             'current_password' => 'nope', 'password' => 'New-password2', 'password_confirmation' => 'New-password2',
         ])->assertSessionHasErrors(['current_password' => __('passwords.current_wrong')]);

@@ -108,7 +108,7 @@ describe('calculation types', function () {
         app(SettingsService::class)->set('payroll.working_days_per_month', 26);
 
         expect(app(SalaryRates::class)->for('5200', PayBasis::Monthly))->toMatchArray(['day' => '200.000000', 'hour' => '25.000000'])
-            ->and(app(SalaryRates::class)->for('200', PayBasis::Daily))->toMatchArray(['day' => '200', 'hour' => '25.000000'])
+            ->and(app(SalaryRates::class)->for('200', PayBasis::Daily))->toMatchArray(['day' => '200.000000', 'hour' => '25.000000'])
             ->and(app(SalaryRates::class)->for('25', PayBasis::Hourly)['day'])->toBe('200.000000');
     });
 
@@ -175,7 +175,7 @@ describe('statutory tables', function () {
 
         expect($rules->for(StatutoryType::SocialInsurance, '2025-06-30')->employeeRate)->toBe('10.0000')
             ->and($rules->for(StatutoryType::SocialInsurance, '2026-11-30')->employeeRate)->toBe('11.0000')
-            ->and($this->insurance->versions()->where('version', 1)->value('effective_to'))->toStartWith('2025-12-31')
+            ->and($this->insurance->versions()->where('version', 1)->value('effective_to')?->toDateString())->toBe('2025-12-31')
             ->and($rules->for(StatutoryType::IncomeTax, '2026-11-30')->isDemo)->toBeTrue();
     });
 

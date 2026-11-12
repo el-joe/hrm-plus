@@ -131,9 +131,11 @@ describe('employee requests', function () {
     });
 
     it('does not let an approver decide on their own training', function () {
+        $enrolment = $this->manage->request($this->session, $this->employee, $this->account);
+        // One account per employee (users.employee_id is unique): the admin account replaces the portal one.
+        $this->account->forceFill(['employee_id' => null])->save();
         $hrAccount = adminWithRoles('HR Manager');
         $hrAccount->forceFill(['employee_id' => $this->employee->id])->save();
-        $enrolment = $this->manage->request($this->session, $this->employee, $this->account);
 
         $this->manage->decide($enrolment, $hrAccount, true);
     })->throws(ValidationException::class);
@@ -144,8 +146,9 @@ describe('capacity', function () {
         $session = trainingSession(['capacity' => 1], by: $this->hr);
         $this->manage->nominate($session, $this->employee, $this->hr);
 
-        $this->manage->nominate($session, attendanceEmployee(), $this->hr);
-    })->throws(ValidationException::class, __('training.validation.session_full'));
+        expect(fn () => $this->manage->nominate($session, attendanceEmployee(), $this->hr))
+            ->toThrow(ValidationException::class, __('training.validation.session_full'));
+    });
 
     it('refuses to approve a request once the session filled up meanwhile', function () {
         $session = trainingSession(['capacity' => 1], by: $this->hr);

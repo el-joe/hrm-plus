@@ -145,7 +145,7 @@ it('runs the whole hiring workflow from career page application to employee with
     expect($offer->fresh()->status)->toBe(OfferStatus::Accepted);
 
     // 6. Convert to employee, with a login account.
-    $this->actingAs($hr, 'admin')->get("/admin/applications/{$application->id}/hire")->assertOk()->assertSee('15,000.50');
+    $this->actingAs($hr, 'admin')->get("/admin/applications/{$application->id}/hire")->assertOk()->assertSee('value="15000.50"', false);
     $this->actingAs($hr, 'admin')->post("/admin/applications/{$application->id}/hire", [
         'name_ar' => 'منى فتحي', 'name_en' => 'Mona Fathy', 'email' => 'mona.fathy@company.test', 'hire_date' => today()->addWeek()->toDateString(),
         'branch_id' => $this->org['branch']->id, 'department_id' => $this->org['department']->id, 'position_id' => $this->org['position']->id,

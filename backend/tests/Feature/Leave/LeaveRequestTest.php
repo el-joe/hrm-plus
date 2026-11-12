@@ -74,12 +74,14 @@ describe('counting', function () {
     it('counts calendar days for types that count rest days and holidays', function () {
         $maternity = leaveTypeWithPolicy(['counts_rest_days' => true, 'counts_holidays' => true], ['entitlement_days' => '90']);
         Holiday::create(['name_ar' => 'عيد', 'name_en' => 'Feast', 'start_date' => '2026-11-09', 'end_date' => '2026-11-09', 'is_recurring' => false, 'is_paid' => true, 'is_active' => true]);
+        accrueLeave('2026-01-01'); // credit the entitlement of the types created in this test
 
         expect(fileLeave($this->employee, $maternity, '2026-11-04', '2026-11-10')->days)->toBe('7.00');
     });
 
     it('charges half a day for a half day and a fraction of the scheduled hours for hourly leave', function () {
         $casual = leaveTypeWithPolicy(['unit' => LeaveUnit::Hour], ['entitlement_days' => '7']);
+        accrueLeave('2026-01-01'); // credit the entitlement of the types created in this test
 
         $half = fileLeave($this->employee, $this->annual, '2026-11-04', null, ['day_part' => 'first_half']);
         $hours = fileLeave($this->employee, $casual, '2026-11-05', null, ['day_part' => 'hours', 'hours' => '2']);
@@ -147,6 +149,7 @@ describe('overlap and balance', function () {
         $sick = leaveTypeWithPolicy(['allows_past_dates' => true, 'requires_attachment' => true, 'attachment_after_days' => '1', 'max_days_per_request' => '3'], ['entitlement_days' => '15']);
         $maternity = leaveTypeWithPolicy(['gender' => Gender::Female], ['entitlement_days' => '90']);
         $hajj = leaveTypeWithPolicy(['max_times_per_service' => 1], ['entitlement_days' => '30']);
+        accrueLeave('2026-01-01'); // credit the entitlement of the types created in this test
         Storage::fake(config('employees.disk'));
         $certificate = UploadedFile::fake()->create('certificate.pdf', 50, 'application/pdf');
 
@@ -175,7 +178,7 @@ describe('approval', function () {
         decideLeave($leave, $this->manager);
         expect($leave->status)->toBe(LeaveRequestStatus::Pending)
             ->and($leave->latestApprovalRequest->currentStep->sequence)->toBe(2)
-            ->and(LeaveBalanceTransaction::query()->exists())->toBeFalse();
+            ->and(LeaveBalanceTransaction::query()->where('type', 'usage')->exists())->toBeFalse();
         Notification::assertSentTo($this->hr, LeaveRequestNotification::class, fn ($notification) => $notification->kind === 'awaiting_approval');
 
         decideLeave($leave, $this->hr);
@@ -204,6 +207,8 @@ describe('approval', function () {
     });
 
     it('never lets an approver decide on their own leave', function () {
+        // One account per employee (users.employee_id is unique): the admin account replaces the portal one.
+        $this->account->forceFill(['employee_id' => null])->save();
         $hrEmployee = adminWithRoles('HR Manager');
         $hrEmployee->forceFill(['employee_id' => $this->employee->id])->save();
         $leave = fileLeave($this->employee, $this->annual, '2026-11-08', null);
@@ -225,6 +230,7 @@ describe('approval', function () {
 
     it('uses the workflow configured on the leave type', function () {
         $sick = leaveTypeWithPolicy(['approval_workflow' => 'leave_request_hr', 'allows_past_dates' => true], ['entitlement_days' => '15']);
+        accrueLeave('2026-01-01'); // credit the entitlement of the types created in this test
         $leave = fileLeave($this->employee, $sick, '2026-11-08', null, by: $this->account, source: LeaveRequestSource::Portal);
 
         expect($this->manager->can('decide', $leave))->toBeFalse();
@@ -284,6 +290,7 @@ describe('attendance integration', function () {
     it('turns approved past leave into on_leave days and back when it is cancelled', function () {
         $sickStatus = AttendanceStatus::query()->where('code', 'sick_leave')->value('id');
         $sick = leaveTypeWithPolicy(['allows_past_dates' => true, 'attendance_status_id' => $sickStatus], ['entitlement_days' => '15']);
+        accrueLeave('2026-01-01'); // credit the entitlement of the types created in this test
         $this->travelTo(CarbonImmutable::parse('2026-11-12 07:00:00'));
         punchAt($this->employee, '2026-11-09 08:00', 'in');
         punchAt($this->employee, '2026-11-09 16:00', 'out');

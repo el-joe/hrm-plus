@@ -169,7 +169,7 @@ it('reserves the violation catalogue to disciplinary.manage', function () {
 
 it('withholds disciplinary entries from the history timeline without disciplinary.view', function () {
     $action = app(ManageDisciplinaryAction::class)->propose($this->case, [
-        'type' => 'verbal_warning', 'details' => 'Verbal.', 'effective_date' => now()->toDateString(),
+        'type' => 'written_warning', 'details' => 'Written.', 'effective_date' => now()->toDateString(),
     ], $this->hr);
     app(ManageDisciplinaryAction::class)->decide($action, adminWithRoles('HR Manager'), true);
 

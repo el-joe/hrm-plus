@@ -30,12 +30,12 @@ beforeEach(function () {
 });
 
 it('lists only the employee\'s announcements in the portal', function () {
-    $this->actingAs($this->user, 'employee')->get(route('portal.announcements.index'))
+    $this->actingAs($this->user, 'employee')->withSession(['locale' => 'en'])->get(route('portal.announcements.index'))
         ->assertOk()->assertSee('Mine')->assertDontSee('Theirs');
 });
 
 it('marks an announcement read when opened and records the acknowledgement', function () {
-    $this->actingAs($this->user, 'employee')->get(route('portal.announcements.show', $this->forMe->id))->assertOk()->assertSee('Announcement text');
+    $this->actingAs($this->user, 'employee')->withSession(['locale' => 'en'])->get(route('portal.announcements.show', $this->forMe->id))->assertOk()->assertSee('Announcement text');
 
     expect(AnnouncementRead::query()->where('employee_id', $this->employee->id)->first())->read_at->not->toBeNull();
 

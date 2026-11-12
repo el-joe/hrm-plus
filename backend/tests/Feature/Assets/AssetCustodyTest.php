@@ -128,7 +128,8 @@ it('keeps the full history of an asset across custodians', function () {
 
     expect($this->asset->assignments()->count())->toBe(2)
         ->and($this->asset->currentAssignment->employee_id)->toBe($other->id)
-        ->and($this->asset->events()->pluck('type')->map->value->all())->toContain('registered', 'assigned', 'returned')
+        // The factory asset was not registered through SaveAsset, so there is no 'registered' event here.
+        ->and($this->asset->events()->pluck('type')->map->value->sort()->values()->all())->toBe(['assigned', 'assigned', 'returned'])
         ->and(AssetEvent::query()->where('employee_id', $this->employee->id)->pluck('type')->map->value->sort()->values()->all())->toBe(['assigned', 'returned']);
 });
 

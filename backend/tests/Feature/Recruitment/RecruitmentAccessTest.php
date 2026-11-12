@@ -146,10 +146,10 @@ describe('interviewer visibility', function () {
         $this->mine->interviewers()->attach($employeeUser);
 
         $this->actingAs($employeeUser, 'employee')->get('/portal/interviews')->assertOk()->assertSee('Cairo Person')->assertDontSee('Alex Person');
-        $this->actingAs($employeeUser, 'employee')->get("/portal/interviews/{$this->other->id}")->assertForbidden();
+        $this->actingAs($employeeUser, 'employee')->get("/portal/interviews/{$this->other->id}")->assertNotFound(); // portal ownership: 404, never 403 (Phase 9)
         $this->actingAs($employeeUser, 'employee')->post("/portal/interviews/{$this->mine->id}/scorecard", ['recommendation' => 'yes', 'comments' => 'Good'])
             ->assertSessionHasNoErrors();
-        $this->actingAs($outsider, 'employee')->post("/portal/interviews/{$this->mine->id}/scorecard", ['recommendation' => 'yes'])->assertForbidden();
+        $this->actingAs($outsider, 'employee')->post("/portal/interviews/{$this->mine->id}/scorecard", ['recommendation' => 'yes'])->assertNotFound();
 
         expect($this->mine->scorecards()->sole()->user_id)->toBe($employeeUser->id);
     });

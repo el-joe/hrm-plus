@@ -23,10 +23,17 @@ it('shows every sidebar entry to a Super Admin', function () {
         'attendance_devices', 'attendance_work_locations', 'face_enrolments',
         'schedule_calendar', 'shifts', 'work_schedules', 'schedule_assignments', 'schedule_changes', 'holidays', 'attendance_policies', 'attendance_statuses',
         'leave_requests', 'leave_calendar', 'leave_balances', 'leave_reports', 'leave_types', 'leave_policies',
+        'payroll_runs', 'payslips', 'payroll_corrections', 'payroll_periods',
         'loans', 'allowances', 'deductions', 'salary_structures', 'salary_components', 'statutory_rules',
+        'performance_reviews', 'performance_goals', 'performance_cycles', 'competencies', 'rating_scales',
+        'training_sessions', 'training_enrolments', 'training_courses', 'training_certificates', 'skills_matrix',
+        'training_budgets', 'training_providers', 'training_programmes', 'skills',
+        'assets', 'asset_assignments', 'asset_categories',
+        'disciplinary_cases', 'violation_types',
+        'hr_requests', 'hr_request_categories', 'hr_letter_templates', 'announcements',
         'reports', 'report_exports',
         'company', 'org_chart', 'branches', 'departments', 'teams', 'positions', 'job_titles', 'job_grades', 'employment_types', 'cost_centers',
-        'admin_users', 'roles', 'audit_logs', 'settings', 'ui_kit',
+        'admin_users', 'roles', 'audit_logs', 'settings', 'notification_templates', 'notification_deliveries', 'ui_kit',
     ]);
 });
 

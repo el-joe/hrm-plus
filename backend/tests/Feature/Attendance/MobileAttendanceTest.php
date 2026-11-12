@@ -94,7 +94,7 @@ it('accepts a check-in inside the geofence and records it through the raw event 
         ->and($attempt->attendance_raw_event_id)->toBe($event->id)
         ->and($attempt->distance_meters)->toBeBetween(38, 42)
         ->and($attempt->time_drift_seconds)->toBe(-20)
-        ->and(AttendanceDay::query()->sole()->first_in_at->toIso8601ZuluString())->toBe('2026-11-01T06:03:00Z');
+        ->and(AttendanceDay::query()->whereDate('work_date', '2026-11-01')->sole()->first_in_at->toIso8601ZuluString())->toBe('2026-11-01T06:03:00Z');
 });
 
 it('validates distance with the accuracy tolerance and rejects poor accuracy or points outside the geofence', function (float $north, float $accuracy, string $outcome, ?string $reason) {
@@ -170,6 +170,7 @@ it('is idempotent per request uuid and refuses a uuid of another employee', func
     expect(AttendanceMobileAttempt::query()->count())->toBe(1)->and(AttendanceRawEvent::query()->count())->toBe(1);
 
     $other = User::factory()->employee()->create(['employee_id' => attendanceEmployee(['branch_id' => $this->branch->id, 'department_id' => $this->department->id])->id]);
+    $this->app['auth']->forgetGuards(); // the sanctum guard keeps the employee of the previous request otherwise
     $this->withToken($other->createToken('t')->plainTextToken)->postJson('/api/v1/me/attendance/check-in', $payload)->assertStatus(409);
 });
 
@@ -206,6 +207,8 @@ it('lets a reviewer approve (recorded at the attempt time) or reject a flagged a
     // A reviewer linked to the employee profile cannot decide on their own attempt.
     ($this->api)()->postJson('/api/v1/me/attendance/check-in', mobilePayload(20, ['is_mock_location' => true]))->assertStatus(202);
     $own = AttendanceMobileAttempt::query()->latest('id')->first();
+    // One account per employee (users.employee_id is unique): the admin account replaces the portal one.
+    $this->account->forceFill(['employee_id' => null])->save();
     $self = adminWithRoles('HR Manager');
     $self->forceFill(['employee_id' => $this->employee->id])->save();
     $this->actingAs($self, 'admin')->post(route('admin.attendance.reviews.decide', [$own, 'approve']))->assertForbidden();
@@ -262,9 +265,11 @@ it('returns today\'s state for the attendance action', function () {
 it('accepts employee tokens only and validates the request', function () {
     $this->postJson('/api/v1/me/attendance/check-in', mobilePayload())->assertUnauthorized();
 
-    $admin = User::factory()->admin()->create(['employee_id' => $this->employee->id]);
+    // An admin account linked to an employee profile (each employee has one account) cannot use the employee API.
+    $admin = User::factory()->admin()->create(['employee_id' => attendanceEmployee(['branch_id' => $this->branch->id, 'department_id' => $this->department->id])->id]);
     $this->withToken($admin->createToken('x')->plainTextToken)->postJson('/api/v1/me/attendance/check-in', mobilePayload())->assertForbidden();
 
+    $this->app['auth']->forgetGuards(); // the sanctum guard keeps the admin of the previous request otherwise
     ($this->api)()->postJson('/api/v1/me/attendance/check-in', ['latitude' => 120])->assertUnprocessable()
         ->assertJsonValidationErrors(['request_uuid', 'latitude', 'longitude', 'accuracy']);
 
@@ -295,7 +300,7 @@ it('runs scenario 2: login, face enrolment, GPS + face check-in, processed day v
         ->assertJsonPath('data.face.is_simulated', true);
 
     // 5. The backend stored and processed the attendance.
-    $day = AttendanceDay::query()->where('employee_id', $this->employee->id)->sole();
+    $day = AttendanceDay::query()->where('employee_id', $this->employee->id)->whereDate('work_date', '2026-11-01')->sole();
     expect($day->status)->toBe(AttendanceDayStatus::Present)
         ->and($day->sources)->toBe(['mobile_gps']);
 

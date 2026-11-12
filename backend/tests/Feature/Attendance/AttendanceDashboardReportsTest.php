@@ -25,13 +25,14 @@ beforeEach(function () {
     $ops = Department::factory()->create(['code' => 'OPS', 'branch_id' => $this->alex->id]);
     assignSchedule(workWeek(Shift::factory()->between('08:00', '16:00')->create(['code' => 'MOR'])), AttendanceScope::Company, null);
 
+    // Employee numbers that cannot occur elsewhere in a page (inline font CSS, the employee filter shows "number · name").
     $make = fn (string $number, Branch $branch, Department $department) => attendanceEmployee([
         'employee_number' => $number, 'branch_id' => $branch->id, 'department_id' => $department->id,
     ]);
-    $this->onTime = $make('C-1', $this->cairo, $sales);
-    $this->late = $make('C-2', $this->cairo, $sales);
-    $this->missing = $make('C-3', $this->cairo, $sales);
-    $this->alexOnTime = $make('A-1', $this->alex, $ops);
+    $this->onTime = $make('CAI-ONE', $this->cairo, $sales);
+    $this->late = $make('CAI-TWO', $this->cairo, $sales);
+    $this->missing = $make('CAI-THREE', $this->cairo, $sales);
+    $this->alexOnTime = $make('ALX-ONE', $this->alex, $ops);
 
     // Yesterday-style complete data for 2026-11-01 (processed), and a punch "today" for the live view.
     punchAt($this->onTime, '2026-11-01 07:58', 'in');
@@ -79,7 +80,7 @@ it('renders the dashboard inside the admin data scope', function () {
     $scoped = adminWithRoles('Branch Manager');
     $scoped->dataScopes()->create(['scope_type' => 'branch', 'scope_id' => $this->alex->id]);
     $this->actingAs($scoped, 'admin')->get(route('admin.attendance.dashboard', ['date' => '2026-11-01']))
-        ->assertOk()->assertSee('data-count="present">1<', false)->assertSee('data-count="late">0<', false)->assertDontSee('C-2');
+        ->assertOk()->assertSee('data-count="present">1<', false)->assertSee('data-count="late">0<', false)->assertDontSee('CAI-TWO');
 
     $this->actingAs(adminWithRoles('Recruiter'), 'admin')->get(route('admin.attendance.dashboard'))->assertForbidden();
 });
@@ -89,12 +90,12 @@ it('lists report rows from the processed days and exports only what is in scope'
     $filters = ['from' => '2026-11-01', 'to' => '2026-11-01'];
 
     $this->actingAs($admin, 'admin')->get(route('admin.attendance.reports.show', ['lateness', ...$filters]))
-        ->assertOk()->assertSee('C-2')->assertDontSee('C-1');
+        ->assertOk()->assertSee('CAI-TWO')->assertDontSee('CAI-ONE');
     $this->actingAs($admin, 'admin')->get(route('admin.attendance.reports.show', ['absence', ...$filters]))
-        ->assertOk()->assertSee('C-3')->assertDontSee('C-2');
+        ->assertOk()->assertSee('CAI-THREE')->assertDontSee('CAI-TWO');
 
     $summary = $this->actingAs($admin, 'admin')->get(route('admin.attendance.reports.show', ['monthly_summary', ...$filters]))->assertOk()->viewData('rows');
-    $late = collect($summary->items())->firstWhere('employee_number', 'C-2');
+    $late = collect($summary->items())->firstWhere('employee_number', 'CAI-TWO');
     expect($summary->total())->toBe(4)
         ->and($late['late_days'])->toBe(1)
         ->and($late['scheduled_days'])->toBe(1);
@@ -104,7 +105,7 @@ it('lists report rows from the processed days and exports only what is in scope'
     $response = $this->actingAs($scoped, 'admin')->get(route('admin.attendance.reports.export', ['daily', ...$filters, 'format' => 'csv']))->assertOk();
 
     $csv = file_get_contents($response->baseResponse->getFile()->getPathname());
-    expect($csv)->toContain('A-1')->not->toContain('C-1')->not->toContain('C-2');
+    expect($csv)->toContain('ALX-ONE')->not->toContain('CAI-ONE')->not->toContain('CAI-TWO');
 });
 
 it('opens attendance reports to report viewers, keeps device sync for device viewers and blocks others', function () {
@@ -115,7 +116,8 @@ it('opens attendance reports to report viewers, keeps device sync for device vie
     $this->actingAs($viewer, 'admin')->get(route('admin.attendance.reports.export', ['overtime', 'format' => 'xlsx']))->assertOk();
 
     $this->actingAs(adminWithRoles('Attendance Officer'), 'admin')->get(route('admin.attendance.reports.show', 'device_sync'))->assertOk();
-    $this->actingAs(adminWithRoles('Recruiter'), 'admin')->get(route('admin.attendance.reports.index'))->assertForbidden();
+    // reports.view alone opens them (the Recruiter role holds it), so "others" = neither attendance.view nor reports.view.
+    $this->actingAs(adminWithPermissions('recruitment.view'), 'admin')->get(route('admin.attendance.reports.index'))->assertForbidden();
     $this->actingAs(adminWithRoles('HR Specialist'), 'admin')->get(route('admin.attendance.reports.export', ['daily']))->assertForbidden();
 
     $this->actingAs(superAdmin(), 'admin')->get(route('admin.attendance.reports.show', ['daily', 'from' => '2025-01-01', 'to' => '2026-11-01']))
@@ -127,6 +129,7 @@ it('renders the monthly calendar for an employee and for a department', function
 
     $this->actingAs($officer, 'admin')->get(route('admin.attendance.calendar', ['month' => '2026-11', 'employee_id' => $this->late->id]))
         ->assertOk()->assertSee(route('admin.attendance.days.show', AttendanceDay::query()->where('employee_id', $this->late->id)->firstOrFail()), false);
+    // The employee filter lists every employee ("number · name"); the matrix rows show the number alone.
     $this->actingAs($officer, 'admin')->get(route('admin.attendance.calendar', ['month' => '2026-11', 'branch_id' => $this->cairo->id]))
-        ->assertOk()->assertSee('C-1')->assertSee('C-3')->assertDontSee('A-1');
+        ->assertOk()->assertSee('>CAI-ONE<', false)->assertSee('>CAI-THREE<', false)->assertDontSee('>ALX-ONE<', false);
 });

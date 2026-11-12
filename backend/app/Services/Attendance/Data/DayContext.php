@@ -15,6 +15,7 @@ final readonly class DayContext
 {
     /**
      * @param  list<PunchInput>  $punches  attributed to this day / shift, sorted, duplicates removed
+     * @param  CarbonImmutable|null  $now  processing time (UTC): an open check-in before the shift end is in progress
      */
     public function __construct(
         public CarbonImmutable $date,
@@ -29,5 +30,6 @@ final readonly class DayContext
         public array $punches,
         public AttendancePolicyVersion $rules,
         public string $scheduleSource,
+        public ?CarbonImmutable $now = null,
     ) {}
 }

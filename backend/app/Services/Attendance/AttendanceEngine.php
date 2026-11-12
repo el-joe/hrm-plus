@@ -122,6 +122,7 @@ class AttendanceEngine
                 $context = new DayContext(
                     $date, $resolved->timezone, $shift, $resolved->isRestDay, $resolved->holiday, $leave,
                     $mark, $markEvent?->id, $markEvent?->source, $attributed[$key] ?? [], $rules, $resolved->source,
+                    CarbonImmutable::now()->utc(),
                 );
 
                 $result = $this->calculator->calculate($context);

@@ -74,8 +74,9 @@ function ownershipRecordMakers(): array
     $test = test();
     $other = fn () => $test->other;
     $otherUser = fn () => $test->otherUser;
-    $once = function (string $key, Closure $make) use ($test): int|string {
-        return $test->foreign[$key] ??= $make();
+    $foreign = [];
+    $once = function (string $key, Closure $make) use (&$foreign): int|string {
+        return $foreign[$key] ??= $make();
     };
 
     $leaveRequest = fn (): int => $once('leaveRequest', fn (): int => LeaveRequest::query()->forceCreate([
@@ -113,7 +114,7 @@ function ownershipRecordMakers(): array
                 'hr_request_id' => $hrRequest(), 'is_internal' => false, 'is_letter' => true, ...$file,
             ])->id),
             default => $once('announcementAttachment', fn (): int => AnnouncementAttachment::query()->forceCreate([
-                'announcement_id' => test()->foreign['announcement'] ?? Announcement::factory()->create()->id, ...$file,
+                'announcement_id' => $once('announcement', fn (): int => Announcement::factory()->create()->id), ...$file,
             ])->id),
         },
         'loan' => fn (): int => $once('loan', fn (): int => EmployeeLoan::query()->forceCreate([
@@ -154,9 +155,13 @@ function ownershipRecordMakers(): array
 
                 return $id;
             }),
-        'assignedInterview' => fn (): int => $once('interview', fn (): int => JobApplication::factory()->create()->interviews()->create([
-            'type' => 'hr', 'scheduled_at' => now()->addDay(), 'timezone' => 'UTC', 'mode' => 'phone', 'status' => 'scheduled',
-        ])->id),
+        'assignedInterview' => fn (): int => $once('interview', function (): int {
+            seedRecruitment(); // job applications start in the default pipeline's first stage
+
+            return JobApplication::factory()->create()->interviews()->create([
+                'type' => 'hr', 'scheduled_at' => now()->addDay(), 'timezone' => 'UTC', 'mode' => 'phone', 'status' => 'scheduled',
+            ])->id;
+        }),
     ];
 }
 
@@ -170,7 +175,6 @@ beforeEach(function () {
     $this->otherUser = User::factory()->employee()->create(['employee_id' => $this->other->id]);
     // Both have an issued payslip; the other one's is probed below.
     finalisedRun(calculatedRun(payrollPeriod('2026-10')));
-    $this->foreign = [];
 });
 
 it('knows how to build another employee\'s record for every id parameter of the portal and me/* routes', function () {
@@ -220,6 +224,8 @@ it('still serves the employee\'s own records on the same routes (the 404s are no
 });
 
 it('never lets an admin open an employee record through the portal by id', function () {
+    // One account per employee: the admin account replaces the portal one.
+    $this->user->forceFill(['employee_id' => null])->save();
     $admin = adminWithRoles('HR Manager');
     $admin->forceFill(['employee_id' => $this->me->id])->save();
     $theirs = Payslip::query()->where('employee_id', $this->other->id)->value('id');

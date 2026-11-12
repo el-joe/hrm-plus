@@ -76,8 +76,9 @@ it('needs the financial permission for bank details and updates the primary acco
 
     expect(fn () => app(DecideProfileChanges::class)->apply($request, $noFinance))->toThrow(ValidationException::class);
 
-    // HR Manager holds employee_financials.view only; applying bank details needs .update.
-    expect(fn () => app(DecideProfileChanges::class)->apply($request->refresh(), $this->hr))->toThrow(ValidationException::class);
+    // employee_financials.view alone is not enough; applying bank details needs .update.
+    $viewOnly = adminWithPermissions('hr_requests.view', 'hr_requests.update', 'hr_requests.approve', 'employees.view', 'employees.update', 'employee_financials.view');
+    expect(fn () => app(DecideProfileChanges::class)->apply($request->refresh(), $viewOnly))->toThrow(ValidationException::class);
 
     app(DecideProfileChanges::class)->apply($request->refresh(), superAdmin());
 

@@ -59,7 +59,7 @@ it('sends work anniversaries from the hire date, not in the first year', functio
     app(PeopleEvents::class)->run($this->today);
 
     expect(sentEvent($veteran, 'work_anniversary'))->toBeTrue()->and(sentEvent($newcomer, 'work_anniversary'))->toBeFalse();
-    Notification::assertSent(AutomationNotification::class, fn (AutomationNotification $n): bool => $n->eventKey === 'work_anniversary' && $n->values['years'] === 5);
+    Notification::assertSentTo($veteran, AutomationNotification::class, fn (AutomationNotification $n): bool => $n->eventKey === 'work_anniversary' && $n->values['years'] === 5);
 });
 
 it('reminds the manager and HR before a probation period ends', function () {

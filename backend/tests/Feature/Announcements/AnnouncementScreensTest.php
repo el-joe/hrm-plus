@@ -37,7 +37,7 @@ it('lets viewers read but not change announcements', function () {
     $viewer = adminWithPermissions('announcements.view');
     $announcement = makeAnnouncement($this->hr, publish: false);
 
-    $this->actingAs($viewer, 'admin')->get(route('admin.announcements.index'))->assertOk()->assertSee('Test announcement');
+    $this->actingAs($viewer, 'admin')->withSession(['locale' => 'en'])->get(route('admin.announcements.index'))->assertOk()->assertSee('Test announcement');
     $this->actingAs($viewer, 'admin')->get(route('admin.announcements.edit', $announcement))->assertForbidden();
     $this->actingAs($viewer, 'admin')->post(route('admin.announcements.publish', $announcement))->assertForbidden();
     $this->actingAs($viewer, 'admin')->delete(route('admin.announcements.destroy', $announcement))->assertForbidden();
@@ -46,9 +46,9 @@ it('lets viewers read but not change announcements', function () {
 it('renders the list, the form and the show page', function () {
     $announcement = makeAnnouncement($this->hr, ['requires_acknowledgement' => true]);
 
-    $this->actingAs($this->hr, 'admin')->get(route('admin.announcements.index'))->assertOk()->assertSee($announcement->title_en);
+    $this->actingAs($this->hr, 'admin')->withSession(['locale' => 'en'])->get(route('admin.announcements.index'))->assertOk()->assertSee($announcement->title_en);
     $this->actingAs($this->hr, 'admin')->get(route('admin.announcements.create'))->assertOk();
-    $this->actingAs($this->hr, 'admin')->get(route('admin.announcements.show', $announcement))->assertOk()
+    $this->actingAs($this->hr, 'admin')->withSession(['locale' => 'en'])->get(route('admin.announcements.show', $announcement))->assertOk()
         ->assertSee('data-region="statistics"', false)->assertSee('Announcement text');
 });
 
@@ -94,7 +94,7 @@ it('shows a restricted admin only announcements within their scope', function ()
     $forAlex = makeAnnouncement($this->hr, ['title_en' => 'For Alexandria', 'audience' => 'targeted', 'targets' => ['branch' => [$alex->id]]]);
     $forCairo = makeAnnouncement($this->hr, ['title_en' => 'For Cairo', 'audience' => 'targeted', 'targets' => ['branch' => [$cairo->id]]]);
 
-    $this->actingAs($manager, 'admin')->get(route('admin.announcements.index', ['search' => 'For']))
+    $this->actingAs($manager, 'admin')->withSession(['locale' => 'en'])->get(route('admin.announcements.index', ['search' => 'For']))
         ->assertOk()->assertSee('For everyone')->assertSee('For Alexandria')->assertDontSee('For Cairo');
     $this->actingAs($manager, 'admin')->get(route('admin.announcements.show', $forCairo))->assertForbidden();
     // Company-wide announcements are visible but cannot be changed by a restricted admin.

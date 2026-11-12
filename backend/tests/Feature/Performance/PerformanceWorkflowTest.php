@@ -224,6 +224,8 @@ describe('the review workflow', function () {
     });
 
     it('never lets the submitting manager or the employee approve', function () {
+        // One account per employee (users.employee_id is unique): the admin account replaces the portal one.
+        $this->employeeUser->forceFill(['employee_id' => null])->save();
         $hrEmployee = User::factory()->admin()->withRoles('HR Manager')->create(['employee_id' => $this->employee->id]);
         $manage = app(ManagePerformanceReview::class);
         $manage->skipSelf($this->review, $this->hr);

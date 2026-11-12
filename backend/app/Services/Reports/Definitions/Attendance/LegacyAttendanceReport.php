@@ -61,9 +61,12 @@ abstract class LegacyAttendanceReport extends Report
 
     public function sortable(): array
     {
-        return $this->employeeColumn() === 'attendance_days.employee_id'
-            ? ['date' => 'attendance_days.work_date', 'employee_number' => 'employees.employee_number']
-            : [];
+        if ($this->employeeColumn() !== 'attendance_days.employee_id') {
+            return [];
+        }
+
+        // Only the columns the legacy report has (the monthly summary is grouped per employee, without a date).
+        return array_intersect_key(['date' => 'attendance_days.work_date', 'employee_number' => 'employees.employee_number'], $this->columns());
     }
 
     public function query(array $filters, User $user): Builder

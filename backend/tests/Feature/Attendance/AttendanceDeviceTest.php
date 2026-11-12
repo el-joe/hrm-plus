@@ -89,7 +89,7 @@ it('accepts pushed logs only with the device token and stores them idempotently'
         ->and(AttendanceDeviceEvent::query()->count())->toBe(3)
         ->and(AttendanceDeviceSyncLog::query()->where('type', DeviceSyncType::Push)->count())->toBe(2);
 
-    $day = AttendanceDay::query()->where('employee_id', $this->employee->id)->sole();
+    $day = AttendanceDay::query()->where('employee_id', $this->employee->id)->whereDate('work_date', '2026-11-01')->sole();
     expect($day->first_in_at->toIso8601ZuluString())->toBe('2026-11-01T05:58:12Z')
         ->and($day->last_out_at->toIso8601ZuluString())->toBe('2026-11-01T14:02:00Z');
 
@@ -197,7 +197,7 @@ it('keeps unknown device users as unmatched events until they are mapped, then p
 
     expect(AttendanceRawEvent::query()->where('status', RawEventStatus::Unmatched)->count())->toBe(0)
         ->and(AttendanceDeviceUser::query()->sole()->employee_id)->toBe($this->employee->id)
-        ->and(AttendanceDay::query()->where('employee_id', $this->employee->id)->sole()->worked_minutes)->toBeGreaterThan(400);
+        ->and(AttendanceDay::query()->where('employee_id', $this->employee->id)->whereDate('work_date', '2026-11-01')->sole()->worked_minutes)->toBeGreaterThan(400);
 
     // New logs of that user are matched directly.
     $this->withToken($token)->postJson(route('api.v1.devices.events', $device->serial_number), ['events' => [['user_id' => '777', 'time' => '2026-11-02 08:00:00']]])
@@ -252,7 +252,7 @@ it('imports a CSV device log with a dry run that writes nothing first', function
         ->and($log->created)->toBe(3)
         ->and($log->unmatched)->toBe(1)
         ->and($log->file_name)->toBe('export.csv')
-        ->and(AttendanceDay::query()->where('employee_id', $this->employee->id)->sole()->first_in_at->toIso8601ZuluString())->toBe('2026-11-01T06:04:00Z');
+        ->and(AttendanceDay::query()->where('employee_id', $this->employee->id)->whereDate('work_date', '2026-11-01')->sole()->first_in_at->toIso8601ZuluString())->toBe('2026-11-01T06:04:00Z');
 
     // Rows with errors block the import.
     $bad = UploadedFile::fake()->createWithContent('bad.csv', "device_user_id,time,direction\n100,not-a-time,in\n100,2026-11-01 09:00,sideways\n");

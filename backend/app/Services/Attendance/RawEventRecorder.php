@@ -116,6 +116,8 @@ class RawEventRecorder
     /**
      * Local dates an event can affect: its pinned date, or the punch's local
      * date and the days either side (night shifts, early check-in windows).
+     * Dates still in the future are left to the nightly processing, like
+     * leave (a day that has not started must not come out absent).
      *
      * @return list<string>
      */
@@ -126,8 +128,12 @@ class RawEventRecorder
         }
 
         $local = AttendanceClock::localDate($event->occurred_at, $event->timezone);
+        $today = AttendanceClock::localDate(now(), $event->timezone)->format('Y-m-d');
 
-        return [$local->subDay()->format('Y-m-d'), $local->format('Y-m-d'), $local->addDay()->format('Y-m-d')];
+        return array_values(array_filter(
+            [$local->subDay()->format('Y-m-d'), $local->format('Y-m-d'), $local->addDay()->format('Y-m-d')],
+            fn (string $date): bool => $date <= $today,
+        ));
     }
 
     private function derivePunch(AttendanceRawEvent $event): void

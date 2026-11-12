@@ -48,7 +48,7 @@ describe('employees', function () {
     it('lists new hires and terminations of the period only', function () {
         Employee::factory()->create(['employee_number' => 'NEW', 'branch_id' => $this->cairo->id, 'department_id' => $this->sales->id, 'hire_date' => '2026-11-03']);
         Employee::factory()->create(['employee_number' => 'OLD', 'branch_id' => $this->cairo->id, 'department_id' => $this->sales->id, 'hire_date' => '2020-01-01']);
-        Employee::factory()->create(['employee_number' => 'GONE', 'branch_id' => $this->cairo->id, 'department_id' => $this->sales->id, 'hire_date' => '2020-01-01',
+        Employee::factory()->create(['employee_number' => 'GONE', 'branch_id' => $this->cairo->id, 'department_id' => $this->sales->id, 'hire_date' => '2020-01-01', 'original_hire_date' => '2020-01-01',
             'status' => EmployeeStatus::Terminated, 'termination_date' => '2026-11-05', 'termination_type' => 'resignation']);
 
         expect(array_column(reportRows($this->admin, 'new_hires', ['from' => '2026-11-01', 'to' => '2026-11-10']), 'employee_number'))->toBe(['NEW'])
@@ -110,16 +110,25 @@ describe('attendance', function () {
     it('counts attendance events by source', function () {
         $employee = attendanceEmployee(['branch_id' => $this->cairo->id, 'department_id' => $this->sales->id]);
         foreach ([RawEventSource::Device, RawEventSource::Device, RawEventSource::Manual] as $index => $source) {
-            AttendanceRawEvent::query()->create([
+            AttendanceRawEvent::query()->forceCreate([
                 'employee_id' => $employee->id, 'kind' => 'punch', 'direction' => 'in', 'source' => $source, 'status' => 'processed',
-                'occurred_at' => '2026-11-0'.($index + 2).' 06:00:00', 'work_date' => '2026-11-0'.($index + 2), 'timezone' => 'Africa/Cairo',
-                'idempotency_key' => 'test-'.$index,
+                // Device punches are not pinned to a work date: they count by their local day.
+                'occurred_at' => '2026-11-0'.($index + 2).' 06:00:00', 'work_date' => $source === RawEventSource::Manual ? '2026-11-0'.($index + 2) : null,
+                'timezone' => 'Africa/Cairo', 'idempotency_key' => 'test-'.$index,
             ]);
         }
+        // Outside the period (local day 2026-11-11).
+        AttendanceRawEvent::query()->forceCreate([
+            'employee_id' => $employee->id, 'kind' => 'punch', 'direction' => 'in', 'source' => RawEventSource::Device, 'status' => 'processed',
+            'occurred_at' => '2026-11-10 22:30:00', 'timezone' => 'Africa/Cairo', 'idempotency_key' => 'test-late',
+        ]);
 
-        $rows = collect(reportRows($this->admin, 'attendance_source', ['from' => '2026-11-01', 'to' => '2026-11-10']))->keyBy('source_key');
+        // Rows carry the visible columns only: the source label.
+        $rows = collect(reportRows($this->admin, 'attendance_source', ['from' => '2026-11-01', 'to' => '2026-11-10']))->keyBy('source');
+        $device = $rows[RawEventSource::Device->label()];
 
-        expect($rows['device']['events'])->toBe(2)->and($rows['manual']['events'])->toBe(1)->and($rows['device']['share'])->toBe(66.7);
+        expect($rows)->toHaveCount(2)->and($device['events'])->toBe(2)->and($device['days'])->toBe(2)
+            ->and($rows[RawEventSource::Manual->label()]['events'])->toBe(1)->and($device['share'])->toBe(66.7);
     });
 
     it('reuses the Phase 5b daily report with the extra employee filters', function () {
@@ -140,7 +149,7 @@ describe('leave', function () {
         $employee = attendanceEmployee(['branch_id' => $this->cairo->id, 'department_id' => $this->sales->id, 'hire_date' => '2024-01-01']);
         accrueLeave('2026-01-01');
         $approved = fileLeave($employee, $type, '2026-11-15', '2026-11-16', recordAsApproved: true, by: adminWithRoles('HR Manager'));
-        $rejected = fileLeave($employee, $type, '2026-11-20');
+        $rejected = fileLeave($employee, $type, '2026-11-19');
         $rejected->forceFill(['status' => LeaveRequestStatus::Rejected, 'rejection_reason' => 'Busy'])->save();
 
         expect(array_column(reportRows($this->admin, 'approved_leaves'), 'id'))->toBe([$approved->id])

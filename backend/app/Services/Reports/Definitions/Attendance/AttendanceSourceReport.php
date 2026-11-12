@@ -11,12 +11,13 @@ use App\Services\Reports\Column;
 use App\Services\Reports\Report;
 use App\Services\Reports\ReportFilters;
 use App\Support\Charts\ChartData;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
  * Attendance by capture source (device, mobile GPS, manual, import): raw events, employees and
- * attendance days per source and branch in the period (work date of the event). Voided events
- * are excluded.
+ * attendance days per source and branch in the period (the pinned work date of the event, else its
+ * local day in the company timezone). Voided events are excluded.
  */
 class AttendanceSourceReport extends Report
 {
@@ -54,13 +55,23 @@ class AttendanceSourceReport extends Report
 
     public function query(array $filters, User $user): Collection
     {
+        // Device and mobile punches carry no work date (only pinned manual entries and day marks do):
+        // those count by their local day in the company timezone.
+        $timezone = (string) setting('localisation.timezone');
+        $fromUtc = CarbonImmutable::parse($filters['from'], $timezone)->startOfDay()->utc();
+        $toUtc = CarbonImmutable::parse($filters['to'], $timezone)->addDay()->startOfDay()->utc();
+        $offset = (int) CarbonImmutable::parse($filters['from'], $timezone)->utcOffset();
+        $localDay = "coalesce(attendance_raw_events.work_date, date(date_add(attendance_raw_events.occurred_at, interval {$offset} minute)))";
+
         $query = AttendanceRawEvent::query()
             ->join('employees', 'employees.id', '=', 'attendance_raw_events.employee_id')
-            ->whereBetween('attendance_raw_events.work_date', [$filters['from'], $filters['to']])
+            ->where(fn ($query) => $query->whereBetween('attendance_raw_events.work_date', [$filters['from'], $filters['to']])
+                ->orWhere(fn ($query) => $query->whereNull('attendance_raw_events.work_date')
+                    ->where('attendance_raw_events.occurred_at', '>=', $fromUtc)->where('attendance_raw_events.occurred_at', '<', $toUtc)))
             ->whereNull('attendance_raw_events.voided_at')
             ->select('attendance_raw_events.source', 'employees.branch_id')
             ->selectRaw('count(*) as events, count(distinct attendance_raw_events.employee_id) as employees')
-            ->selectRaw('count(distinct attendance_raw_events.employee_id, attendance_raw_events.work_date) as days')
+            ->selectRaw("count(distinct attendance_raw_events.employee_id, {$localDay}) as days")
             ->groupBy('attendance_raw_events.source', 'employees.branch_id');
 
         $rows = ReportFilters::applyEmployeeFilters($query, 'attendance_raw_events.employee_id', $filters)->toBase()->get();

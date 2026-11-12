@@ -49,8 +49,7 @@ it('limits the custody list to employees inside the scope', function () {
     $manager = adminWithRoles('Branch Manager');
     $manager->dataScopes()->create(['scope_type' => 'branch', 'scope_id' => $this->alex->id]);
 
-    app()->setLocale('en');
-    $this->actingAs($manager, 'admin')->get(route('admin.asset-assignments.index'))
+    $this->actingAs($manager, 'admin')->withSession(['locale' => 'en'])->get(route('admin.asset-assignments.index'))
         ->assertOk()->assertSee('Alex Holder')->assertDontSee('Cairo Holder');
 });
 

@@ -137,6 +137,7 @@ describe('API', function () {
         ], [...$this->headers, 'Accept' => 'application/json'])->assertCreated()->assertJsonPath('data.type', 'qualification')->assertJsonPath('data.validity', 'no_expiry');
 
         $admin = adminWithRoles('HR Manager');
+        $this->app['auth']->forgetGuards(); // the sanctum guard keeps the employee of the previous request otherwise
         $this->getJson(route('api.v1.me.training.summary'), ['Authorization' => 'Bearer '.$admin->createToken('x')->plainTextToken])->assertForbidden();
     });
 });

@@ -26,7 +26,8 @@ use Carbon\CarbonImmutable;
  * - Status precedence: manual day status > approved leave > no shift (rest day /
  *   holiday / unscheduled working day) > holiday with a shift > punches.
  * - Pairs: PunchPairer. Missing check-in / check-out: policy missing_punch_action
- *   (incomplete | assume the scheduled time | absent).
+ *   (incomplete | assume the scheduled time | absent). An open check-in before the
+ *   end of the shift (DayContext::$now) is a shift in progress, not a missing check-out.
  * - Worked = time inside pairs + paid break time taken, minus unpaid break
  *   time not already taken as a punched gap (break_mode "scheduled": fixed
  *   breaks by overlap, flexible ones in full once more than half the shift
@@ -59,6 +60,12 @@ class DayCalculator
         $assumedIn = $assumedOut = false;
         $missingIn = $paired['orphan_out'] !== null && $pairs === [];
         $missingOut = $paired['open_in'] !== null;
+
+        // Checked in and the shift is still running (processing today): not a missing check-out yet.
+        if ($missingOut && $shift !== null && $context->now !== null && $context->now->lt($shift->endAt)) {
+            $missingOut = false;
+            $steps[] = $this->step('shift_in_progress', $shift->endAt->toIso8601ZuluString(), 'checked in, the shift has not ended yet');
+        }
 
         if ($paired['ignored'] !== []) {
             $flags[] = 'extra_punches';

@@ -20,7 +20,11 @@ abstract class PayrollItemsReport extends PayrollReport
 
     public function sortable(): array
     {
-        return ['employee_number' => 'employees.employee_number', 'period' => 'payroll_periods.end_date', 'gross' => 'payroll_items.gross_pay', 'net' => 'payroll_items.net_pay'];
+        // Only the columns the report shows (the gross salary report has no net column).
+        return array_intersect_key(
+            ['employee_number' => 'employees.employee_number', 'period' => 'payroll_periods.end_date', 'gross' => 'payroll_items.gross_pay', 'net' => 'payroll_items.net_pay'],
+            $this->columns(),
+        );
     }
 
     public function query(array $filters, User $user): Builder

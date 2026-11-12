@@ -40,7 +40,7 @@ it('returns 403 when an admin who may only view settings tries to save them', fu
 
 it('saves a group, treating unticked checkboxes as false', function () {
     $this->actingAs(adminWithPermissions('settings.view', 'settings.manage'), 'admin')
-        ->put('/admin/settings/leave', ['year_start_month' => '4', 'allow_negative_balance' => '1'])
+        ->put('/admin/settings/leave', ['year_start_month' => '4', 'allow_negative_balance' => '1', 'max_past_days' => '30', 'calendar_conflict_threshold' => '2'])
         ->assertRedirect(route('admin.settings.edit', 'leave'))
         ->assertSessionHas('status', __('app.settings.saved'));
 

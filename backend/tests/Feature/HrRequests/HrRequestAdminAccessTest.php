@@ -66,6 +66,8 @@ it('hides requests outside the admin\'s data scope', function () {
 });
 
 it('never shows an admin a request about themselves', function () {
+    // One account per employee (users.employee_id is unique): the admin account replaces the portal one.
+    $this->user->forceFill(['employee_id' => null])->save();
     $hr = adminWithRoles('HR Manager');
     $hr->update(['employee_id' => $this->employee->id]);
 

@@ -153,7 +153,8 @@ describe('exports', function () {
 
     it('queues a large export, runs it as the requesting admin and notifies them', function () {
         Bus::fake([GenerateReportExport::class]);
-        config(['reports.queue_threshold.csv' => 1]);
+        // More rows than the threshold are queued; the scoped viewer sees one row (E-ALX-1).
+        config(['reports.queue_threshold.csv' => 0]);
         $viewer = alexScopedViewer();
 
         $this->actingAs($viewer, 'admin')->get(route('admin.reports.export', ['employee_directory', 'format' => 'csv']))

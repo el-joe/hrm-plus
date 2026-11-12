@@ -180,6 +180,8 @@ it('dismisses a case without action', function () {
 });
 
 it('refuses a report about yourself', function () {
+    // One account per employee (users.employee_id is unique): the admin account replaces the portal one.
+    $this->employeeUser->forceFill(['employee_id' => null])->save();
     $this->reporter->forceFill(['employee_id' => $this->employee->id])->save();
 
     expect(fn () => reportDisciplinaryCase())->toThrow(ValidationException::class);

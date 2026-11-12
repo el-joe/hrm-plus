@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–9 complete (6–9: tests written, not run yet — user decision). Phase 9 (employee portal pass) and the backend part of Phase 10 (remaining `/api/v1` endpoints, OpenAPI docs) done; Phase 10 Flutter app built (flutter analyze clean, web build compiles; Flutter tests written, not run)**
+Last updated: 2026-11-12 · Status: **All phases (0–11) complete. Backend 1401 tests passing, Flutter 107 passing. Remaining items are client inputs B3–B9.**
 
 ---
 

@@ -18,7 +18,7 @@ labelled simulated adapters where client inputs are still missing.
   statutory tables, loans, branch-scoped settlements, two-level approval, finalisation lock, corrections, reversal,
   final settlement, Arabic PDF payslips), performance, training, assets, HR requests, announcements, disciplinary,
   notifications, 22 dashboard widgets and 52 reports with Excel / CSV / Arabic PDF export.
-- **Tests:** backend **1386 passed**; Flutter **107 passed, 5 live-API tests skipped** (run on demand against a
+- **Tests:** backend **1401 passed** (final full run, 2026-11-12); Flutter **107 passed, 5 live-API tests skipped** (run on demand against a
   real backend).
 - **Open client inputs:** B3 fingerprint device model, B4 face-verification provider, B5 Firebase / APNs,
   B6 SMTP, B7 statutory rules, B8 brand and bundle id, B9 Android licences.
@@ -78,7 +78,7 @@ labelled simulated adapters where client inputs are still missing.
 
 | المجموعة | النتيجة |
 |---|---|
-| اختبارات الخلفية (Pest، MySQL) | **1386 ناجحًا** |
+| اختبارات الخلفية (Pest، MySQL) | **1401 ناجحًا** (التشغيل الكامل النهائي) |
 | اختبارات Flutter | **107 ناجحًا**، و5 اختبارات «حية» متخطاة افتراضيًا (تُشغَّل يدويًا ضد خادم فعلي: السيناريوهان 1 و2) |
 | `flutter analyze` | نظيف |
 | السيناريوهات الخمسة الشاملة | مغطاة: الموظف الجديد (1)، الحضور عبر الجوال (2)، الحضور اليدوي (3)، الرواتب حسب الفرع (4)، الصلاحيات (5)، مع اختبار دخان للأدوار الأحد عشر |

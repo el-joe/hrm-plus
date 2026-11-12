@@ -15,7 +15,7 @@ class UpdateSettingsRequest extends FormRequest
 
     /**
      * An unchecked checkbox and an empty multi-select send nothing at all;
-     * turn the absence into an explicit false / empty list.
+     * turn the absence into an explicit false / empty list, and split a free list typed in a textarea.
      */
     protected function prepareForValidation(): void
     {
@@ -25,6 +25,16 @@ class UpdateSettingsRequest extends FormRequest
             if ($definition['type'] === SettingType::Secret->value && ! filled($this->input($name))) {
                 // An empty secret field keeps the stored value.
                 $this->request->remove($name);
+
+                continue;
+            }
+
+            if ($definition['type'] === SettingType::List->value && ! isset($definition['options']) && $this->has($name) && ! is_array($this->input($name))) {
+                // A free list is typed one item per line (commas and spaces also separate items).
+                $missing[$name] = array_values(array_filter(
+                    array_map(fn (string $item): string => rtrim($item, '/'), preg_split('/[\s,]+/', (string) $this->input($name)) ?: []),
+                    fn (string $item): bool => $item !== '',
+                ));
 
                 continue;
             }
@@ -60,6 +70,7 @@ class UpdateSettingsRequest extends FormRequest
 
         foreach (array_keys($this->definitions()) as $name) {
             $attributes[$name] = __('settings.keys.'.$this->route('group').'.'.$name);
+            $attributes[$name.'.*'] = $attributes[$name];
         }
 
         return $attributes;
@@ -94,7 +105,7 @@ class UpdateSettingsRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>}>
+     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>, item_rules?: list<string>}>
      */
     private function definitions(): array
     {

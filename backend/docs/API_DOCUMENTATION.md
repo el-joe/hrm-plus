@@ -79,7 +79,7 @@ Response `200`:
 }
 ```
 
-- Lifetime: `SANCTUM_TOKEN_EXPIRATION` minutes (default 43,200 = 30 days); `expires_at` is returned.
+- Lifetime: the system setting `security.api_token_lifetime_minutes` (Settings → Security; default 43,200 = 30 days, also returned as `auth.token_lifetime_minutes` by `GET /app/config`); `expires_at` is returned.
 - Errors: `422 validation_error` (wrong credentials, reported on `email`), `403 forbidden` (admin account /
   account not allowed), `403 account_inactive`, `429 too_many_requests` (10/min per email + IP; plus the
   sign-in lockout from Settings → Security).

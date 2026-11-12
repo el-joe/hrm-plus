@@ -174,7 +174,7 @@ describe('exports', function () {
     it('queues a large export, runs it as the requesting admin and notifies them', function () {
         Bus::fake([GenerateReportExport::class]);
         // More rows than the threshold are queued; the scoped viewer sees one row (E-ALX-1).
-        config(['reports.queue_threshold.csv' => 0]);
+        app(SettingsService::class)->set('reports.queue_threshold_csv', 0);
         $viewer = alexScopedViewer();
 
         $this->actingAs($viewer, 'admin')->get(route('admin.reports.export', ['employee_directory', 'format' => 'csv']))
@@ -198,6 +198,17 @@ describe('exports', function () {
         $this->actingAs(adminWithRoles('Reports Viewer'), 'admin')->get(route('admin.reports.exports.download', $export))->assertNotFound();
     });
 
+    it('uses the per-format queue threshold of the reports settings', function () {
+        Bus::fake([GenerateReportExport::class]);
+        app(SettingsService::class)->setMany(['reports.queue_threshold_xlsx' => 0, 'reports.queue_threshold_csv' => 100]);
+        $this->actingAs(superAdmin(), 'admin');
+
+        $this->get(route('admin.reports.export', ['employee_directory', 'format' => 'xlsx']))->assertRedirect(route('admin.reports.exports.index'));
+        $this->get(route('admin.reports.export', ['employee_directory', 'format' => 'csv']))->assertOk();
+
+        Bus::assertDispatchedTimes(GenerateReportExport::class, 1);
+    });
+
     it('marks a queued export failed when the admin lost access, and notifies them', function () {
         Notification::fake();
         $viewer = adminWithRoles('Reports Viewer');
@@ -210,7 +221,7 @@ describe('exports', function () {
     });
 
     it('refuses a PDF larger than the PDF limit', function () {
-        config(['reports.pdf_max_rows' => 1]);
+        app(SettingsService::class)->setMany(['reports.queue_threshold_pdf' => 0, 'reports.pdf_max_rows' => 1]);
 
         $this->actingAs(superAdmin(), 'admin')->from(route('admin.reports.show', 'employee_directory'))
             ->get(route('admin.reports.export', ['employee_directory', 'format' => 'pdf']))

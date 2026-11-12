@@ -31,8 +31,9 @@
                         $label = __('settings.keys.'.$group.'.'.$name);
                         $options = $definition['options'] ?? null;
                         $optionLabel = fn (string $option): string => Lang::has('settings.options.'.$option) ? __('settings.options.'.$option) : $option;
+                        $help = Lang::has('settings.help.'.$group.'.'.$name) ? __('settings.help.'.$group.'.'.$name) : null;
                     @endphp
-                    <div data-setting="{{ $group }}.{{ $name }}" data-type="{{ $definition['type'] }}" @class(['md:col-span-2' => $definition['type'] === 'list' && $options])>
+                    <div data-setting="{{ $group }}.{{ $name }}" data-type="{{ $definition['type'] }}" @class(['md:col-span-2' => $definition['type'] === 'list'])>
                         @if ($definition['type'] === 'secret')
                             {{-- Credentials are never echoed back: an empty field keeps the stored value. --}}
                             <x-form.input :name="$name" id="setting-{{ $name }}" :label="$label" type="password" autocomplete="new-password"
@@ -42,12 +43,13 @@
                             @endif
                         @elseif ($definition['type'] === 'boolean')
                             <div class="flex h-full items-center">
-                                <x-form.switch :name="$name" id="setting-{{ $name }}" :label="$label" :checked="(bool) $value" />
+                                <x-form.switch :name="$name" id="setting-{{ $name }}" :label="$label" :description="$help" :checked="(bool) $value" />
                             </div>
                             @error($name) <p class="mt-1 text-caption-md text-feedback-danger-text" data-field-error>{{ $message }}</p> @enderror
                         @elseif ($definition['type'] === 'list' && $options)
                             <fieldset class="flex flex-col gap-2">
                                 <legend class="mb-1.5 text-label-md text-text-primary">{{ $label }}</legend>
+                                @if ($help) <p class="text-caption-md text-text-tertiary">{{ $help }}</p> @endif
                                 <div class="flex flex-wrap gap-x-5 gap-y-2">
                                     @foreach ($options as $option)
                                         <x-form.checkbox name="{{ $name }}[]" :value="$option" id="setting-{{ $name }}-{{ $option }}"
@@ -59,13 +61,17 @@
                                 @endforeach
                             </fieldset>
                         @elseif ($options)
-                            <x-form.select :name="$name" id="setting-{{ $name }}" :label="$label" :error-keys="[$name.'.*']">
+                            <x-form.select :name="$name" id="setting-{{ $name }}" :label="$label" :help="$help" :error-keys="[$name.'.*']">
                                 @foreach ($options as $option)
                                     <option value="{{ $option }}" @selected($value === $option)>{{ $optionLabel($option) }}</option>
                                 @endforeach
                             </x-form.select>
+                        @elseif ($definition['type'] === 'list')
+                            {{-- A free list (e.g. CSP origins): one item per line. --}}
+                            <x-form.textarea :name="$name" id="setting-{{ $name }}" :label="$label" :help="$help" rows="3" dir="ltr"
+                                :error-keys="[$name.'.*']">{{ is_array($value) ? implode("\n", $value) : $value }}</x-form.textarea>
                         @else
-                            <x-form.input :name="$name" id="setting-{{ $name }}" :label="$label" :error-keys="[$name.'.*']"
+                            <x-form.input :name="$name" id="setting-{{ $name }}" :label="$label" :help="$help" :error-keys="[$name.'.*']"
                                 :type="$definition['type'] === 'integer' ? 'number' : 'text'"
                                 :inputmode="$definition['type'] === 'decimal' ? 'decimal' : null"
                                 :value="is_array($value) ? implode(', ', $value) : $value" />

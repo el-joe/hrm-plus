@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Services\Audit\AuditLogger;
+use App\Services\Settings\SettingsService;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
@@ -51,12 +52,13 @@ test('API responses carry the security headers too', function () {
 });
 
 test('HSTS is only sent over HTTPS', function () {
-    $this->get(route('admin.login'))->assertHeaderMissing('Strict-Transport-Security');
-    $this->get(str_replace('http://', 'https://', route('admin.login')))->assertHeader('Strict-Transport-Security');
+    // Explicit schemes: route() follows APP_URL, which may itself be https.
+    $this->get(preg_replace('#^https?://#', 'http://', route('admin.login')))->assertHeaderMissing('Strict-Transport-Security');
+    $this->get(preg_replace('#^https?://#', 'https://', route('admin.login')))->assertHeader('Strict-Transport-Security');
 });
 
 test('exports are rate limited per user', function () {
-    config(['security.exports_per_minute' => 2]);
+    app(SettingsService::class)->set('security.exports_per_minute', 2);
     $admin = adminWithPermissions('employees.view', 'employees.export');
 
     $this->actingAs($admin, 'admin');
@@ -71,7 +73,7 @@ test('the session cookie is http-only and secure when the app is served over htt
 
     $config = require config_path('session.php');
     expect($config['secure'])->toBe(str_starts_with((string) env('APP_URL'), 'https://'));
-})->skip(fn (): bool => env('SESSION_SECURE_COOKIE') !== null, 'SESSION_SECURE_COOKIE is set explicitly');
+});
 
 test('personal identifiers are redacted from audit metadata', function () {
     $user = User::factory()->admin()->create();

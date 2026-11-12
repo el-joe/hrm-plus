@@ -63,7 +63,7 @@ class MobileAppConfig
                 'password_min_length' => (int) setting('security.password_min_length'),
                 'password_require_mixed_case' => (bool) setting('security.password_require_mixed_case'),
                 'password_require_symbols' => (bool) setting('security.password_require_symbols'),
-                'token_lifetime_minutes' => (int) config('sanctum.expiration'),
+                'token_lifetime_minutes' => (int) setting('security.api_token_lifetime_minutes'),
             ],
             'app' => [
                 'min_version' => (string) setting('mobile_app.min_version'),

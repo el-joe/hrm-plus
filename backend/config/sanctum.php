@@ -50,7 +50,9 @@ return [
     |
     */
 
-    'expiration' => (int) env('SANCTUM_TOKEN_EXPIRATION', 43200),
+    // Default only: the lifetime is the system setting security.api_token_lifetime_minutes
+    // (Settings → Security), applied at boot by App\Services\Settings\RuntimeSettings.
+    'expiration' => 43200,
 
     /*
     |--------------------------------------------------------------------------

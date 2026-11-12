@@ -192,7 +192,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureMorphMap();
-        // Session lifetime and (once configured) the mail transport come from system settings (Phase 8b).
+        // Session lifetime and cookie, API token lifetime, log retention and (once configured) the mail
+        // transport come from system settings (Phase 8b; the former .env values since the final polish).
         app(RuntimeSettings::class)->apply();
         $this->configureAuthorization();
         $this->configureRateLimiting();
@@ -451,8 +452,9 @@ class AppServiceProvider extends ServiceProvider
             ->by('code-check|'.($request->user('sanctum')?->getAuthIdentifier() ?: Str::lower((string) $request->input('email'))).'|'.$request->ip()));
 
         // Spreadsheet / PDF exports and report downloads (Phase 11), per signed-in user: they are the
-        // heaviest queries of the admin area and the easiest way to pull bulk personal data.
-        RateLimiter::for('exports', fn (Request $request): Limit => Limit::perMinute((int) config('security.exports_per_minute', 20))
+        // heaviest queries of the admin area and the easiest way to pull bulk personal data
+        // (setting security.exports_per_minute).
+        RateLimiter::for('exports', fn (Request $request): Limit => Limit::perMinute(max(1, (int) setting('security.exports_per_minute')))
             ->by('export|'.($request->user()?->getAuthIdentifier() ?: $request->ip())));
 
         // Public career page applications, per IP (setting recruitment.career_applications_per_hour).

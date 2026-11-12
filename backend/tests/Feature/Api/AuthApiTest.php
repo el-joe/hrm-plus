@@ -27,7 +27,7 @@ describe('login', function () {
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', __('api.logged_in'))
             ->assertJsonPath('data.token_type', 'Bearer')
-            ->assertJsonPath('data.expires_at', now()->addMinutes(config('sanctum.expiration'))->toIso8601String())
+            ->assertJsonPath('data.expires_at', now()->addMinutes(setting('security.api_token_lifetime_minutes'))->toIso8601String())
             ->assertJsonPath('data.user.id', $employee->id)
             ->assertJsonPath('data.user.account_type', 'employee')
             ->assertJsonMissingPath('data.user.password');
@@ -35,7 +35,7 @@ describe('login', function () {
         $token = PersonalAccessToken::findToken($response->json('data.token'));
         expect($token->tokenable->is($employee))->toBeTrue()
             ->and($token->name)->toBe('Pixel 9')
-            ->and($token->expires_at->equalTo(now()->addMinutes(config('sanctum.expiration'))))->toBeTrue();
+            ->and($token->expires_at->equalTo(now()->addMinutes(setting('security.api_token_lifetime_minutes'))))->toBeTrue();
 
         $this->assertDatabaseHas('login_histories', ['user_id' => $employee->id, 'area' => 'api', 'successful' => true]);
     });
@@ -89,7 +89,7 @@ describe('login', function () {
     it('locks the login out with a 429 after too many failed attempts', function () {
         User::factory()->employee()->create(['email' => 'employee@example.com']);
 
-        foreach (range(1, config('auth.login_throttle.max_attempts')) as $attempt) {
+        foreach (range(1, setting('security.login_max_attempts')) as $attempt) {
             $this->postJson('/api/v1/auth/login', apiLogin(['password' => 'wrong-password']))->assertUnprocessable();
         }
 

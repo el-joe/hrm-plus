@@ -8,6 +8,23 @@ versions follow semantic versioning. Phases refer to `PROJECT_PLAN.md`.
 First complete release: Laravel backend with admin dashboard, employee web portal and REST API; Flutter employee
 app; Arabic client documentation.
 
+### Operational .env values moved to system settings
+
+- The values the project had added to `.env` are now admin-editable settings (database, audited, `settings.manage`),
+  no longer read from the environment: **Security** — `login_max_attempts` / `login_lockout_seconds` (was
+  `AUTH_LOGIN_*`; the duplicate `auth.login_throttle` config is gone), `api_token_lifetime_minutes`
+  (`SANCTUM_TOKEN_EXPIRATION`, applied to `sanctum.expiration`), `session_same_site` / `session_secure_cookie`
+  (`SESSION_SAME_SITE` / `SESSION_SECURE_COOKIE`; auto / always / never), `headers_enabled`, `csp_enabled`,
+  `hsts_max_age_seconds`, `csp_extra_img_src` / `csp_extra_connect_src` (validated origins, one per line),
+  `exports_per_minute` (`SECURITY_*`); new **Reports** group — `queue_threshold_xlsx|csv|pdf`, `pdf_max_rows`
+  (`REPORTS_*`); **Data retention** — `log_days` (`LOG_DAILY_DAYS`).
+- `RuntimeSettings` applies the session cookie, token lifetime and log days at boot with the registry defaults as
+  fallback when the settings cannot be read, and is skipped by `config:cache` / `optimize` (database values no
+  longer baked into the cached configuration).
+- Settings form: optional help text per key (`settings.help.*`), free lists edited one item per line.
+- One-off migration `2026_11_24_100000_move_env_settings_to_database` copies a still-set, valid, non-default variable
+  into an unset setting. The variables were removed from `.env.example`.
+
 ### Final polish pass (after `44aa52a`)
 
 - **Arabic terminology unified** across the interface, seed data and the Arabic documents: departments

@@ -25,19 +25,19 @@ class ReportExporter
     public const FORMATS = ['xlsx', 'csv', 'pdf'];
 
     /**
-     * Rows above which an export is queued instead of downloaded (config/reports.php).
+     * Rows above which an export is queued instead of downloaded (settings reports.queue_threshold_*).
      */
     public static function queueThreshold(string $format): int
     {
-        return (int) config('reports.queue_threshold.'.$format, 5000);
+        return (int) setting('reports.queue_threshold_'.$format);
     }
 
     /**
-     * Largest PDF export (config/reports.php); bigger ones must use Excel / CSV.
+     * Largest PDF export (setting reports.pdf_max_rows); bigger ones must use Excel / CSV.
      */
     public static function pdfMaxRows(): int
     {
-        return (int) config('reports.pdf_max_rows', 3000);
+        return (int) setting('reports.pdf_max_rows');
     }
 
     public function __construct(

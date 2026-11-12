@@ -69,7 +69,8 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            'max_files' => env('LOG_DAILY_DAYS', 14),
+            // Default only: the system setting retention.log_days (Settings → Data retention) applies at boot.
+            'max_files' => 14,
             'replace_placeholders' => true,
         ],
 

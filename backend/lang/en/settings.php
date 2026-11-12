@@ -22,6 +22,7 @@ return [
         'loans' => 'Loans & advances',
         'notifications' => 'Notifications',
         'documents' => 'Documents',
+        'reports' => 'Reports',
         'employee_number' => 'Employee number',
         'security' => 'Security',
         'approvals' => 'Approvals',
@@ -52,6 +53,13 @@ return [
             'delivery_log_days' => 'Keep the delivery log (days)',
             'login_history_days' => 'Keep login history (days)',
             'inactive_device_token_days' => 'Forget push devices unused for (days)',
+            'log_days' => 'Keep daily application log files (days)',
+        ],
+        'reports' => [
+            'queue_threshold_xlsx' => 'Queue Excel exports above (rows)',
+            'queue_threshold_csv' => 'Queue CSV exports above (rows)',
+            'queue_threshold_pdf' => 'Queue PDF exports above (rows)',
+            'pdf_max_rows' => 'Largest PDF export (rows)',
         ],
         'hr_requests' => [
             'employee_requests_enabled' => 'Employees may submit requests',
@@ -172,6 +180,15 @@ return [
             'password_reset_code_minutes' => 'Password reset code validity (minutes, mobile app)',
             'password_reset_code_attempts' => 'Wrong codes before a reset code is burnt',
             'password_min_length' => 'Minimum password length',
+            'api_token_lifetime_minutes' => 'Mobile app sign-in lifetime (minutes)',
+            'session_same_site' => 'Session cookie SameSite policy',
+            'session_secure_cookie' => 'Session cookie Secure flag (HTTPS only)',
+            'headers_enabled' => 'Send security headers',
+            'csp_enabled' => 'Send a Content-Security-Policy',
+            'hsts_max_age_seconds' => 'HSTS max-age (seconds)',
+            'csp_extra_img_src' => 'Extra allowed image origins (CSP)',
+            'csp_extra_connect_src' => 'Extra allowed connection origins (CSP)',
+            'exports_per_minute' => 'Exports and downloads per user per minute',
         ],
         'approvals' => [
             'allow_self_approval' => 'Allow approving your own requests',
@@ -204,6 +221,30 @@ return [
             'store_enrolment_image' => 'Keep an encrypted enrolment image',
         ],
     ],
+    // Help text under a field (optional): settings.help.{group}.{key}.
+    'help' => [
+        'security' => [
+            'login_max_attempts' => 'Counted per e-mail address and IP address, for the admin area, the portal and the mobile app.',
+            'api_token_lifetime_minutes' => 'How long the mobile app stays signed in before the employee must sign in again (43200 = 30 days). Lowering it also shortens tokens already issued.',
+            'session_same_site' => '"Lax" is recommended. "Strict" may sign users out when they follow a link from an e-mail. "None" lets other sites send the cookie and always marks it Secure, so it only works over HTTPS.',
+            'session_secure_cookie' => '"Automatic" marks the cookie Secure when the site address (APP_URL) starts with https://. "Always" breaks sign-in when the site is opened over plain HTTP; "Never" lets the cookie travel unencrypted, and browsers reject it with SameSite "None".',
+            'headers_enabled' => 'Clickjacking, MIME-sniffing, referrer and browser-feature protection on every response. Keep on.',
+            'csp_enabled' => 'Only the system\'s own scripts may run on its pages. Turn off only to diagnose a page that a browser extension or proxy breaks.',
+            'hsts_max_age_seconds' => 'Browsers remember to use HTTPS only for this long (sent on HTTPS requests only; 0 = off, 31536000 = one year).',
+            'csp_extra_img_src' => 'One origin per line, e.g. https://cdn.example.com (no path). Needed only when files are served from another host.',
+            'csp_extra_connect_src' => 'One origin per line, e.g. https://api.example.com (no path).',
+            'exports_per_minute' => 'Spreadsheet / PDF exports and report downloads per signed-in user; extra requests are refused for the rest of the minute.',
+        ],
+        'reports' => [
+            'queue_threshold_xlsx' => 'Larger exports are prepared in the background and announced in the notification centre (0 = always in the background). Needs a running queue worker.',
+            'queue_threshold_csv' => 'Larger exports are prepared in the background (0 = always in the background).',
+            'queue_threshold_pdf' => 'PDF files are slow to build: larger PDF exports are prepared in the background.',
+            'pdf_max_rows' => 'Larger PDF exports are refused (use Excel or CSV). Must not be below the PDF background threshold.',
+        ],
+        'retention' => [
+            'log_days' => 'Used when the application log is written to daily files (LOG_STACK=daily in .env); older files are deleted.',
+        ],
+    ],
     'options' => [
         'log' => 'Log only (no e-mail leaves the server)',
         'smtp' => 'SMTP',
@@ -221,6 +262,11 @@ return [
         'ar' => 'العربية',
         'en' => 'English',
         'simulated' => 'Simulated (development only)',
+        'lax' => 'Lax (recommended)',
+        'strict' => 'Strict',
+        'auto' => 'Automatic (from the site address)',
+        'always' => 'Always',
+        'never' => 'Never',
     ],
 
 ];

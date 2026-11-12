@@ -17,7 +17,8 @@ use Illuminate\Http\Request;
  * Token lifecycle of the employee mobile app.
  *
  * Tokens are Sanctum personal access tokens, one per device, valid for
- * config('sanctum.expiration') minutes. "refresh" rotates: it revokes the
+ * security.api_token_lifetime_minutes minutes (a system setting, also applied to
+ * sanctum.expiration at boot). "refresh" rotates: it revokes the
  * presented token and returns a new one with a fresh expiry.
  */
 class AuthController extends Controller
@@ -76,7 +77,7 @@ class AuthController extends Controller
      */
     private function issueToken(User $user, string $deviceName): array
     {
-        $expiresAt = now()->addMinutes(config('sanctum.expiration'));
+        $expiresAt = now()->addMinutes((int) setting('security.api_token_lifetime_minutes'));
         $token = $user->createToken($deviceName, ['employee'], $expiresAt);
 
         return [

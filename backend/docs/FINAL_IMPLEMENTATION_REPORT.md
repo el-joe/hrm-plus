@@ -18,7 +18,7 @@ labelled simulated adapters where client inputs are still missing.
   statutory tables, loans, branch-scoped settlements, two-level approval, finalisation lock, corrections, reversal,
   final settlement, Arabic PDF payslips), performance, training, assets, HR requests, announcements, disciplinary,
   notifications, 22 dashboard widgets and 52 reports with Excel / CSV / Arabic PDF export.
-- **Tests:** backend **1401 passed** (final full run, 2026-11-12); Flutter **107 passed, 5 live-API tests skipped** (run on demand against a
+- **Tests:** backend **1424 passed** (final full run, 2026-11-12); Flutter **107 passed, 5 live-API tests skipped** (run on demand against a
   real backend).
 - **Open client inputs:** B3 fingerprint device model, B4 face-verification provider, B5 Firebase / APNs,
   B6 SMTP, B7 statutory rules, B8 brand and bundle id, B9 Android licences.
@@ -29,6 +29,10 @@ labelled simulated adapters where client inputs are still missing.
   «الوظائف», «القضايا التأديبية», «الأحداث الأولية», «مراجعة تسجيلات الجوال والويب»), translated labels for all
   182 audit events (dashboard and audit log), `.env.example` completed (`REPORTS_*` and others), HR letters on the
   shared `ArabicPdf`, mPDF font cache untracked, docs updated and the manual PDF regenerated.
+- **Operational `.env` values → system settings:** sign-in lockout, mobile token lifetime, session cookie SameSite /
+  Secure, security headers / CSP / HSTS / extra origins, export limit (Settings → Security), report export thresholds
+  and PDF row limit (new Settings → Reports), daily log days (Settings → Data retention); one-off data migration
+  copies values still set in `.env`.
 - **Docs:** see the list in section 9.
 
 ---
@@ -78,7 +82,7 @@ labelled simulated adapters where client inputs are still missing.
 
 | المجموعة | النتيجة |
 |---|---|
-| اختبارات الخلفية (Pest، MySQL) | **1401 ناجحًا** (التشغيل الكامل النهائي) |
+| اختبارات الخلفية (Pest، MySQL) | **1424 ناجحًا** (التشغيل الكامل النهائي) |
 | اختبارات Flutter | **107 ناجحًا**، و5 اختبارات «حية» متخطاة افتراضيًا (تُشغَّل يدويًا ضد خادم فعلي: السيناريوهان 1 و2) |
 | `flutter analyze` | نظيف |
 | السيناريوهات الخمسة الشاملة | مغطاة: الموظف الجديد (1)، الحضور عبر الجوال (2)، الحضور اليدوي (3)، الرواتب حسب الفرع (4)، الصلاحيات (5)، مع اختبار دخان للأدوار الأحد عشر |
@@ -193,6 +197,7 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache &&
 - **توحيد المصطلحات العربية** في الواجهة وبيانات العرض والوثائق: «الأقسام / القسم» للأقسام (و«الإدارة» للوحة الإدارة فقط)، «الوظائف» للوظائف و«المسميات الوظيفية» للمسميات، «الاستقطاعات» لاستقطاعات الرواتب، «القضايا التأديبية»، «الأحداث الأولية»، «مراجعة تسجيلات الجوال والويب»، «مستخدمو الإدارة النشطون».
 - **سجل التدقيق:** كل أحداث التدقيق (182 حدثًا) تظهر بتسمية عربية/إنجليزية في «آخر النشاطات» بلوحة التحكم وفي شاشات سجل التدقيق، مع صيغة مقروءة لأي مفتاح غير معروف، واختبار يمنع إضافة حدث بلا تسمية.
 - **`.env.example`:** متغيرات `REPORTS_*` وبقية المتغيرات الخاصة بالمشروع.
+- **نقل القيم التشغيلية من `.env` إلى الإعدادات:** قفل الدخول، مدة دخول تطبيق الجوال، SameSite / Secure لملف الجلسة، ترويسات الأمان وCSP وHSTS ومصادرها الإضافية، حد التصدير (الإعدادات ← الأمان)؛ حدود تصدير التقارير وأقصى صفوف PDF (مجموعة جديدة: الإعدادات ← التقارير)؛ أيام سجل التطبيق اليومي (الإعدادات ← الاحتفاظ بالبيانات). تُطبَّق وقت التشغيل مع قيم افتراضية ثابتة إن تعذرت قراءة قاعدة البيانات، وتنسخ ترحيلة لمرة واحدة أي قيمة ما زالت مضبوطة في `.env`. يبقى في `.env` فقط ما يلزم قبل الاتصال بقاعدة البيانات أو للبنية التحتية والأسرار (`APP_*`، `DB_*`، برامج التشغيل، `MAIL_*` كقيمة احتياطية، `APP_PREVIOUS_KEYS`، `SANCTUM_STATEFUL_DOMAINS` / `SANCTUM_TOKEN_PREFIX`، أدوات المطورين).
 - **خطابات الموارد البشرية PDF** عبر `ArabicPdf` المشترك مع القسائم والتقارير.
 - **المستودع:** ذاكرة خطوط mPDF (`storage/framework/mpdf`) لم تعد متتبَّعة.
 

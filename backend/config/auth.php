@@ -117,21 +117,6 @@ return [
     |
     */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Login Throttling
-    |--------------------------------------------------------------------------
-    |
-    | Maximum failed login attempts per email + IP before the login form and
-    | the API login endpoint lock out, and the lockout length in seconds.
-    |
-    */
-
-    'login_throttle' => [
-        'max_attempts' => (int) env('AUTH_LOGIN_MAX_ATTEMPTS', 5),
-        'decay_seconds' => (int) env('AUTH_LOGIN_DECAY_SECONDS', 60),
-    ],
-
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
 ];

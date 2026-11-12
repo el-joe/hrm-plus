@@ -6,30 +6,75 @@ use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 /**
- * Applies the settings that drive framework configuration (Phase 8b), once per boot:
+ * Applies the settings that drive framework configuration, once per boot (web, console and queue workers):
  *
  * - security.session_lifetime_minutes → session.lifetime (admin and portal web sessions);
+ * - security.session_same_site / session_secure_cookie → session.same_site / session.secure ("auto" =
+ *   Secure when APP_URL is https://; SameSite "none" always forces Secure, browsers drop it otherwise);
+ * - security.api_token_lifetime_minutes → sanctum.expiration (mobile app bearer tokens);
+ * - retention.log_days → logging.channels.daily.max_files;
  * - the "mail" group → mail.default / mail.mailers.smtp / mail.from, only once an administrator saved the
  *   mail settings (until then .env decides, so tests and fresh installs keep their mailer).
  *
- * Login throttling and the password policy read their settings where they are used (AuthenticateUser,
- * Password::defaults()). Missing tables (fresh install, migrations running) leave the config untouched.
+ * It runs from AppServiceProvider::boot(), i.e. before any route middleware (StartSession builds the cookie
+ * from this configuration). Login throttling, the password policy, security headers, the export limiter and
+ * report thresholds read their settings where they are used.
+ *
+ * When the settings cannot be read (fresh install, migrations running, database down) the constant defaults
+ * of config/settings.php are applied instead. Skipped while `config:cache` / `optimize` build the cached
+ * configuration, so database values (and the SMTP password) never end up in bootstrap/cache/config.php.
  */
 class RuntimeSettings
 {
+    /**
+     * Framework config key => setting key.
+     */
+    private const MAPPED = [
+        'session.lifetime' => 'security.session_lifetime_minutes',
+        'sanctum.expiration' => 'security.api_token_lifetime_minutes',
+        'logging.channels.daily.max_files' => 'retention.log_days',
+    ];
+
     public function __construct(private readonly SettingsService $settings) {}
 
     public function apply(): void
     {
+        if (app()->runningConsoleCommand('config:cache', 'optimize')) {
+            return;
+        }
+
         try {
-            config(['session.lifetime' => (int) $this->settings->get('security.session_lifetime_minutes')]);
+            $this->applyFramework(fn (string $key): mixed => $this->settings->get($key));
 
             if ($this->settings->isStored('mail.mailer')) {
                 $this->applyMail();
             }
         } catch (Throwable) {
-            // Settings table / cache not available yet: keep the file configuration.
+            // Settings table / cache / database not available: fall back to the registry defaults.
+            $this->applyFramework(fn (string $key): mixed => $this->settings->defaultValue($key));
         }
+    }
+
+    /**
+     * @param  callable(string): mixed  $value
+     */
+    private function applyFramework(callable $value): void
+    {
+        $values = [];
+
+        foreach (self::MAPPED as $config => $setting) {
+            $values[$config] = (int) $value($setting);
+        }
+
+        $sameSite = (string) $value('security.session_same_site');
+        $values['session.same_site'] = $sameSite;
+        $values['session.secure'] = $sameSite === 'none' || match ((string) $value('security.session_secure_cookie')) {
+            'always' => true,
+            'never' => false,
+            default => str_starts_with((string) config('app.url'), 'https://'),
+        };
+
+        config($values);
     }
 
     public function applyMail(): void

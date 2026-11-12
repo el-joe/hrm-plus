@@ -297,7 +297,7 @@ What each account sees with the demo data (no extra seeder — every figure come
 | branch.manager@ | widgets limited to branch **ALX** (19 employees); a Cairo filter shows zeros | reports limited to ALX on screen and in every export; performance reports limited to the reporting line |
 
 Customise the widgets under *Dashboard → Customise* (stored per account). Large exports (more than 5,000 rows for
-Excel / CSV, 400 for PDF — `config/reports.php`) are queued: run `php artisan queue:work` locally, then download from
+Excel / CSV, 400 for PDF — Settings → Reports) are queued: run `php artisan queue:work` locally, then download from
 *Reports → My exports* (kept 7 days, `reports:prune-exports` daily).
 
 Phase 8c also gives the **HR Manager** role `employee_financials.update` (apply bank-detail change requests); run

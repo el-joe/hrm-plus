@@ -22,7 +22,7 @@ class SettingsService
     public const CACHE_KEY = 'settings.stored';
 
     /**
-     * @return array<string, array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>}>>
+     * @return array<string, array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>, item_rules?: list<string>}>>
      */
     public function definitions(): array
     {
@@ -52,6 +52,16 @@ class SettingsService
         }
 
         return SettingType::from($definition['type'])->cast($stored[$key]);
+    }
+
+    /**
+     * The registry default of a setting, without reading the store (used when it is unavailable).
+     *
+     * @throws InvalidArgumentException when the key is not declared in config/settings.php
+     */
+    public function defaultValue(string $key): mixed
+    {
+        return $this->definition($key)['default'];
     }
 
     /**
@@ -115,7 +125,7 @@ class SettingsService
             }
 
             if ($isList) {
-                $rules[$name.'.*'] = $options !== null ? ['string', Rule::in($options)] : ['string', 'max:100'];
+                $rules[$name.'.*'] = $options !== null ? ['string', Rule::in($options)] : ($definition['item_rules'] ?? ['string', 'max:100']);
             }
 
             if ($definition['type'] === SettingType::Secret->value) {
@@ -130,7 +140,7 @@ class SettingsService
      * Definitions shown on the generic settings form of a group (keys flagged 'form' => false
      * are set by their own screen, e.g. the uploaded FCM service-account key).
      *
-     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>}>
+     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>, item_rules?: list<string>}>
      */
     public function formDefinitions(string $group): array
     {
@@ -169,7 +179,7 @@ class SettingsService
     }
 
     /**
-     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>}>
+     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>, item_rules?: list<string>}>
      */
     public function groupDefinitions(string $group): array
     {
@@ -177,7 +187,7 @@ class SettingsService
     }
 
     /**
-     * @return array{type: string, default: mixed, rules: list<mixed>, options?: list<string>}
+     * @return array{type: string, default: mixed, rules: list<mixed>, options?: list<string>, item_rules?: list<string>}
      */
     private function definition(string $key): array
     {

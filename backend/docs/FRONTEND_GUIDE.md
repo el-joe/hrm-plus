@@ -286,7 +286,7 @@ enforces the data scope, even on tables that are not scoped themselves. Never fo
 (dates, DECIMAL strings, ints); `ReportExporter::display()` formats screen and PDF cells. Phase 5b attendance and Phase 6
 leave reports are reused through `LegacyAttendanceReport` / `LegacyLeaveReport` adapters. Exports: `ReportExporter`
 (openspout XLSX / CSV with a totals row, mPDF PDF through `App\Support\Pdf\ArabicPdf` — the payslip setup, Cairo font);
-above `config/reports.php` thresholds the export is queued (`GenerateReportExport`, runs as the admin with their scope)
+above the Settings → Reports thresholds (`reports.queue_threshold_*`) the export is queued (`GenerateReportExport`, runs as the admin with their scope)
 and announced through the notification centre; *My exports* serves the file to its owner only.
 
 **Employee portal (Phase 9)** — every portal page reads the signed-in user's own employee record through the `Portal*`

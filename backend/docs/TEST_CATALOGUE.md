@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**128 files, 1085 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**129 files, 1099 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -38,10 +38,10 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Performance | 3 | 32 |
 | Feature/Portal | 4 | 24 |
 | Feature/Recruitment | 3 | 22 |
-| Feature/Reports | 3 | 36 |
+| Feature/Reports | 3 | 37 |
 | Feature/Scenarios | 2 | 3 |
 | Feature/Security | 2 | 10 |
-| Feature/Settings | 2 | 16 |
+| Feature/Settings | 3 | 29 |
 | Feature/Structure | 9 | 45 |
 | Feature/Support | 2 | 7 |
 | Feature/Training | 6 | 54 |
@@ -1336,7 +1336,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - guards salary columns behind employee_financials.view and payroll reports as a whole
 - lists only the reports an admin may open, grouped by area
 
-### `tests/Feature/Reports/ReportsCentreTest.php` (20)
+### `tests/Feature/Reports/ReportsCentreTest.php` (21)
 
 - access › opens every area to the Reports Viewer (reports.manage)
 - access › refuses admins without reports.view and exports without reports.export
@@ -1352,6 +1352,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - exports › downloads Excel, CSV and an Arabic PDF and audits each export
 - exports › adds a totals row to spreadsheet exports
 - exports › queues a large export, runs it as the requesting admin and notifies them
+- exports › uses the per-format queue threshold of the reports settings
 - exports › marks a queued export failed when the admin lost access, and notifies them
 - exports › refuses a PDF larger than the PDF limit
 - screen › sorts by an allowed column and ignores unknown sort keys
@@ -1389,6 +1390,22 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - personal identifiers are redacted from audit metadata
 
 ## Feature/Settings
+
+### `tests/Feature/Settings/OperationalSettingsTest.php` (13)
+
+- runtime › locks the mobile login out after the configured number of failures
+- runtime › issues mobile tokens with the configured lifetime and applies it to Sanctum
+- runtime › builds the session cookie with the configured SameSite and Secure attributes
+- runtime › switches the security headers and the content security policy off and on
+- runtime › adds the extra CSP origins and sends the configured HSTS max-age
+- runtime › applies the daily log retention to the log channel
+- runtime › falls back to the registry defaults when the settings store cannot be read
+- settings form › shows the moved settings with their help text
+- settings form › saves CSP origins typed one per line, audited
+- settings form › rejects invalid values of the moved settings
+- settings form › keeps the moved settings read-only for a settings viewer
+- data migration › copies still-set environment values into unset settings
+- data migration › drops values that only fail together with the current settings
 
 ### `tests/Feature/Settings/SettingsServiceTest.php` (6)
 

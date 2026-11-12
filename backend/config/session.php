@@ -169,7 +169,9 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', str_starts_with((string) env('APP_URL'), 'https://')),
+    // Default only ("auto"): the Secure flag is the system setting security.session_secure_cookie
+    // (Settings → Security), applied at boot by App\Services\Settings\RuntimeSettings.
+    'secure' => str_starts_with((string) env('APP_URL', ''), 'https://'),
 
     /*
     |--------------------------------------------------------------------------
@@ -199,7 +201,8 @@ return [
     |
     */
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    // Default only: the policy is the system setting security.session_same_site (Settings → Security).
+    'same_site' => 'lax',
 
     /*
     |--------------------------------------------------------------------------

@@ -15,6 +15,7 @@
 | 'form' => false keeps a key off the generic settings form (set by its own screen).
 | `rules` are Laravel validation rules applied on the admin settings screen.
 | `options` (optional) limits a value, or each item of a list, to that set.
+| `item_rules` (optional, lists without options) validate each item of a free list (one per line on the form).
 |
 | Later modules add their own keys to the matching group; do not hard-code
 | a rule in a controller, service or JavaScript file.
@@ -23,6 +24,9 @@
 | the company profile (App\Models\Company, /admin/company).
 |
 */
+
+// A CSP source origin: http(s)://host[:port], optionally with a leading "*." wildcard subdomain, no path.
+$cspOrigin = '/^https?:\/\/(\*\.)?[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*(?::\d{1,5})?$/';
 
 return [
 
@@ -171,6 +175,8 @@ return [
         'delivery_log_days' => ['type' => 'integer', 'default' => 90, 'rules' => ['required', 'integer', 'between:7,3650']],
         'login_history_days' => ['type' => 'integer', 'default' => 730, 'rules' => ['required', 'integer', 'between:30,3650']],
         'inactive_device_token_days' => ['type' => 'integer', 'default' => 120, 'rules' => ['required', 'integer', 'between:7,3650']],
+        // Files kept by the "daily" log channel (logging.channels.daily, formerly LOG_DAILY_DAYS).
+        'log_days' => ['type' => 'integer', 'default' => 14, 'rules' => ['required', 'integer', 'between:1,365']],
     ],
 
     // HR requests and services (Phase 8b). Categories carry their own SLA; this is the fallback.
@@ -203,6 +209,16 @@ return [
         ],
     ],
 
+    // Reports centre exports (Phase 8c, formerly REPORTS_* in .env): exports with more rows than the
+    // threshold are prepared by the queue worker and announced in the notification centre (0 = always
+    // queued); PDF exports above pdf_max_rows are refused (Excel / CSV have no limit).
+    'reports' => [
+        'queue_threshold_xlsx' => ['type' => 'integer', 'default' => 5000, 'rules' => ['required', 'integer', 'between:0,1000000']],
+        'queue_threshold_csv' => ['type' => 'integer', 'default' => 5000, 'rules' => ['required', 'integer', 'between:0,1000000']],
+        'queue_threshold_pdf' => ['type' => 'integer', 'default' => 400, 'rules' => ['required', 'integer', 'between:0,20000', 'lte:pdf_max_rows']],
+        'pdf_max_rows' => ['type' => 'integer', 'default' => 3000, 'rules' => ['required', 'integer', 'between:100,20000', 'gte:queue_threshold_pdf']],
+    ],
+
     // Pattern tokens: {prefix}, {number} (zero-padded sequence, required),
     // {year} (hire year), {branch} (branch code). Generated race-safely by
     // App\Services\Employees\EmployeeNumberGenerator; the sequence never
@@ -222,11 +238,28 @@ return [
         'password_require_symbols' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
         // Idle minutes before a web session (admin and portal) expires.
         'session_lifetime_minutes' => ['type' => 'integer', 'default' => (int) env('SESSION_LIFETIME', 120), 'rules' => ['required', 'integer', 'between:5,1440']],
-        'login_max_attempts' => ['type' => 'integer', 'default' => (int) env('AUTH_LOGIN_MAX_ATTEMPTS', 5), 'rules' => ['required', 'integer', 'between:3,20']],
-        'login_lockout_seconds' => ['type' => 'integer', 'default' => (int) env('AUTH_LOGIN_DECAY_SECONDS', 60), 'rules' => ['required', 'integer', 'between:30,3600']],
+        // Failed sign-ins per e-mail + IP (admin, portal and mobile API) before a lockout, and its length.
+        'login_max_attempts' => ['type' => 'integer', 'default' => 5, 'rules' => ['required', 'integer', 'between:3,20']],
+        'login_lockout_seconds' => ['type' => 'integer', 'default' => 60, 'rules' => ['required', 'integer', 'between:30,3600']],
         // Phase 10: forgot password in the mobile app — a 6-digit code e-mailed to the account (hashed, short-lived).
         'password_reset_code_minutes' => ['type' => 'integer', 'default' => 10, 'rules' => ['required', 'integer', 'between:3,60']],
         'password_reset_code_attempts' => ['type' => 'integer', 'default' => 5, 'rules' => ['required', 'integer', 'between:3,10']],
+        // Formerly .env (SANCTUM_TOKEN_EXPIRATION, SESSION_*, SECURITY_*); applied by RuntimeSettings / read where used.
+        // Mobile app bearer tokens: lifetime of a newly issued or refreshed token (applied to sanctum.expiration,
+        // so lowering it also shortens tokens already issued).
+        'api_token_lifetime_minutes' => ['type' => 'integer', 'default' => 43200, 'rules' => ['required', 'integer', 'between:60,525600']],
+        // Session cookie: SameSite policy, and Secure flag (auto = Secure when APP_URL is https://). "none" forces Secure.
+        'session_same_site' => ['type' => 'string', 'default' => 'lax', 'rules' => ['required'], 'options' => ['lax', 'strict', 'none']],
+        'session_secure_cookie' => ['type' => 'string', 'default' => 'auto', 'rules' => ['required'], 'options' => ['auto', 'always', 'never']],
+        // HTTP hardening (App\Http\Middleware\SecurityHeaders): security headers, Content-Security-Policy,
+        // HSTS max-age (HTTPS only, 0 = off) and extra CSP origins for images / XHR (e.g. a storage CDN).
+        'headers_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'csp_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'hsts_max_age_seconds' => ['type' => 'integer', 'default' => 31536000, 'rules' => ['required', 'integer', 'between:0,63072000']],
+        'csp_extra_img_src' => ['type' => 'list', 'default' => [], 'rules' => ['array', 'max:20'], 'item_rules' => ['string', 'max:255', 'regex:'.$cspOrigin]],
+        'csp_extra_connect_src' => ['type' => 'list', 'default' => [], 'rules' => ['array', 'max:20'], 'item_rules' => ['string', 'max:255', 'regex:'.$cspOrigin]],
+        // Export / download requests per signed-in user and minute (rate limiter "exports").
+        'exports_per_minute' => ['type' => 'integer', 'default' => 20, 'rules' => ['required', 'integer', 'between:1,600']],
     ],
 
     // Employee mobile app (Phase 10), served to the app by GET /api/v1/app/config. Versions are semantic

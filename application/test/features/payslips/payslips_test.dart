@@ -86,8 +86,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Basic salary'), findsOneWidget);
-      expect(find.text('Late arrival deduction'), findsOneWidget);
       expect(find.text('10,998.99 EGP'), findsWidgets);
+      // The breakdown is a lazy ListView taller than the test surface:
+      // scroll the deductions into view before asserting on them.
+      final list = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(
+        find.text('Late arrival deduction'),
+        200,
+        scrollable: list,
+      );
+      expect(find.text('Late arrival deduction'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('payslip-pdf')));
       await tester.pumpAndSettle();

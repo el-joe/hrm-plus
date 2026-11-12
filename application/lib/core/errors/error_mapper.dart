@@ -76,7 +76,18 @@ Failure mapErrorResponse(int status, Object? body, {String? retryAfter}) {
     );
   }
 
-  return switch (status) {
+  // The generic codes name the failure even when the HTTP status does not
+  // (an envelope with success=false can arrive on a 200).
+  final effectiveStatus = switch (code) {
+    'unauthenticated' => 401,
+    'forbidden' => 403,
+    'not_found' => 404,
+    'too_many_requests' => 429,
+    'server_error' when status < 500 => 500,
+    _ => status,
+  };
+
+  return switch (effectiveStatus) {
     401 => UnauthorizedFailure(message: message),
     403 => ForbiddenFailure(message: message),
     404 => NotFoundFailure(message: message),

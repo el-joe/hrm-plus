@@ -117,11 +117,17 @@ class Formatter {
       value == null || value.isEmpty ? null : DateTime.tryParse(value);
 
   /// "2026-11-12" for query strings and request bodies.
+  ///
+  /// Wire formats are built by hand so they never depend on intl locale data
+  /// having been initialised (that only happens once the localisation
+  /// delegates load).
   static String apiDate(DateTime value) =>
-      DateFormat('yyyy-MM-dd', 'en').format(value);
+      '${apiMonth(value)}-${_two(value.day)}';
 
   static String apiMonth(DateTime value) =>
-      DateFormat('yyyy-MM', 'en').format(value);
+      '${value.year.toString().padLeft(4, '0')}-${_two(value.month)}';
+
+  static String _two(int n) => n.toString().padLeft(2, '0');
 
   /// ISO-8601 with the device offset (the API expects an offset in device_time).
   static String isoWithOffset(DateTime value) {
@@ -131,7 +137,9 @@ class Formatter {
     final abs = offset.abs();
     final hh = abs.inHours.toString().padLeft(2, '0');
     final mm = (abs.inMinutes % 60).toString().padLeft(2, '0');
-    final base = DateFormat("yyyy-MM-dd'T'HH:mm:ss", 'en').format(local);
+    final base =
+        '${apiDate(local)}T${_two(local.hour)}:'
+        '${_two(local.minute)}:${_two(local.second)}';
     return '$base$sign$hh:$mm';
   }
 }

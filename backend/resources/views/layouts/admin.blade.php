@@ -21,7 +21,7 @@
     ];
 @endphp
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ config('app.supported_locales.'.app()->getLocale(), 'rtl') }}">
+<html lang="{{ app()->getLocale() }}" dir="{{ config('app.supported_locales.'.app()->getLocale(), 'rtl') }}" data-digits="{{ \App\Support\Formatter::usesArabicDigits() ? 'arab' : 'latn' }}" data-date-format="{{ \App\Support\Formatter::dateFormat() }}">
 <head>
     @include('partials.head')
 </head>

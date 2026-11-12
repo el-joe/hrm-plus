@@ -44,3 +44,5 @@ Schedule::command('notifications:people-events')->dailyAt('07:30')->withoutOverl
 Schedule::command('notifications:training-reminders')->dailyAt('07:40')->withoutOverlapping()->onOneServer();
 Schedule::command('notifications:approvals-digest')->weekdays()->at('08:00')->withoutOverlapping()->onOneServer();
 Schedule::command('system:purge-retention')->dailyAt('03:15')->withoutOverlapping()->onOneServer();
+// Phase 8c: queued report export files are kept 7 days.
+Schedule::command('reports:prune-exports')->dailyAt('03:30')->withoutOverlapping()->onOneServer();

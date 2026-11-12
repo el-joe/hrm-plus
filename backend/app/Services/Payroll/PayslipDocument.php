@@ -10,11 +10,8 @@ use App\Models\Company;
 use App\Models\PayrollItemLine;
 use App\Models\Payslip;
 use App\Services\Employees\EmployeeFileStore;
+use App\Support\Pdf\ArabicPdf;
 use Illuminate\Support\Facades\Storage;
-use Mpdf\Config\ConfigVariables;
-use Mpdf\Config\FontVariables;
-use Mpdf\Mpdf;
-use Mpdf\MpdfException;
 
 /**
  * Builds a payslip (spec module 9 G) from its frozen payroll item: employee
@@ -33,7 +30,7 @@ class PayslipDocument
     /** Bump when the PDF template changes so cached files are rebuilt. */
     public const TEMPLATE_VERSION = 4;
 
-    public function __construct(private readonly EmployeeFileStore $files) {}
+    public function __construct(private readonly EmployeeFileStore $files, private readonly ArabicPdf $pdf) {}
 
     /**
      * @return array<string, mixed>
@@ -100,50 +97,15 @@ class PayslipDocument
             return (string) $disk->get($path);
         }
 
-        // Arabic short vowels (harakat) are optional in print and the Cairo font's mark
-        // filtering sets are not supported by mPDF, so they are removed from the PDF only.
-        $html = (string) preg_replace('/[\x{064B}-\x{0652}\x{0670}]/u', '', view('payslips.pdf', $data)->render());
-        $tempDir = storage_path('framework/mpdf');
-
-        if (! is_dir($tempDir)) {
-            mkdir($tempDir, 0775, true);
-        }
-
-        try {
-            $bytes = $this->render($html, $data, 'cairo', $tempDir);
-        } catch (MpdfException) {
-            // A glyph sequence Cairo cannot shape in mPDF: fall back to mPDF's bundled Arabic font.
-            $bytes = $this->render(str_replace('font-family: cairo', 'font-family: xbriyaz', $html), $data, 'xbriyaz', $tempDir);
-        }
+        $bytes = $this->pdf->render(view('payslips.pdf', $data)->render(), $data['dir'], [
+            'title' => $data['payslip']->number,
+            'author' => $data['company']['name'] ?? config('app.name'),
+        ]);
 
         $disk->put($path, $bytes);
         $payslip->forceFill(['pdf_path' => $path])->saveQuietly();
 
         return $bytes;
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function render(string $html, array $data, string $font, string $tempDir): string
-    {
-        $fontDirs = (new ConfigVariables)->getDefaults()['fontDir'];
-        $fontData = (new FontVariables)->getDefaults()['fontdata'];
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => 'A4',
-            'tempDir' => $tempDir,
-            'fontDir' => [...$fontDirs, resource_path('fonts/cairo')],
-            'fontdata' => $fontData + ['cairo' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'useOTL' => 0xFF, 'useKashida' => 75]],
-            'default_font' => $font,
-            'directionality' => $data['dir'],
-            'margin_top' => 14, 'margin_bottom' => 16, 'margin_left' => 14, 'margin_right' => 14,
-        ]);
-        $mpdf->SetTitle($data['payslip']->number);
-        $mpdf->SetAuthor($data['company']['name'] ?? config('app.name'));
-        $mpdf->WriteHTML($html);
-
-        return $mpdf->Output('', 'S');
     }
 
     public function fileName(Payslip $payslip): string

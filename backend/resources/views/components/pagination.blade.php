@@ -7,7 +7,7 @@
 @if ($paginator->total() > 0)
     <nav {{ $attributes->class('flex flex-col-reverse items-center justify-between gap-3 sm:flex-row') }} aria-label="{{ __('app.ui.pagination') }}" data-pagination>
         <p class="text-body-sm text-text-tertiary">
-            {{ __('app.ui.showing_results', ['from' => $paginator->firstItem(), 'to' => $paginator->lastItem(), 'total' => $paginator->total()]) }}
+            {{ __('app.ui.showing_results', ['from' => \App\Support\Formatter::number($paginator->firstItem()), 'to' => \App\Support\Formatter::number($paginator->lastItem()), 'total' => \App\Support\Formatter::number($paginator->total())]) }}
         </p>
 
         @if ($paginator->hasPages())

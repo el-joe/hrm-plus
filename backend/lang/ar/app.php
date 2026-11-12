@@ -97,6 +97,7 @@ return [
         'salary_components' => 'مكونات الراتب',
         'statutory_rules' => 'القواعد النظامية',
         'sections' => [
+            'reports' => 'التقارير والتحليلات',
             'services' => 'خدمات الموارد البشرية',
             'performance' => 'الأداء',
             'training' => 'التدريب والتطوير',
@@ -115,6 +116,8 @@ return [
             'permissions' => 'التحكم في الوصول',
             'system' => 'النظام',
         ],
+        'reports' => 'مركز التقارير',
+        'report_exports' => 'ملفاتي المصدَّرة',
         'attendance_dashboard' => 'لوحة الحضور',
         'attendance_calendar' => 'تقويم الحضور',
         'attendance_reviews' => 'مراجعة تسجيل الجوال',

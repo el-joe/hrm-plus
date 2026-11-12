@@ -172,6 +172,13 @@ return [
             ],
         ],
         [
+            'key' => 'reports',
+            'items' => [
+                ['key' => 'reports', 'route' => 'admin.reports.index', 'ability' => 'viewReportsCentre', 'icon' => 'bar-chart', 'active' => ['admin.reports.index', 'admin.reports.show']],
+                ['key' => 'report_exports', 'route' => 'admin.reports.exports.index', 'ability' => 'exportReportsCentre', 'icon' => 'download', 'active' => ['admin.reports.exports.*']],
+            ],
+        ],
+        [
             'key' => 'structure',
             'items' => [
                 ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],

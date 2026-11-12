@@ -25,7 +25,7 @@
             </span>
         @endif
     </div>
-    <p class="text-numeric-xl text-text-primary" data-stat-value>{{ $value }}</p>
+    <p class="text-numeric-xl text-text-primary" data-stat-value>{{ \App\Support\Formatter::digits($value) }}</p>
     @if ($trend || $hint)
         <div class="flex flex-wrap items-center gap-2">
             @if ($trend)

@@ -2,17 +2,42 @@
 
 @section('title', __('app.dashboard.welcome', ['name' => $user->name]))
 
+@section('page-actions')
+    <x-button variant="ghost" icon="refresh" :href="route('admin.dashboard', [...request()->except('refresh'), 'refresh' => 1])" data-dashboard-refresh>{{ __('dashboard.actions.refresh') }}</x-button>
+    <x-button variant="secondary" icon="settings" :href="route('admin.dashboard.customise')">{{ __('dashboard.actions.customise') }}</x-button>
+@endsection
+
 @section('content')
-    @if ($stats !== [])
-        <section aria-label="{{ __('app.dashboard.overview') }}" class="grid grid-cols-2 gap-4 lg:gap-6 xl:grid-cols-4" data-section="stats">
-            @foreach ($stats as $stat)
-                <x-stat-card :label="$stat['label']" :value="number_format($stat['value'])" :icon="$stat['icon']"
-                    :href="$stat['url']" :hint="$stat['hint']" data-stat="{{ $stat['key'] }}" />
+    @if ($user->can('dashboard.view'))
+        <x-filter-bar :action="route('admin.dashboard')" :reset="route('admin.dashboard')" data-dashboard-filters>
+            <x-form.input name="from" type="date" :label="__('reports.filters.from')" :value="$filters['from']" class="md:w-40" />
+            <x-form.input name="to" type="date" :label="__('reports.filters.to')" :value="$filters['to']" class="md:w-40" />
+            @foreach (['branch_id' => [$branches, 'branch'], 'department_id' => [$departments, 'department'], 'group_id' => [$groups, 'employee_group']] as $name => [$records, $label])
+                @if ($records->isNotEmpty())
+                    <x-form.select :name="$name" :label="__('reports.filters.'.$label)" class="md:w-44">
+                        <option value="">{{ __('app.common.all') }}</option>
+                        @foreach ($records as $record)
+                            <option value="{{ $record->id }}" @selected((string) ($filters[$name] ?? '') === (string) $record->id)>{{ $record->code }} · {{ $record->name }}</option>
+                        @endforeach
+                    </x-form.select>
+                @endif
             @endforeach
-        </section>
+        </x-filter-bar>
     @endif
 
-    <div class="grid gap-4 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+    @if ($widgets !== [])
+        <section aria-label="{{ __('app.dashboard.overview') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-4" data-section="widgets">
+            @foreach ($widgets as $widget)
+                @include('admin.dashboard._widget', ['widget' => $widget])
+            @endforeach
+        </section>
+    @elseif ($user->can('dashboard.view'))
+        <x-empty-state icon="layout-grid" :title="__('dashboard.empty.no_widgets')" :description="__('dashboard.empty.no_widgets_help')">
+            <x-button variant="secondary" :href="route('admin.dashboard.customise')">{{ __('dashboard.actions.customise') }}</x-button>
+        </x-empty-state>
+    @endif
+
+    <div class="grid grid-cols-1 gap-4 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         @if ($recentActivity !== null)
             <x-card :title="__('app.dashboard.recent_activity')" padding="none" data-section="recent-activity">
                 <x-slot:actions>
@@ -33,7 +58,7 @@
                                             @if ($log->auditable_type) · {{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }} @endif
                                         </p>
                                     </div>
-                                    <time datetime="{{ $log->created_at?->toIso8601String() }}" class="shrink-0 text-caption-md text-text-tertiary">{{ $log->created_at?->format('Y-m-d H:i') }}</time>
+                                    <x-date :value="$log->created_at" format="datetime" class="shrink-0 text-caption-md text-text-tertiary" />
                                 </a>
                             </li>
                         @endforeach

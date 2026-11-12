@@ -41,6 +41,7 @@ use App\Models\CandidateNote;
 use App\Models\Company;
 use App\Models\Competency;
 use App\Models\CostCenter;
+use App\Models\DashboardPreference;
 use App\Models\Department;
 use App\Models\DeviceToken;
 use App\Models\DisciplinaryAction;
@@ -114,6 +115,7 @@ use App\Models\Position;
 use App\Models\RatingScale;
 use App\Models\RatingScaleLevel;
 use App\Models\RecruitmentStage;
+use App\Models\ReportExport;
 use App\Models\Role;
 use App\Models\SalaryComponent;
 use App\Models\SalaryStructure;
@@ -155,6 +157,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -345,6 +348,8 @@ class AppServiceProvider extends ServiceProvider
             'notification_preference' => NotificationPreference::class,
             'notification_delivery' => NotificationDelivery::class,
             'device_token' => DeviceToken::class,
+            'report_export' => ReportExport::class,
+            'dashboard_preference' => DashboardPreference::class,
         ]);
     }
 
@@ -383,6 +388,10 @@ class AppServiceProvider extends ServiceProvider
         // Portal navigation: employees who were issued a disciplinary action.
         Gate::define('viewOwnDisciplinary', fn (User $user): bool => $user->employee_id !== null
             && DisciplinaryAction::query()->withoutGlobalScopes()->where('employee_id', $user->employee_id)->whereNotNull('issued_at')->exists());
+
+        // Reports centre and dashboard customisation (Phase 8c).
+        Gate::define('viewReportsCentre', fn (User $user): bool => $user->isAdmin() && $user->can('reports.view'));
+        Gate::define('exportReportsCentre', fn (User $user): bool => $user->isAdmin() && $user->can('reports.view') && $user->can('reports.export'));
 
         Gate::before(function (User $user, string $ability): ?bool {
             return str_contains($ability, '.') && $user->isSuperAdmin() ? true : null;
@@ -443,6 +452,13 @@ class AppServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
+        // Display formatting from the localisation settings (Phase 8c, App\Support\Formatter).
+        Blade::directive('fmtDate', fn (string $expression): string => "<?php echo e(\\App\\Support\\Formatter::date({$expression})); ?>");
+        Blade::directive('fmtDateTime', fn (string $expression): string => "<?php echo e(\\App\\Support\\Formatter::dateTime({$expression})); ?>");
+        Blade::directive('fmtNumber', fn (string $expression): string => "<?php echo e(\\App\\Support\\Formatter::number({$expression})); ?>");
+        Blade::directive('fmtMoney', fn (string $expression): string => "<?php echo e(\\App\\Support\\Formatter::money({$expression})); ?>");
+        Blade::directive('fmtDigits', fn (string $expression): string => "<?php echo e(\\App\\Support\\Formatter::digits({$expression})); ?>");
+
         View::composer('layouts.admin', function (ViewContract $view): void {
             $view->with('navigation', app(NavigationBuilder::class)->admin(request()->user(), Route::currentRouteName()));
         });

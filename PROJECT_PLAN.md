@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–7 complete (6 and 7: tests written, not run yet); Phase 8a (performance, training, assets, disciplinary) and 8b (HR requests, announcements, notifications & automation, remaining settings) done — tests written, not run; 8c (dashboard widgets, reports centre) next**
+Last updated: 2026-11-12 · Status: **Phases 0–8 complete (6, 7 and 8: tests written, not run yet — user decision). Phase 8c (admin dashboard, reports centre, charts, display formatting) done; Phase 9 (employee portal pass) next**
 
 ---
 
@@ -73,7 +73,7 @@ Only B1 and B2 stop work. Everything else has a documented fallback that the spe
 
 **Approvals.** One generic multi-level approval engine reused by leave, attendance corrections, loans, HR requests, schedule changes and disciplinary actions.
 
-**Frontend.** Blade components + Tailwind 4 tokens taken from Figma + ES modules per feature under `resources/js/`, bundled by Vite. Logical CSS properties for RTL/LTR. Charts via a framework-free charting library.
+**Frontend.** Blade components + Tailwind 4 tokens taken from Figma + ES modules per feature under `resources/js/`, bundled by Vite. Logical CSS properties for RTL/LTR. Charts via a framework-free charting library (Chart.js, Phase 8c).
 
 **Proposed dependencies (need approval, B2).** Versions to be confirmed against Laravel 13 at install time.
 
@@ -84,7 +84,7 @@ Only B1 and B2 stop work. Everything else has a documented fallback that the spe
 | Excel / CSV | openspout/openspout (installed Phase 3b: streaming, no PhpSpreadsheet, supports PHP 8.3 / Laravel 13) | — |
 | Arabic PDF | mpdf/mpdf (installed Phase 7b: 8.3.1, PHP 8.3 / Laravel 13; Cairo TTF in `backend/resources/fonts/cairo`, OFL) | — |
 | OpenAPI | dedoc/scramble | — |
-| Charts | Chart.js or ApexCharts (no framework) | fl_chart |
+| Charts | **Chart.js 4 (chosen, installed Phase 8c — npm, bundled by Vite in its own chunk; wrapper `resources/js/ui/chart.js`)** | fl_chart |
 | State / routing | — | flutter_riverpod, go_router |
 | Location / camera | — | geolocator, camera, permission_handler |
 | Push | FCM HTTP v1 channel | firebase_messaging, flutter_local_notifications |
@@ -196,7 +196,7 @@ Must finish before any UI code is written.
 
 **Notes for Phase 8 (dashboard and reports reading payroll).** Contract in `backend/docs/PAYROLL_ENGINE.md` §10: live pay of a period = `payroll_items` with `pay_slot = 'regular'` in runs with status `finalised` (reversed runs are excluded; reversal runs carry negative mirrors); component totals from `payroll_item_lines` (`code`, `kind`, `category`, `source`, signed `amount`); group by the period-end placement stored on the item (`branch_id`, `department_id`, `team_id`, `position_id`, `cost_center_id`); employer cost `employer_contributions`; payment state on `payslips`. `PayrollItem` and `Payslip` are data-scoped. The dashboard already shows "payroll runs awaiting approval" (real count). Reports still to build: payroll register / by component / by branch / variance, statutory (tax, insurance) summaries, bank payments, loan recovery.
 
-### Phase 8 — Remaining HR modules · L
+### Phase 8 — Remaining HR modules · L · **done** (8a, 8b, 8c; tests written, not run)
 - [x] Performance: cycles, goals, KPIs, self and manager assessment, competencies, scoring, approval
 - [x] Training: programmes, courses, providers, enrolment, sessions, attendance, certificates, skills, budgets, expiry reminders
 - [x] Assets: catalogue, assignment, handover, return, condition, acknowledgement, offboarding clearance
@@ -204,8 +204,8 @@ Must finish before any UI code is written.
 - [x] Announcements: targeting by company, branch, department, group; attachments; read status
 - [x] Disciplinary: warnings, violations, investigations, employee response, approval, restricted access
 - [x] Notifications: in-app, email, push; templates; preferences; queued delivery; scheduled jobs (contract expiry, birthdays, missing checkout, reminders)
-- [ ] Admin dashboard: all 22 widgets from live queries, permission-aware, filterable
-- [ ] Reports centre: 48 reports across employee, attendance, leave, payroll, recruitment, performance; shared filters; Excel, CSV and Arabic PDF export; data-scope enforcement
+- [x] Admin dashboard: all 22 widgets from live queries, permission-aware, filterable *(8c: `WidgetRegistry` — permission any-of + required + scope + filters per widget; `DashboardWidgets` aggregate queries reusing the report classes; shared filter bar date / branch / department / employee group in the query string; per-admin show / hide / order (`dashboard_preferences`); 120 s cache per admin + scope + permissions + filters, Refresh button; drill-down into the reports centre; the 5 Phase 2 system figures kept)*
+- [x] Reports centre: 48 reports across employee, attendance, leave, payroll, recruitment, performance; shared filters; Excel, CSV and Arabic PDF export; data-scope enforcement *(8c: 52 report classes (48 required + HR requests, asset register, disciplinary cases, manual attendance entries) on a `Report` base + `ReportRegistry`; Phase 5b / 6 reports reused through adapters; shared filters date range, branch, department (incl. sub-departments), team, position, job title, employee group, employment type, status, manager, employee + per-report selects; sortable paginated tables with bcmath totals and charts; XLSX / CSV (openspout) and Arabic PDF (mPDF + Cairo, shared `ArabicPdf`); queued exports above `config/reports.php` thresholds with a notification-centre message and *My exports*; salary columns need `employee_financials.view`, disciplinary `disciplinary.view`, both logged; every export audited)*
 - [x] Remaining settings screens
 
 **Phase 8a delivered (Performance, Training, Assets, Disciplinary — spec modules 10, 11, 12, 15).** Schema in
@@ -281,6 +281,27 @@ Candidate e-mails (no account) stay plain mail notifications outside the templat
   (`channel` mail/push, `status` sent/simulated/failed/skipped, `attempts`); registered devices `device_tokens`. A widget for the
   signed-in admin can reuse `NotificationInbox::unreadCount()`; pending approvals waiting > N hours = the digest query in
   `App\Services\Notifications\Automation\ApprovalsDigest`.
+
+**Phase 8c delivered (admin dashboard — spec module 1, reports centre — spec module 16).** Schema
+`backend/database/migrations/2026_11_21_100000_create_dashboard_and_report_tables.php` (`dashboard_preferences`,
+`report_exports`). Chart.js 4 via npm (`ui/chart.js`, `x-chart`, `App\Support\Charts\ChartData`); central display
+formatter `App\Support\Formatter` (+ `@fmt*` directives, `x-date`, `x-number`, `lib/format.js`) applying the date / time
+format and Arabic-Indic digits settings to the dashboard, the reports (screen, PDF; date format in Excel / CSV),
+`x-stat-card`, `x-pagination` and chart tables — other existing screens still format directly (convert when touched).
+`PayslipDocument` now renders through the shared `App\Support\Pdf\ArabicPdf` (same mPDF + Cairo setup). Permissions:
+`reports.view` opens the reports centre and the module aggregates of the dashboard; payroll widgets / reports also
+need `employee_financials.view`; disciplinary report `disciplinary.view`. HR Manager gained `employee_financials.update`
+(project lead decision). New notification events `report_export_ready` / `report_export_failed` (module *reports*).
+Command `reports:prune-exports` (daily 03:30). Tests written, NOT run: `tests/Feature/Dashboard/DashboardWidgetsTest.php`,
+`tests/Feature/Reports/{ReportRegistryTest,ReportsCentreTest,ReportQueriesTest}.php`, `tests/Feature/Support/FormatterTest.php`;
+updated `Frontend/AdminDashboardTest.php`, `Frontend/AdminNavigationTest.php`.
+
+**Notes for Phase 9 (employee portal) and Phase 10 (Flutter).** The dashboard / reports are admin-only web screens; no
+API endpoint was added in 8c. For the portal home and the app, reuse `App\Support\Formatter` (digits / date format) and
+`ChartData` + `x-chart` if a chart is wanted; employee-facing summaries already exist as `me/*` API resources
+(`me/attendance/today`, `me/leave/*`, `me/payslips`, `me/loans`, `me/requests`, `me/performance*`, `me/training*`,
+`me/assets*`, `me/notifications`). A future admin mobile / API dashboard can call `AdminDashboard::widget($admin, $key,
+$filters)` (plain arrays, permission-checked) behind a Sanctum admin guard.
 
 ### Phase 9 — Employee web portal · M
 - [ ] Home, profile with change requests, attendance with correction requests, leaves, payroll and payslips, HR requests, announcements, notifications, performance, training, assets, documents, account settings *(8b: home cards for requests / announcements / notifications, profile change requests, My requests, Announcements, Notifications + settings pages are done)*

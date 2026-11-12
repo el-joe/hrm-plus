@@ -33,9 +33,11 @@ import { initPayrollRunProgress } from './pages/payroll-run';
 import { initAnnouncementForm } from './pages/announcements';
 import { initNotificationBell } from './ui/notification-bell';
 import { initNotificationTemplates } from './pages/notification-templates';
+import { initDashboardLayout } from './pages/dashboard';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
+export { formatNumber, formatDate, formatDigits } from './lib/format';
 export { confirmDialog } from './ui/confirm';
 export { openModal, closeModal } from './ui/modal';
 export { showErrors, clearErrors, validateForm } from './ui/forms';
@@ -113,6 +115,18 @@ function boot() {
 
     if (document.querySelector('[data-template-editor]')) {
         initNotificationTemplates();
+    }
+
+    // Chart.js is loaded only on pages that draw a chart (separate Vite chunk).
+    if (document.querySelector('figure[data-chart]')) {
+        import('./ui/chart').then(({ initCharts, initChartTheme }) => {
+            initCharts();
+            initChartTheme();
+        });
+    }
+
+    if (document.querySelector('[data-dashboard-layout]')) {
+        initDashboardLayout();
     }
 }
 

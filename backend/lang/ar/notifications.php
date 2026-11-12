@@ -48,6 +48,7 @@ return [
         'lifecycle' => 'التعيين وإنهاء الخدمة وفترة الاختبار',
         'recruitment' => 'التوظيف',
         'approvals' => 'الموافقات',
+        'reports' => 'التقارير',
     ],
 
     'events' => [
@@ -111,6 +112,8 @@ return [
         'interview_assigned' => 'إضافتي إلى لجنة مقابلة',
         'interview_reminder' => 'تذكير بمقابلة',
         'approvals_digest' => 'تذكير بالموافقات المعلقة',
+        'report_export_ready' => 'جاهزية ملف تقرير',
+        'report_export_failed' => 'فشل تجهيز ملف تقرير',
         'hr_request_received' => 'استلام طلبي',
         'hr_request_submitted' => 'طلب موظف جديد',
         'hr_request_assigned' => 'إسناد طلب إليّ',

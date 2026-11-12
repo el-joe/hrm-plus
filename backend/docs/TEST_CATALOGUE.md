@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**108 files, 954 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**113 files, 1012 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -24,6 +24,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Audit | 1 | 9 |
 | Feature/Auth | 4 | 32 |
 | Feature/Authorization | 5 | 38 |
+| Feature/Dashboard | 1 | 19 |
 | Feature/Disciplinary | 4 | 38 |
 | Feature/Employees | 10 | 76 |
 | Feature/Frontend | 4 | 16 |
@@ -35,8 +36,10 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Payroll | 13 | 145 |
 | Feature/Performance | 3 | 32 |
 | Feature/Recruitment | 3 | 22 |
+| Feature/Reports | 3 | 34 |
 | Feature/Settings | 2 | 16 |
 | Feature/Structure | 9 | 45 |
+| Feature/Support | 1 | 5 |
 | Feature/Training | 6 | 54 |
 
 ## Feature/Admin
@@ -501,6 +504,30 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - returns 403 to an admin without any role on a permission-protected route
 - a Super Admin passes a permission that exists in the catalogue but was never granted in the database
 - hides navigation links the admin has no permission for
+
+## Feature/Dashboard
+
+### `tests/Feature/Dashboard/DashboardWidgetsTest.php` (19)
+
+- registry › registers all 22 widgets of spec module 1
+- registry › renders every widget a Super Admin may see without errors
+- employee widgets › counts total, active and inactive employees from the employees table
+- employee widgets › applies the branch, department and employee group filters
+- employee widgets › keeps a branch manager to the employees of their branch, whatever the filter says
+- employee widgets › lists contracts ending in the next 60 days that were not renewed
+- employee widgets › lists upcoming birthdays and work anniversaries of the next 30 days
+- module widgets › counts late days in the period and today from processed attendance
+- module widgets › counts open HR requests with the overdue ones
+- module widgets › counts open vacancies and new candidates of the period
+- module widgets › sums live pay of the latest finalised period for the payroll summary
+- permissions › shows payroll widgets only with employee_financials.view
+- permissions › gates each module widget by its source module permission
+- permissions › keeps the system figures on their own permission
+- permissions › never shows a widget outside the permissions even when the preference lists it
+- preferences › saves widget order and hidden widgets per admin
+- preferences › refuses unknown widget keys
+- filters › validates the date range and keeps the filters in the query string
+- filters › links the widgets to the matching report with the filters
 
 ## Feature/Disciplinary
 
@@ -1191,6 +1218,51 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - sends interview reminders once, and expires sent offers past their date
 - completes end-to-end scenario 1 up to the new employee signing in to the mobile app
 
+## Feature/Reports
+
+### `tests/Feature/Reports/ReportQueriesTest.php` (12)
+
+- employees › lists new hires and terminations of the period only
+- employees › computes monthly turnover from hires and terminations
+- employees › groups the distribution and the head count by branch
+- employees › lists contracts ending in the period, excluding renewed and terminated ones
+- attendance › reports early departures and missing punches from processed days
+- attendance › counts attendance events by source
+- attendance › reuses the Phase 5b daily report with the extra employee filters
+- leave › separates approved and rejected leave through the reused Phase 6 report
+- payroll › totals live pay of finalised runs by period and by department
+- payroll › lists the overtime and deduction lines of live pay
+- payroll › reports loans with recovered and outstanding amounts
+- recruitment › measures conversion, hiring sources and time to hire
+
+### `tests/Feature/Reports/ReportRegistryTest.php` (4)
+
+- registers every required report of spec module 16
+- gives every report a valid definition and translations
+- guards salary columns behind employee_financials.view and payroll reports as a whole
+- lists only the reports an admin may open, grouped by area
+
+### `tests/Feature/Reports/ReportsCentreTest.php` (18)
+
+- access › opens the catalogue and a report with reports.view only
+- access › refuses admins without reports.view and exports without reports.export
+- access › validates filters and refuses a range longer than allowed
+- data scope › limits the screen to the admin data scope
+- data scope › limits every export format to the admin data scope
+- data scope › keeps the scope when a filter points outside it
+- column permissions › hides salary columns without employee_financials.view, on screen and in exports
+- column permissions › shows salary columns to financial roles and logs the access
+- column permissions › shows disciplinary columns only with disciplinary.view and logs every view
+- exports › downloads Excel, CSV and an Arabic PDF and audits each export
+- exports › adds a totals row to spreadsheet exports
+- exports › queues a large export, runs it as the requesting admin and notifies them
+- exports › marks a queued export failed when the admin lost access, and notifies them
+- exports › refuses a PDF larger than the PDF limit
+- screen › sorts by an allowed column and ignores unknown sort keys
+- screen › shows totals and a chart for grouped reports
+- default roles › gives the Reports Viewer reports without salary or disciplinary access, and HR Managers the bank-detail update
+- default roles › shows the Reports sidebar section to report viewers only
+
 ## Feature/Settings
 
 ### `tests/Feature/Settings/SettingsServiceTest.php` (6)
@@ -1288,6 +1360,16 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 
 - renders every company structure screen in both directions
 - shows the structure sidebar entries an HR Specialist may open
+
+## Feature/Support
+
+### `tests/Feature/Support/FormatterTest.php` (5)
+
+- formats dates with the configured date format
+- shows instants in the company timezone with the time format
+- uses Arabic-Indic digits only in Arabic and only when the setting is on
+- formats amounts with bcmath and never through float
+- renders the x-date and x-number components and exposes the settings to JavaScript
 
 ## Feature/Training
 

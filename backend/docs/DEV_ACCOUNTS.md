@@ -282,3 +282,23 @@ Scheduled (Phase 8b): `hr-requests:escalate` (hourly), `announcements:publish-sc
 `notifications:approvals-digest` (weekdays 08:00), `system:purge-retention` (03:15). Lead times live in Settings →
 Notifications / HR requests / Data retention. A queue worker is needed for notifications outside the seeders
 (`php artisan queue:work`).
+
+## Dashboard and reports centre (Phase 8c)
+
+What each account sees with the demo data (no extra seeder — every figure comes from the data above):
+
+| Account | Dashboard | Reports centre |
+|---|---|---|
+| super.admin@ | all 22 module widgets + 5 system figures | all 52 reports (48 required + HR requests, asset register, disciplinary cases, manual entries) |
+| hr.manager@ | every module widget incl. payroll summary / salary expenses (has `employee_financials.view`) | all reports incl. payroll and **disciplinary cases** (every view logged as `sensitive_access.disciplinary`) |
+| payroll.accountant@, finance.officer@ | payroll widgets + module widgets (they hold `reports.view`) | payroll reports with amounts (logged as `sensitive_access.employee_financial`) |
+| reports.viewer@ | every non-financial module widget (`reports.view` grants dashboard aggregates) | every report except payroll and disciplinary; salary columns (basic salary, vacancy range, expected salary) hidden |
+| attendance.officer@ | module widgets through `reports.view`, no payroll widgets | same as reports.viewer@ (no salary columns) |
+| branch.manager@ | widgets limited to branch **ALX** (19 employees); a Cairo filter shows zeros | reports limited to ALX on screen and in every export; performance reports limited to the reporting line |
+
+Customise the widgets under *Dashboard → Customise* (stored per account). Large exports (more than 5,000 rows for
+Excel / CSV, 400 for PDF — `config/reports.php`) are queued: run `php artisan queue:work` locally, then download from
+*Reports → My exports* (kept 7 days, `reports:prune-exports` daily).
+
+Phase 8c also gives the **HR Manager** role `employee_financials.update` (apply bank-detail change requests); run
+`php artisan permissions:sync` on an existing database.

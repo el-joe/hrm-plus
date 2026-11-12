@@ -59,6 +59,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('logout', [Admin\Auth\LoginController::class, 'destroy'])->name('logout');
 
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
+        // Dashboard widget visibility / order of the signed-in admin (Phase 8c).
+        Route::get('dashboard/customise', [Admin\DashboardPreferenceController::class, 'edit'])->name('dashboard.customise');
+        Route::put('dashboard/customise', [Admin\DashboardPreferenceController::class, 'update'])->name('dashboard.customise.update');
 
         // Company structure. Record-level rules (data scope, in-use protection)
         // live in App\Policies\StructurePolicy and App\Actions\Structure.
@@ -253,6 +256,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         require __DIR__.'/admin/hr_requests.php';
         require __DIR__.'/admin/announcements.php';
         require __DIR__.'/admin/notifications.php';
+
+        // Reports centre (Phase 8c).
+        require __DIR__.'/admin/reports.php';
 
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.

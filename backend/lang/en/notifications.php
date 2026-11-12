@@ -48,6 +48,7 @@ return [
         'lifecycle' => 'Onboarding, offboarding & probation',
         'recruitment' => 'Recruitment',
         'approvals' => 'Approvals',
+        'reports' => 'Reports',
     ],
 
     'events' => [
@@ -111,6 +112,8 @@ return [
         'interview_assigned' => 'Added to an interview panel',
         'interview_reminder' => 'Interview reminder',
         'approvals_digest' => 'Pending approvals reminder',
+        'report_export_ready' => 'Report export ready',
+        'report_export_failed' => 'Report export failed',
         'hr_request_received' => 'My HR request received',
         'hr_request_submitted' => 'New HR request',
         'hr_request_assigned' => 'HR request assigned to me',

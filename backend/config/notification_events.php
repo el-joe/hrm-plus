@@ -37,7 +37,7 @@ return [
 
     'modules' => [
         'hr_requests', 'announcements', 'leave', 'attendance', 'payroll', 'performance', 'training', 'assets',
-        'disciplinary', 'employees', 'lifecycle', 'recruitment', 'approvals',
+        'disciplinary', 'employees', 'lifecycle', 'recruitment', 'approvals', 'reports',
     ],
 
     'events' => [
@@ -121,6 +121,10 @@ return [
         'interview_reminder' => ['module' => 'recruitment', 'audience' => 'both', 'title' => 'recruitment.notifications.interview_reminder_title', 'message' => 'recruitment.notifications.interview_reminder_message', 'placeholders' => ['candidate', 'vacancy', 'date', 'time', 'timezone']],
 
         // Approvals digest (Phase 8b): approvers with requests waiting longer than notifications.approvals_reminder_hours.
+        // Reports centre (Phase 8c): a queued export finished or failed (to the admin who asked for it).
+        'report_export_ready' => ['module' => 'reports', 'audience' => 'admin', 'title' => 'reports.notifications.ready_title', 'message' => 'reports.notifications.ready_message', 'placeholders' => ['report', 'format', 'rows']],
+        'report_export_failed' => ['module' => 'reports', 'audience' => 'admin', 'title' => 'reports.notifications.failed_title', 'message' => 'reports.notifications.failed_message', 'placeholders' => ['report', 'format', 'reason']],
+
         'approvals_digest' => ['module' => 'approvals', 'audience' => 'admin', 'title' => 'notifications.automation.approvals_digest_title', 'message' => 'notifications.automation.approvals_digest_message', 'placeholders' => ['count', 'date', 'summary']],
 
         // HR requests and services (Phase 8b).

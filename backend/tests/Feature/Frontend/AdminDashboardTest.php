@@ -5,23 +5,28 @@ use App\Models\LoginHistory;
 use App\Models\Role;
 use App\Models\User;
 
+/*
+| The Phase 2 system figures, kept as dashboard widgets in Phase 8c (App\Services\Dashboard\WidgetRegistry,
+| "system" widgets: their own permission only).
+*/
+
 it('shows real counts on the dashboard of a Super Admin', function () {
     $admin = superAdmin();
     User::factory()->admin()->count(2)->create();
     LoginHistory::factory()->create(['successful' => false]);
 
-    $stats = collect($this->actingAs($admin, 'admin')->get('/admin')->assertOk()->viewData('stats'))->keyBy('key');
+    $widgets = collect($this->actingAs($admin, 'admin')->get('/admin')->assertOk()->viewData('widgets'))->keyBy('key');
 
-    expect($stats->keys()->all())->toBe(['active_admins', 'roles', 'audit_today', 'failed_logins'])
-        ->and($stats['active_admins']['value'])->toBe(User::query()->admins()->where('status', 'active')->count())
-        ->and($stats['roles']['value'])->toBe(Role::query()->count())
-        ->and($stats['failed_logins']['value'])->toBe(1);
+    expect($widgets->keys()->all())->toContain('active_admins', 'roles', 'audit_today', 'failed_logins', 'payroll_pending')
+        ->and($widgets['active_admins']['data']['raw'])->toBe(User::query()->admins()->where('status', 'active')->count())
+        ->and($widgets['roles']['data']['raw'])->toBe(Role::query()->count())
+        ->and($widgets['failed_logins']['data']['raw'])->toBe(1);
 });
 
 it('only shows figures the admin has permission to see', function () {
     $response = $this->actingAs(adminWithPermissions('roles.view'), 'admin')->get('/admin')->assertOk();
 
-    expect(array_column($response->viewData('stats'), 'key'))->toBe(['roles'])
+    expect(array_column($response->viewData('widgets'), 'key'))->toBe(['roles'])
         ->and($response->viewData('recentActivity'))->toBeNull();
 });
 

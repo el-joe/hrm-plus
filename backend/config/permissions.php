@@ -152,6 +152,10 @@ return [
         // status of the cases they reported. update: investigate, propose actions, close;
         // approve/reject: the "disciplinary_action" workflow; manage: violation types.
         'disciplinary' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        // Phase 8c reports centre and dashboard aggregates. reports.view: the reports centre and the
+        // dashboard widgets of every module (aggregates, inside the data scope); salary columns and payroll
+        // reports also need employee_financials.view, disciplinary ones disciplinary.view (both logged).
+        // reports.export: Excel / CSV / PDF exports and queued exports (My exports).
         'reports' => ['view', 'export'],
         // Phase 8b. Everyone has their own notification centre and preferences (no permission).
         // notifications.view: notification templates (read) and the delivery log; manage: edit / reset
@@ -178,6 +182,8 @@ return [
             'permissions' => [
                 'dashboard.*', 'company.*', 'branches.*', 'departments.*', 'teams.*', 'positions.*', 'job_titles.*',
                 'job_grades.*', 'employment_types.*', 'cost_centers.*', 'employees.*', 'employee_sensitive.*', 'employee_financials.view',
+                // Phase 8c (project lead): HR Managers apply bank-detail change requests.
+                'employee_financials.update',
                 'employee_documents.*', 'employee_groups.*',
                 'recruitment.*', 'interviews.*', 'offers.*', 'onboarding.*', 'offboarding.*', 'attendance.*', 'attendance_devices.view',
                 'face_verification.*', 'shifts.*', 'schedules.*', 'holidays.*', 'attendance_policies.*', 'leaves.*', 'leave_types.*', 'leave_policies.*', 'leave_balances.*', 'payroll.view', 'payroll.approve', 'payroll.reject', 'payslips.view', 'loans.view', 'loans.approve', 'loans.reject',
@@ -303,7 +309,7 @@ return [
             ],
         ],
         'Reports Viewer' => [
-            'description' => 'Read-only access to the dashboard and reports.',
+            'description' => 'Read-only access to the dashboard and reports (no salary or disciplinary columns).',
             'permissions' => ['dashboard.view', 'reports.view', 'reports.export'],
         ],
     ],

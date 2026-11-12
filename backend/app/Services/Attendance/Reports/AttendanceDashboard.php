@@ -93,6 +93,33 @@ class AttendanceDashboard
     }
 
     /**
+     * Only the day's category counts (admin dashboard widgets, Phase 8c): the same classification
+     * as build(), without the lists and device figures. "checked_in_now" = scheduled employees
+     * with a check-in and no check-out yet on that date (only meaningful for today).
+     *
+     * @param  array{date: string, branch_id?: ?int, department_id?: ?int, group_id?: ?int}  $filters
+     * @return array{expected: int, present: int, late: int, absent: int, on_leave: int, not_in: int, checked_in_now: int}
+     */
+    public function counts(array $filters): array
+    {
+        $date = $filters['date'];
+        $isToday = $date === BulkAttendance::today()->format('Y-m-d');
+        $now = CarbonImmutable::now();
+        $totals = array_fill_keys(self::CATEGORIES, 0);
+        $checkedIn = 0;
+
+        foreach ($this->bulk->eligible($filters) as $row) {
+            $totals[$this->classify($row['days'], $row['shifts'], $isToday, $now)]++;
+
+            if (collect($row['days'])->contains(fn (AttendanceDay $day): bool => $day->first_in_at !== null && $day->last_out_at === null)) {
+                $checkedIn++;
+            }
+        }
+
+        return ['expected' => array_sum($totals), ...$totals, 'checked_in_now' => $checkedIn];
+    }
+
+    /**
      * @param  list<AttendanceDay>  $days
      * @param  list<ScheduledShift>  $shifts
      */

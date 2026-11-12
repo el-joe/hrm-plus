@@ -97,6 +97,7 @@ return [
         'salary_components' => 'Salary components',
         'statutory_rules' => 'Statutory rules',
         'sections' => [
+            'reports' => 'Reports & analytics',
             'services' => 'HR services',
             'performance' => 'Performance',
             'training' => 'Training & development',
@@ -115,6 +116,8 @@ return [
             'permissions' => 'Access control',
             'system' => 'System',
         ],
+        'reports' => 'Reports centre',
+        'report_exports' => 'My exports',
         'attendance_dashboard' => 'Attendance dashboard',
         'attendance_calendar' => 'Attendance calendar',
         'attendance_reviews' => 'Mobile check-in review',

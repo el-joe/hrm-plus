@@ -97,6 +97,8 @@ Hiding a link is never the protection — the route must enforce the same permis
 | `x-modal` | Native `<dialog>`; `id`, `title`, `size` sm/md/lg; slot `footer`. |
 | `x-confirm-dialog`, `x-toast-region`, `x-toast` | Already in every app layout. Session `status` / `error` flashes become toasts. |
 | `x-detail-list`, `x-detail-item` | Label/value grid for show pages. |
+| `x-date`, `x-number` | Dates / numbers in the configured display format and digits (Phase 8c, `App\Support\Formatter`). |
+| `x-chart` | Chart.js chart + accessible data table (Phase 8c); data from `App\Support\Charts\ChartData`. |
 | `x-logo` | Product mark. |
 
 ## 5. JavaScript (resources/js)
@@ -137,6 +139,9 @@ from `app.js` and guarded by a data-attribute check.
 | `ui/notification-bell.js` | `[data-notification-bell]` (`partials/notification-bell`, both layouts) | Refreshes the unread badge every minute from `data-count-url` while the tab is visible. The bell itself is a `<details>` menu rendered server-side (works without JS). |
 | `pages/notification-templates.js` | `[data-template-editor]` + `[data-placeholder]` chips (admin/notifications/templates/edit) | Inserts `{{name}}` at the cursor of the last focused field. Preview is a normal POST (`intent=preview`). |
 | `pages/announcements.js` | `[data-format-toolbar]` (admin/announcements/form) | Optional bold / italic / list / link toolbar wrapping the selection in allowed tags; the textarea works without it and the server sanitises anyway. |
+| `ui/chart.js` | `figure[data-chart]` (`x-chart`) | Chart.js wrapper (lazy chunk): tokens, dark mode rebuild, RTL, Cairo, formatted numbers. See *Charts* below. |
+| `lib/format.js` | `formatNumber`, `formatDate`, `formatDigits` | Mirrors `App\Support\Formatter` from `<html data-digits data-date-format>`. |
+| `pages/dashboard.js` | `form[data-dashboard-layout]` (admin/dashboard-customise) | Up / down buttons that move a widget row and renumber the position inputs. |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes
@@ -238,8 +243,50 @@ text in a view.
 **New JS string** — add it to `lang/{ar,en}/app.php`, expose it in the `$clientStrings`
 array in `partials/head.blade.php`, read it with `t('key')`.
 
-**Charts** — `chart/1…6` tokens are ready; no charting library is installed yet (needs approval,
-see PROJECT_PLAN.md §4). Until then use CSS bars (`admin/attendance/_category-bar`) and tables.
+**Charts (Phase 8c)** — Chart.js 4 (npm `chart.js`, bundled by Vite into its own chunk; no CDN) behind
+`resources/js/ui/chart.js`. Never call Chart.js directly: build the data in PHP with
+`App\Support\Charts\ChartData::make($type, $labels, $datasets, $options)` (or `::series()` for one dataset; types
+`bar`, `line`, `doughnut`, `pie`; colours are tokens `chart-1…6`; options `stacked`, `horizontal`, `percent`, `decimals`,
+`fill`) and render `<x-chart :chart="$chart" :label="…" height="16rem" />`. The component outputs a `<figure data-chart>`
+with the JSON config in a `<script type="application/json">`, a `<canvas role="img">` and an accessible data table in a
+`<details>` underneath (the no-JS / screen-reader fallback). `app.js` imports the module only when a chart is on the
+page. The wrapper reads colours from the CSS variables (`--color-chart-*`, text and border tokens) and rebuilds every
+chart on `theme:change`; in RTL legends / tooltips run right-to-left, the category axis is reversed and the value axis
+sits on the right; the font is the page font (Cairo); axis and tooltip numbers go through `lib/format.js`. Check
+`ChartData::isEmpty()` and show an empty message instead of an empty chart. CSS bars (`admin/attendance/_category-bar`)
+remain fine for tiny inline breakdowns.
+
+**Display formatting (Phase 8c)** — Settings → Localisation *date format*, *time format* and *Arabic-Indic digits* are
+applied by `App\Support\Formatter` (`date`, `dateTime`, `time`, `number`, `money` (bcmath), `percent`, `digits`; digits
+convert only while the interface is Arabic and the setting is on). Blade: `@fmtDate($d)`, `@fmtDateTime($d)`,
+`@fmtNumber($n)`, `@fmtMoney($a)`, `@fmtDigits($s)` and the components `<x-date :value format="date|datetime|time" />`
+(`<time datetime>` + LTR) and `<x-number :value decimals money percent />`. JS: `lib/format.js` (`formatNumber`,
+`formatDate`, `formatDigits`) reads `<html data-digits="arab|latn" data-date-format>` set by the admin and portal layouts.
+Applied so far: dashboard, reports centre (screen + PDF; Excel / CSV get the date format but keep Western digits so
+the files stay machine-readable), `x-stat-card` values, `x-pagination` summary, `x-chart` tables. Older screens still
+print `->format('Y-m-d')` / `number_format()` directly — convert them to `x-date` / `x-number` when you touch them.
+
+**Admin dashboard (Phase 8c)** — `admin/dashboard` + `admin/dashboard/_widget`. Widgets are registered in
+`App\Services\Dashboard\WidgetRegistry` (permission any-of + required permissions + data-scope note + honoured filters +
+size `sm|md|lg` + icon + method) and computed by `App\Services\Dashboard\DashboardWidgets` as plain arrays of type
+`stat`, `list`, `kpis` or `chart` (already formatted; drill-down `url` into the matching report with the filters).
+`AdminDashboard::widgets()` caches each widget 120 s per admin + scope + permissions + filters (`?refresh=1` recomputes).
+To add a widget: a method in `DashboardWidgets`, an entry in `WidgetRegistry::WIDGETS`, `dashboard.widgets.{key}.title` in
+both languages. Per-admin show / hide / order: `admin/dashboard-customise` (`dashboard_preferences`; position inputs
+work without JS, `pages/dashboard.js` adds up / down buttons).
+
+**Reports centre (Phase 8c)** — `admin/reports/{index,show,exports,pdf,_filters}`. One small class per report under
+`App\Services\Reports\Definitions\*` extending `App\Services\Reports\Report` (key, area, `filters()` from
+`ReportFilters::SHARED`, `extraFilters()` selects or `type => date`, `defaults()`, `columns()` of `Column` (types
+text/code/number/decimal/money/percent/date/datetime/duration, `total`, guard `financial`/`disciplinary`), `query()`
+builder or collection, `row()`, `sortable()`, optional `chart()`), registered in `ReportRegistry`. Apply employee
+filters with `ReportFilters::applyEmployeeFilters($query, 'table.employee_id', $filters, $snapshotColumns)` — it always
+enforces the data scope, even on tables that are not scoped themselves. Never format inside `row()`: return raw values
+(dates, DECIMAL strings, ints); `ReportExporter::display()` formats screen and PDF cells. Phase 5b attendance and Phase 6
+leave reports are reused through `LegacyAttendanceReport` / `LegacyLeaveReport` adapters. Exports: `ReportExporter`
+(openspout XLSX / CSV with a totals row, mPDF PDF through `App\Support\Pdf\ArabicPdf` — the payslip setup, Cairo font);
+above `config/reports.php` thresholds the export is queued (`GenerateReportExport`, runs as the admin with their scope)
+and announced through the notification centre; *My exports* serves the file to its owner only.
 
 ## 7. Checks before you push
 

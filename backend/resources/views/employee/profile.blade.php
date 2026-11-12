@@ -65,7 +65,14 @@
                     </x-card>
                 @endif
             </div>
-            <x-alert tone="info">{{ __('employees.portal.change_notice') }}</x-alert>
+            <x-alert tone="info">
+                {{ __('employees.portal.change_notice') }}
+                @if (setting('hr_requests.employee_requests_enabled') && Route::has('portal.requests.profile-change'))
+                    <a class="ms-1 inline-flex items-center gap-1 text-text-link hover:underline" href="{{ route('portal.requests.profile-change') }}" data-action="request-profile-change">
+                        <x-icon name="pencil" size="sm" /> {{ __('hr_requests.profile_changes.request_change') }}
+                    </a>
+                @endif
+            </x-alert>
             @break
 
         @case('employment')

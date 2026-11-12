@@ -3,52 +3,44 @@
 namespace App\Notifications\Payroll;
 
 use App\Models\Payslip;
-use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Notifications\CentreNotification;
 
 /**
- * Tells an employee that a payslip is available in "My payroll". The amount
- * is never included in the notification (it is shown after sign-in only).
+ * "Your payslip is ready" to the employee when a run is finalised (template "payslip_issued").
  */
-class PayslipIssuedNotification extends Notification implements ShouldQueue
+class PayslipIssuedNotification extends CentreNotification
 {
-    use Queueable;
-
     public function __construct(public readonly Payslip $payslip) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    public function event(): string
     {
-        return setting('notifications.email_enabled') ? ['database', 'mail'] : ['database'];
+        return 'payslip_issued';
     }
 
-    public function toMail(User $notifiable): MailMessage
+    protected function actionLabelKey(): string
     {
-        $data = $this->toArray($notifiable);
-
-        return (new MailMessage)->subject($data['title'])->line($data['message'])
-            ->action(__('payroll_runs.notifications.open_payslip', [], $notifiable->locale), $data['url']);
+        return 'payroll_runs.notifications.open_payslip';
     }
 
     /**
-     * @return array{kind: string, payslip_id: int, title: string, message: string, url: string}
+     * @return array<string, scalar|null>
      */
-    public function toArray(object $notifiable): array
+    public function placeholders(object $notifiable, ?string $locale): array
     {
-        $locale = $notifiable instanceof User ? $notifiable->locale : null;
         $payslip = $this->payslip->loadMissing('period');
 
+        return ['period' => $payslip->period->localized('name', $locale), 'number' => $payslip->number];
+    }
+
+    /**
+     * @return array{kind: string, payslip_id: int, url: string}
+     */
+    public function payload(object $notifiable): array
+    {
         return [
             'kind' => 'payslip_issued',
-            'payslip_id' => $payslip->id,
-            'title' => __('payroll_runs.notifications.payslip_title', [], $locale),
-            'message' => __('payroll_runs.notifications.payslip_message', ['period' => $payslip->period->localized('name', $locale), 'number' => $payslip->number], $locale),
-            'url' => route('portal.payroll.show', $payslip->id),
+            'payslip_id' => $this->payslip->id,
+            'url' => route('portal.payroll.show', $this->payslip->id),
         ];
     }
 }

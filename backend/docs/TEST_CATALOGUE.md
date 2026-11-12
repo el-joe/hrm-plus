@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**88 files, 799 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**108 files, 954 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -16,23 +16,26 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Area | Files | Tests |
 |---|---:|---:|
 | Feature/Admin | 5 | 61 |
+| Feature/Announcements | 5 | 41 |
 | Feature/Api | 2 | 23 |
 | Feature/Approvals | 1 | 14 |
 | Feature/Assets | 4 | 35 |
 | Feature/Attendance | 8 | 87 |
 | Feature/Audit | 1 | 9 |
 | Feature/Auth | 4 | 32 |
-| Feature/Authorization | 4 | 32 |
+| Feature/Authorization | 5 | 38 |
 | Feature/Disciplinary | 4 | 38 |
 | Feature/Employees | 10 | 76 |
 | Feature/Frontend | 4 | 16 |
+| Feature/HrRequests | 8 | 50 |
 | Feature/Leave | 3 | 52 |
 | Feature/Lifecycle | 2 | 12 |
 | Feature | 1 | 8 |
+| Feature/Notifications | 5 | 48 |
 | Feature/Payroll | 13 | 145 |
 | Feature/Performance | 3 | 32 |
 | Feature/Recruitment | 3 | 22 |
-| Feature/Settings | 1 | 6 |
+| Feature/Settings | 2 | 16 |
 | Feature/Structure | 9 | 45 |
 | Feature/Training | 6 | 54 |
 
@@ -113,6 +116,64 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - saves list settings and rejects values outside the allowed options
 - rejects an out-of-range value with a message naming the setting
 - applies the configured minimum password length to new passwords
+
+## Feature/Announcements
+
+### `tests/Feature/Announcements/AnnouncementPortalApiTest.php` (7)
+
+- lists only the employee's announcements in the portal
+- marks an announcement read when opened and records the acknowledgement
+- returns 404 for announcements outside the employee's audience
+- serves the API list with unread meta and the detail with both body formats
+- answers 422 when acknowledging an announcement that needs no acknowledgement
+- downloads attachments only from announcements addressed to the employee
+- refuses admin accounts on the API
+
+### `tests/Feature/Announcements/AnnouncementPublishingTest.php` (11)
+
+- notifies every account of the audience once when published
+- waits for the publish time of a scheduled announcement, then notifies once
+- does not notify for drafts
+- limits the channels to the announcement switches
+- uses the mandatory acknowledgement event when an acknowledgement is required
+- records acknowledgements and computes read statistics against the audience
+- refuses an acknowledgement the announcement does not ask for
+- stores the body sanitised
+- needs a title and a text in at least one language
+- keeps restricted admins inside their data scope
+- deletes drafts only and archives published announcements
+
+### `tests/Feature/Announcements/AnnouncementScreensTest.php` (8)
+
+- refuses admins without the announcement permissions
+- lets viewers read but not change announcements
+- renders the list, the form and the show page
+- creates, sanitises and publishes an announcement with an attachment
+- saves a draft without notifying anyone
+- shows a restricted admin only announcements within their scope
+- downloads attachments only for admins allowed to view the announcement
+- exports the read report with the export permission only
+
+### `tests/Feature/Announcements/AnnouncementTargetingTest.php` (7)
+
+- shows a company-wide announcement to everyone
+- targets a branch
+- includes the sub-departments of a targeted department
+- targets an employee group and an employment type (any target matches)
+- leaves terminated and inactive employees out of the audience
+- hides drafts, scheduled, expired and archived announcements
+- lists pinned announcements first and counts unread ones
+
+### `tests/Feature/Announcements/HtmlSanitizerTest.php` (8)
+
+- keeps the allowed formatting and Arabic text
+- removes scripts, styles and embedded objects with their content
+- drops every event handler and style attribute
+- only keeps http, https and mailto links and hardens them
+- re-serialises malformed and nested markup
+- never turns encoded entities into markup
+- turns plain text into paragraphs and keeps line breaks
+- builds a plain-text version for the mobile app
 
 ## Feature/Api
 
@@ -413,6 +474,15 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - re-running the seeder keeps the permissions an admin gave to an existing role
 - expanding an unknown permission pattern fails loudly
 
+### `tests/Feature/Authorization/PermissionSyncRevocationTest.php` (6)
+
+- revokes a sync-granted permission removed from the default set and reports it
+- keeps a dropped permission that an administrator re-granted by hand
+- keeps a dropped permission the role already held before sync offered it
+- changes nothing on a dry run but prints what would be revoked
+- offers a revoked permission again if it returns to the default set
+- never revokes anything from Super Admin
+
 ### `tests/Feature/Authorization/PermissionSyncTest.php` (4)
 
 - adds catalogue permissions that appeared since the last sync to the default roles, once
@@ -622,6 +692,82 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - forbids the UI kit to an HR Manager
 - sends a guest to the admin login instead of the UI kit
 
+## Feature/HrRequests
+
+### `tests/Feature/HrRequests/HrLetterTest.php` (5)
+
+- renders only whitelisted placeholders and never evaluates code
+- issues the letter as a PDF in the requested language and resolves the request
+- never lets another employee download the letter
+- needs financial access to issue a letter that shows the salary
+- refuses unknown placeholders when a template is saved
+
+### `tests/Feature/HrRequests/HrRequestAdminAccessTest.php` (10)
+
+- shows the queue and the request to HR
+- refuses admins without the permission
+- limits admins without manage to their own and unassigned requests
+- lets hr_requests.update take a request but only manage hand it to someone else
+- hides requests outside the admin's data scope
+- never shows an admin a request about themselves
+- files a request on behalf of an employee
+- manages categories with extra fields
+- exports the queue for admins with the export permission only
+- records internal notes and replies from the request page
+
+### `tests/Feature/HrRequests/HrRequestApprovalTest.php` (4)
+
+- waits for approval, tells the approvers, and opens the request for HR once approved
+- closes the request as rejected with the reason and tells the employee
+- requires a reason to reject and refuses admins without the approval permission
+- lets the employee withdraw a request still waiting for approval
+
+### `tests/Feature/HrRequests/HrRequestEscalationTest.php` (4)
+
+- escalates an overdue request and tells the escalation user and the assignee
+- waits for the repeat window and stops at the maximum level
+- never escalates requests waiting for the employee, closed or not yet due
+- does nothing when escalation is switched off
+
+### `tests/Feature/HrRequests/HrRequestLifecycleTest.php` (6)
+
+- opens a request with a reference, the category SLA and the default assignee, and tells everyone
+- moves through in progress, waiting for the employee and back, then resolves
+- rejects with a reason and refuses further work on a closed request
+- lets the employee cancel only before HR starts
+- requires an attachment for categories that ask for one and validates category fields
+- refuses new employee requests when the module is switched off
+
+### `tests/Feature/HrRequests/HrRequestPortalApiTest.php` (8)
+
+- submits from the portal and shows the request
+- never shows or touches another employee's request in the portal
+- lists categories with their fields for the app
+- creates, lists, replies to, attaches to and cancels a request through the API
+- validates API submissions
+- returns 404 for another employee's request in the API
+- shows the profile fields with masked identity values
+- refuses admin accounts on the employee API
+
+### `tests/Feature/HrRequests/HrRequestPrivacyTest.php` (5)
+
+- shows HR the internal note, clearly marked
+- never shows the internal note on the portal page
+- never returns the internal note or file in the API
+- refuses to stream an HR-only file to the employee
+- never sends an internal note in a notification
+
+### `tests/Feature/HrRequests/ProfileChangeRequestTest.php` (8)
+
+- keeps only real changes, stores old and new values encrypted and masks identity numbers on the portal
+- refuses a request without any change and a second open correction
+- applies the changes through the employee update (audited) and resolves the request
+- needs the sensitive permission for identity numbers
+- needs the financial permission for bank details and updates the primary account
+- masks bank values on the request page for admins without financial access
+- rejects the changes with a reason without touching the profile
+- applies the primary emergency contact through the employee details
+
 ## Feature/Leave
 
 ### `tests/Feature/Leave/LeaveBalanceTest.php` (15)
@@ -717,6 +863,71 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - answers API errors in the language of the Accept-Language header
 - falls back to the default language chosen in the system settings
 - answers the API in the token owner's saved language when the app sends no Accept-Language
+
+## Feature/Notifications
+
+### `tests/Feature/Notifications/NotificationApiTest.php` (6)
+
+- lists the token owner's notifications with the unread count
+- marks one or all notifications read and 404s for others
+- reads and updates preferences; mandatory events stay on
+- registers a device idempotently, moves a token to a new account, and unregisters it
+- validates device registration
+- removes the devices of a token on logout
+
+### `tests/Feature/Notifications/NotificationAutomationTest.php` (9)
+
+- greets an employee on their birthday and tells the manager and HR ahead, once
+- celebrates 29 February birthdays on 28 February in common years
+- sends work anniversaries from the hire date, not in the first year
+- reminds the manager and HR before a probation period ends
+- reminds employees of a missing check-out after the scheduled end, once
+- tells employees about late arrivals and employees and managers about absences
+- switches attendance alerts off through the settings
+- reminds enrolled employees of a session starting soon
+- registers every automation command and schedules it
+
+### `tests/Feature/Notifications/NotificationCentreTest.php` (10)
+
+- shows the bell with the unread count and the list in the portal
+- opens a notification: marks it read and follows its internal link
+- never redirects to an external url stored in a notification
+- returns 404 for another user's notification
+- marks all own notifications read
+- serves the unread count for the bell poll
+- gives every admin their own notification centre without a permission
+- saves preferences from the form, ignoring mandatory events
+- lets the user remove one of their own devices only
+- shows the delivery log with the simulated label to notifications.view only
+
+### `tests/Feature/Notifications/NotificationChannelsTest.php` (14)
+
+- uses in-app, e-mail and push by default when configured
+- skips push without a registered device and e-mail when switched off system-wide
+- respects the user preferences per event and channel
+- ignores preferences of mandatory events
+- keeps channels that are off by default off until the user opts in
+- only offers a user the events of their audience
+- stores the in-app notification in the shape the modules already used
+- renders the e-mail from the mail template with the action button
+- queues notifications with retries
+- records simulated pushes and e-mails in the delivery log
+- sends the push data payload the mobile app routes on
+- sends through FCM HTTP v1 with a signed service-account JWT and drops unregistered tokens
+- refuses a file that is not a service-account key
+- fakes cleanly with Notification::fake for module tests
+
+### `tests/Feature/Notifications/NotificationTemplateTest.php` (9)
+
+- renders only whitelisted placeholders and never evaluates code
+- keeps every default text inside its placeholder whitelist
+- seeds one template per event, channel and language without overwriting edits
+- refuses placeholders the event does not offer
+- falls back to the other language, then to the default lang text
+- marks edits as customised and resets them to the default text
+- renders the existing notification classes through the templates in the recipient language
+- previews unsaved text with sample values on the edit screen
+- lets notifications.view read templates but only notifications.manage edit them
 
 ## Feature/Payroll
 
@@ -990,6 +1201,19 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - fails loudly for a key that is not declared
 - serves repeated reads from the cache and refreshes it after a write
 - audits a changed setting with its old and new value
+
+### `tests/Feature/Settings/SystemSettingsPhase8bTest.php` (10)
+
+- opens every settings group for a settings viewer
+- stores the SMTP password encrypted, never shows it and redacts it from the audit log
+- keeps a stored secret when the field is left empty and clears it on request
+- requires the SMTP host when the mailer is SMTP
+- sends a test e-mail through the log mailer and audits it
+- applies the saved mail settings and the session lifetime at runtime
+- uploads a valid FCM service-account key, never shows it, and refuses other files
+- labels push as simulated until FCM is configured
+- keeps the mail and push tools for settings.manage
+- applies the password policy and the login throttling settings
 
 ## Feature/Structure
 

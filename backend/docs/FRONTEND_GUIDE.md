@@ -134,6 +134,9 @@ from `app.js` and guarded by a data-attribute check.
 | `pages/leave.js` | `form[data-leave-form]` (admin "request on behalf", portal "My leaves"); `#leave-reject-modal` + `[data-leave-reject]` (admin requests queue) | Offers only the day parts the chosen leave type allows (options `data-unit` / `data-units`), hides the end date for partial days and shows hours only for hourly leave, shows the attachment rule of the type. The queue's reject button opens one shared modal (reason required) instead of following its link to the request page. Works without JS (all fields visible; the server validates). |
 | `pages/payroll.js` | `select[data-switch="group"]` + `[data-show-for="a b"]` (`data-switch-group`, `data-hide-when="group:value"`); `[data-repeater]` with `[data-repeater-rows]`, `<template data-repeater-template>` (`__INDEX__`), `[data-repeater-add]`, `[data-repeater-remove]` | Payroll forms (Phase 7a): shows only the fields the chosen calculation / recurrence / target uses (hidden fields are disabled, so not submitted); adds and removes structure lines and tax brackets. A bare `data-switch` (rendered by Blade as `data-switch="data-switch"`) is the default group. Works without JS (all fields visible, a few empty rows rendered; the server keeps only what the choice uses). |
 | `pages/payroll-run.js` | `[data-payroll-progress]` (admin/payroll/runs/show while a queued calculation runs) | Polls the progress URL every 3 s, moves the bar (`inline-size` %) and reloads when the run leaves "calculating". Without JS the card shows a reload link. |
+| `ui/notification-bell.js` | `[data-notification-bell]` (`partials/notification-bell`, both layouts) | Refreshes the unread badge every minute from `data-count-url` while the tab is visible. The bell itself is a `<details>` menu rendered server-side (works without JS). |
+| `pages/notification-templates.js` | `[data-template-editor]` + `[data-placeholder]` chips (admin/notifications/templates/edit) | Inserts `{{name}}` at the cursor of the last focused field. Preview is a normal POST (`intent=preview`). |
+| `pages/announcements.js` | `[data-format-toolbar]` (admin/announcements/form) | Optional bold / italic / list / link toolbar wrapping the selection in allowed tags; the textarea works without it and the server sanitises anyway. |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
 
 ## 6. Recipes
@@ -213,6 +216,20 @@ labels otherwise widen the page); a `lg:col-span-*` column holding cards needs `
 (`visibleTo()`, `data()`) and registering it in `EmployeeProfile::MODULE_TABS` (view `admin/employees/tabs/{tab}`); timeline
 events come from a `TimelineSource` registered in `EmployeeProfile::TIMELINE_SOURCES` and render as kind `event`
 (`title`, `description`, `url`, `badge`, `tone`, `module` → dot colour). Return base collections (`->toBase()`), not Eloquent ones.
+
+**Phase 8b screens** — HR requests (`admin/hr-requests/**`, portal `employee/requests/**`), announcements
+(`admin/announcements/**`, `employee/announcements/**`), the notification centre (`notifications/index` and
+`notifications/preferences` are ONE view each for both areas: `@extends($area === 'admin' ? 'layouts.admin' : 'layouts.employee')`,
+routes `{admin|portal}.notifications.*`, `{admin|portal}.notification-preferences.*`), notification templates and the delivery
+log (`admin/notifications/{templates,deliveries}`), and settings extras (`admin/settings/extras/{group}` is included under the
+generic settings form when it exists: test e-mail, FCM key upload, test push). Rules: internal notes of HR requests are
+rendered only in the admin views and never loaded by portal/API code (`employeeMessages` / `employeeAttachments`); announcement
+bodies are output raw ONLY through `admin/announcements/_body`, and only the stored sanitised HTML
+(`App\Services\Announcements\HtmlSanitizer`); anything from the simulated push provider shows `admin.attendance._simulated`.
+Secret settings (`type => secret`) render as an empty password field + "stored" hint + clear checkbox; never pass their value
+to a view. The bell is `partials/notification-bell` (view composer in AppServiceProvider supplies `$bellUnread`, `$bellItems`).
+Notification texts are not Blade: they are templates (`{{placeholder}}`) edited by admins — never build notification
+text in a view.
 
 **Portal navigation overflow** — portal items flagged `'more' => true` in `config/navigation.php` go into the *More* menu
 (desktop dropdown in the top bar; on mobile the bottom bar shows the first four primary items plus *More*, which opens upwards:

@@ -102,6 +102,7 @@
             <div class="ms-auto flex items-center gap-2">
                 <div class="hidden sm:block">@include('partials.locale-switcher')</div>
                 @include('partials.theme-toggle')
+                @include('partials.notification-bell', ['area' => 'admin'])
 
                 <span class="mx-1 hidden h-6 w-px bg-border-default sm:block" aria-hidden="true"></span>
 
@@ -124,6 +125,7 @@
                     @can('view', $admin)
                         <x-dropdown.item :href="route('admin.admin-users.show', $admin)" icon="user">{{ __('app.ui.my_account') }}</x-dropdown.item>
                     @endcan
+                    <x-dropdown.item :href="route('admin.notification-preferences.edit')" icon="bell">{{ __('notifications.preferences_link') }}</x-dropdown.item>
                     @if ($admin->canAccessPortal())
                         <x-dropdown.item :href="route('portal.home')" icon="external">{{ __('app.nav.my_portal') }}</x-dropdown.item>
                     @endif

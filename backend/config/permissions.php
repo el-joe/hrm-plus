@@ -135,8 +135,17 @@ return [
         // assets.view: catalogue and custody in scope (asset branch); create: new assets;
         // update: assign, return, maintenance, lost / damaged; delete: retire; manage: categories.
         'assets' => [...$crud, 'export', 'manage'],
-        'hr_requests' => [...$crud, 'approve', 'reject', 'manage'],
-        'announcements' => $crud,
+        // Phase 8b. hr_requests.view: requests in scope (the request queue); create: file a request on an
+        // employee's behalf; update: handle (assign, reply, internal notes, status, issue letters);
+        // delete: cancel a request; approve/reject: the "hr_request" approval workflow of categories that need
+        // approval, and applying / rejecting profile change requests (the employee fields also need
+        // employees.update, employee_sensitive.update for identity numbers, employee_financials.update for bank
+        // details); export: request lists; manage: categories, letter templates, every request in scope
+        // (not only assigned ones) and reassignment.
+        'hr_requests' => [...$crud, 'approve', 'reject', 'export', 'manage'],
+        // announcements.view: list and read statistics; create/update/delete: drafts, publish, pin, archive
+        // (restricted admins only target their own data scope); export: read / acknowledgement report.
+        'announcements' => [...$crud, 'export'],
         // Restricted (Phase 8a). disciplinary.view: case files, investigations, evidence and
         // actions in scope — every view is written to the sensitive-data access log; without
         // it an admin holding disciplinary.create can only report incidents and follow the
@@ -144,6 +153,9 @@ return [
         // approve/reject: the "disciplinary_action" workflow; manage: violation types.
         'disciplinary' => [...$crud, 'approve', 'reject', 'export', 'manage'],
         'reports' => ['view', 'export'],
+        // Phase 8b. Everyone has their own notification centre and preferences (no permission).
+        // notifications.view: notification templates (read) and the delivery log; manage: edit / reset
+        // templates and retry failed deliveries. Mail / push configuration is settings.manage.
         'notifications' => ['view', 'manage'],
         'approvals' => ['view', 'manage'],
         'settings' => ['view', 'manage'],

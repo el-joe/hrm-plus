@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
+use App\Services\Notifications\DeviceTokens;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,6 +46,8 @@ class AuthController extends Controller
 
         $payload = $this->issueToken($user, $current->name);
 
+        // Push devices registered with the old token follow the new one (Phase 8b).
+        app(DeviceTokens::class)->moveAccessToken($current->id, (int) $user->tokens()->latest('id')->value('id'));
         $current->delete();
 
         return ApiResponse::success($payload, __('api.token_refreshed'));
@@ -52,7 +55,10 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+        // The device signed out: it must stop receiving this account's pushes.
+        app(DeviceTokens::class)->forgetAccessToken($token->id);
+        $token->delete();
 
         return ApiResponse::success(message: __('api.logged_out'));
     }
@@ -60,6 +66,7 @@ class AuthController extends Controller
     public function logoutAll(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
+        $request->user()->deviceTokens()->delete();
 
         return ApiResponse::success(message: __('api.logged_out_all'));
     }

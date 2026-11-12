@@ -27,13 +27,20 @@
             <x-form.section :title="__('settings.groups.'.$group)" :description="__('app.settings.group_help')">
                 @foreach ($definitions as $name => $definition)
                     @php
-                        $value = old($name, $values[$name]);
+                        $value = $definition['type'] === 'secret' ? null : old($name, $values[$name]);
                         $label = __('settings.keys.'.$group.'.'.$name);
                         $options = $definition['options'] ?? null;
                         $optionLabel = fn (string $option): string => Lang::has('settings.options.'.$option) ? __('settings.options.'.$option) : $option;
                     @endphp
                     <div data-setting="{{ $group }}.{{ $name }}" data-type="{{ $definition['type'] }}" @class(['md:col-span-2' => $definition['type'] === 'list' && $options])>
-                        @if ($definition['type'] === 'boolean')
+                        @if ($definition['type'] === 'secret')
+                            {{-- Credentials are never echoed back: an empty field keeps the stored value. --}}
+                            <x-form.input :name="$name" id="setting-{{ $name }}" :label="$label" type="password" autocomplete="new-password"
+                                :help="($secrets[$name] ?? false) ? __('notifications.settings.secret_set').' '.__('notifications.settings.secret_keep') : __('notifications.settings.secret_not_set')" />
+                            @if ($secrets[$name] ?? false)
+                                <div class="mt-2"><x-form.checkbox name="{{ $name }}_clear" id="setting-{{ $name }}-clear" :label="__('notifications.settings.secret_clear')" /></div>
+                            @endif
+                        @elseif ($definition['type'] === 'boolean')
                             <div class="flex h-full items-center">
                                 <x-form.switch :name="$name" id="setting-{{ $name }}" :label="$label" :checked="(bool) $value" />
                             </div>
@@ -74,4 +81,7 @@
             </x-form.actions>
         @endif
     </form>
+
+    {{-- Group-specific tools (test e-mail, FCM key upload, test push). --}}
+    @includeIf('admin.settings.extras.'.$group, ['canManage' => $canManage, 'extras' => $extras ?? []])
 @endsection

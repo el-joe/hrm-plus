@@ -22,6 +22,13 @@ class UpdateSettingsRequest extends FormRequest
         $missing = [];
 
         foreach ($this->definitions() as $name => $definition) {
+            if ($definition['type'] === SettingType::Secret->value && ! filled($this->input($name))) {
+                // An empty secret field keeps the stored value.
+                $this->request->remove($name);
+
+                continue;
+            }
+
             if ($this->has($name)) {
                 continue;
             }
@@ -67,8 +74,20 @@ class UpdateSettingsRequest extends FormRequest
     {
         $values = [];
 
-        foreach (array_keys($this->definitions()) as $name) {
-            $values[$this->route('group').'.'.$name] = $this->validated($name);
+        foreach ($this->definitions() as $name => $definition) {
+            $key = $this->route('group').'.'.$name;
+
+            if ($definition['type'] === SettingType::Secret->value) {
+                if (filled($this->validated($name))) {
+                    $values[$key] = $this->validated($name);
+                } elseif ($this->boolean($name.'_clear')) {
+                    $values[$key] = null;
+                }
+
+                continue;
+            }
+
+            $values[$key] = $this->validated($name);
         }
 
         return $values;
@@ -79,6 +98,6 @@ class UpdateSettingsRequest extends FormRequest
      */
     private function definitions(): array
     {
-        return app(SettingsService::class)->groupDefinitions($this->route('group'));
+        return app(SettingsService::class)->formDefinitions($this->route('group'));
     }
 }

@@ -72,7 +72,7 @@ class AuthenticateUser
 
     private function fail(AuthArea $area, string $throttleKey, string $email, Request $request, string $reason, ?User $user): never
     {
-        RateLimiter::hit($throttleKey, config('auth.login_throttle.decay_seconds'));
+        RateLimiter::hit($throttleKey, (int) setting('security.login_lockout_seconds'));
 
         $this->recorder->failure($email, $area, $request, $reason, $user);
 
@@ -81,7 +81,7 @@ class AuthenticateUser
 
     private function ensureIsNotRateLimited(AuthArea $area, string $throttleKey, string $email, Request $request): void
     {
-        if (! RateLimiter::tooManyAttempts($throttleKey, config('auth.login_throttle.max_attempts'))) {
+        if (! RateLimiter::tooManyAttempts($throttleKey, (int) setting('security.login_max_attempts'))) {
             return;
         }
 

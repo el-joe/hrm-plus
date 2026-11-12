@@ -13,7 +13,7 @@
                     {{-- Module events (Phase 8a): performance, training, assets, disciplinary. --}}
                     <li class="relative" data-history-kind="event" data-history-module="{{ $entry['module'] }}">
                         <span class="absolute -start-[1.95rem] top-1 inline-flex size-4 items-center justify-center rounded-full border-2 border-surface-default
-                            {{ match ($entry['module']) { 'performance' => 'bg-chart-4', 'training' => 'bg-chart-5', 'assets' => 'bg-chart-6', default => 'bg-feedback-danger-solid' } }}" aria-hidden="true"></span>
+                            {{ match ($entry['module']) { 'performance' => 'bg-chart-4', 'training' => 'bg-chart-5', 'assets' => 'bg-chart-6', 'hr_requests' => 'bg-chart-2', default => 'bg-feedback-danger-solid' } }}" aria-hidden="true"></span>
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-caption-md text-text-tertiary tabular-nums" dir="ltr">{{ $entry['date']->toDateString() }}</span>
                             @if (! empty($entry['url']))

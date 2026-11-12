@@ -104,7 +104,7 @@ class SettingsService
     {
         $rules = [];
 
-        foreach ($this->groupDefinitions($group) as $name => $definition) {
+        foreach ($this->formDefinitions($group) as $name => $definition) {
             $isList = $definition['type'] === SettingType::List->value;
             $options = $definition['options'] ?? null;
 
@@ -117,9 +117,50 @@ class SettingsService
             if ($isList) {
                 $rules[$name.'.*'] = $options !== null ? ['string', Rule::in($options)] : ['string', 'max:100'];
             }
+
+            if ($definition['type'] === SettingType::Secret->value) {
+                $rules[$name.'_clear'] = ['sometimes', 'boolean'];
+            }
         }
 
         return $rules;
+    }
+
+    /**
+     * Definitions shown on the generic settings form of a group (keys flagged 'form' => false
+     * are set by their own screen, e.g. the uploaded FCM service-account key).
+     *
+     * @return array<string, array{type: string, default: mixed, rules: list<mixed>, options?: list<string>}>
+     */
+    public function formDefinitions(string $group): array
+    {
+        return array_filter($this->groupDefinitions($group), fn (array $definition): bool => ($definition['form'] ?? true) !== false);
+    }
+
+    /**
+     * Whether a dotted key holds a credential (encrypted, never echoed, redacted from the audit log).
+     */
+    public function isSecret(string $key): bool
+    {
+        [$group, $name] = array_pad(explode('.', $key, 2), 2, '');
+
+        return ($this->definitions()[$group][$name]['type'] ?? null) === SettingType::Secret->value;
+    }
+
+    /**
+     * Whether an administrator stored a value for the key (as opposed to the default).
+     */
+    public function isStored(string $key): bool
+    {
+        return array_key_exists($key, $this->stored());
+    }
+
+    /**
+     * Whether a secret setting currently holds a value (the value itself is never shown).
+     */
+    public function hasSecret(string $key): bool
+    {
+        return filled($this->stored()[$key] ?? null);
     }
 
     public function flush(): void

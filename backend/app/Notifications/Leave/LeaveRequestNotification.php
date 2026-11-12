@@ -4,13 +4,10 @@ namespace App\Notifications\Leave;
 
 use App\Models\LeaveRequest;
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Notifications\CentreNotification;
 
 /**
- * Leave request events, database + mail (mail when setting notifications.email_enabled):
+ * Leave request events (texts: notification templates "leave_*"):
  *
  * - to approvers: awaiting_approval (a request or a cancellation reached their step);
  * - to the employee (and the admin who filed it on their behalf): submitted,
@@ -18,58 +15,58 @@ use Illuminate\Notifications\Notification;
  *
  * Admin recipients get the admin request page, employees the portal "My leaves".
  */
-class LeaveRequestNotification extends Notification implements ShouldQueue
+class LeaveRequestNotification extends CentreNotification
 {
-    use Queueable;
-
     public const KINDS = ['submitted', 'awaiting_approval', 'approved', 'rejected', 'cancelled', 'cancellation_approved', 'cancellation_rejected'];
 
     public function __construct(public readonly LeaveRequest $leaveRequest, public readonly string $kind, public readonly ?string $reason = null) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    public function event(): string
     {
-        return setting('notifications.email_enabled') ? ['database', 'mail'] : ['database'];
+        return 'leave_'.$this->kind;
     }
 
-    public function toMail(User $notifiable): MailMessage
+    protected function actionLabelKey(): string
     {
-        $data = $this->toArray($notifiable);
-        $mail = (new MailMessage)->subject($data['title'])->line($data['message']);
-
-        if ($this->reason) {
-            $mail->line(__('leave.notifications.reason', ['reason' => $this->reason], $notifiable->locale));
-        }
-
-        return $mail->action(__('leave.notifications.open', [], $notifiable->locale), $data['url']);
+        return 'leave.notifications.open';
     }
 
     /**
-     * @return array{kind: string, leave_request_id: int, title: string, message: string, reason: ?string, url: string}
+     * @return array<string, scalar|null>
      */
-    public function toArray(object $notifiable): array
+    public function placeholders(object $notifiable, ?string $locale): array
     {
-        $locale = $notifiable instanceof User ? $notifiable->locale : null;
-        $request = $this->leaveRequest->loadMissing([
-            'employee' => fn ($query) => $query->withoutGlobalScopes(),
-            'leaveType',
-        ]);
+        $request = $this->request();
+
+        return [
+            'employee' => $request->employee->localized('name', $locale),
+            'type' => $request->leaveType->localized('name', $locale),
+            'period' => $request->period(),
+            'days' => $request->days,
+            'reason' => $this->reason,
+        ];
+    }
+
+    /**
+     * @return array{kind: string, leave_request_id: int, reason: ?string, url: string}
+     */
+    public function payload(object $notifiable): array
+    {
         $isAdmin = $notifiable instanceof User && $notifiable->isAdmin();
 
         return [
             'kind' => 'leave_'.$this->kind,
-            'leave_request_id' => $request->id,
-            'title' => __('leave.notifications.'.$this->kind.'_title', [], $locale),
-            'message' => __('leave.notifications.'.$this->kind.'_message', [
-                'employee' => $request->employee->localized('name', $locale),
-                'type' => $request->leaveType->localized('name', $locale),
-                'period' => $request->period(),
-                'days' => $request->days,
-            ], $locale),
+            'leave_request_id' => $this->leaveRequest->id,
             'reason' => $this->reason,
-            'url' => $isAdmin ? route('admin.leave-requests.show', $request) : route('portal.leaves'),
+            'url' => $isAdmin ? route('admin.leave-requests.show', $this->leaveRequest) : route('portal.leaves'),
         ];
+    }
+
+    private function request(): LeaveRequest
+    {
+        return $this->leaveRequest->loadMissing([
+            'employee' => fn ($query) => $query->withoutGlobalScopes(),
+            'leaveType',
+        ]);
     }
 }

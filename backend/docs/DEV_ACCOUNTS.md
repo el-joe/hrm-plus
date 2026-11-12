@@ -58,6 +58,12 @@ permissions of its default set that it was never offered before; a permission an
 from a role is not granted again, and custom grants are kept (`role_default_grants` remembers what was
 offered). Phase 3b added `employee_sensitive.*` and `employee_groups.*`.
 
+Since Phase 8b it also **revokes** a permission that was removed from a default role's default set — only when sync
+itself granted it (`role_default_grants.granted_by_sync`) and no administrator re-granted it on the role screen since
+(`manually_granted_at`); otherwise it is kept and listed as "kept". `php artisan permissions:sync --dry-run` prints the
+same report without saving. On a Phase 8a database this revokes `disciplinary.view` from HR Specialist and the manager
+roles (decision of 8a).
+
 ## Scheduled commands
 
 Run `php artisan schedule:work` locally (cron `schedule:run` in production):
@@ -252,3 +258,27 @@ Scheduled commands added: `training:send-certificate-reminders` (07:10, once per
 and changed default grants: **HR Specialist, Branch / Department / Direct Manager no longer hold `disciplinary.view`** (they keep
 or gained `disciplinary.create`); Branch / Department Managers gained `training.create`. `permissions:sync` only adds grants — on
 an existing database remove `disciplinary.view` from those roles by hand (Access control → Roles).
+
+
+## HR requests, announcements and notifications demo data (Phase 8b)
+
+`HrRequestDefaultsSeeder` and `NotificationDefaultsSeeder` run in every environment: the `hr_request` approval workflow
+(one step, permission `hr_requests.approve`), three bilingual letter templates (salary certificate, employment
+certificate, experience letter), nine request categories (three letters, leave / salary / general inquiries, document
+request with a required attachment, personal information correction = profile change, "Other" with approval) and one
+notification template per event × channel × language (420 rows) copied from the lang files.
+
+Demo seeders (not in production), all through the real actions and the real notification centre:
+
+| What | Details |
+|---|---|
+| Notification centre | **employee1@** (android) and **employee2@** (ios) have demo FCM device tokens; push is switched on with the **simulated** provider, so their pushes appear as "Simulated" in Admin → System → Delivery log. A few preferences (employee1@ late-arrival e-mail off / absence e-mail on, employee2@ announcement push off, hr.manager@ new-request e-mail off), one customised template (`payslip_issued`, English in-app). The automation commands run once (absence alerts to managers, approvals digests to approvers). E-mail goes to the **log** mailer (`storage/logs/laravel.log`). |
+| HR requests (~29) | employee1@: resolved salary certificate with a real PDF letter, an applied profile correction (address + emergency phone), a salary inquiry waiting for his answer (has an internal note he never sees), one cancelled. employee2@: a **pending profile correction** (phone + passport number — apply it as hr.manager@), an English employment certificate in progress, a resolved leave inquiry. employee3@: an "Other" request **pending approval** and a document request with an attachment. ~20 more in every status incl. **overdue requests escalated to level 2** and a rejection after approval. Certificates are assigned to hr.specialist@, escalations go to hr.manager@. |
+| Announcements (10) | Pinned company-wide policy update requiring acknowledgement (employee1@ acknowledged, employee3@ only read it, employee2@ has not opened it), an Alexandria branch event by branch.manager@ (restricted-admin path), a Sales department scheme, a FIELD group notice, an important company notice, an interns (employment type INT) notice, one scheduled in 3 days, one expired, one draft, one archived; PDFs on some. |
+
+Scheduled (Phase 8b): `hr-requests:escalate` (hourly), `announcements:publish-scheduled` (every 5 min),
+`notifications:attendance-alerts` (hourly :15 — missing check-out / late / absence), `notifications:people-events`
+(07:30 — birthdays, anniversaries, probation end), `notifications:training-reminders` (07:40),
+`notifications:approvals-digest` (weekdays 08:00), `system:purge-retention` (03:15). Lead times live in Settings →
+Notifications / HR requests / Data retention. A queue worker is needed for notifications outside the seeders
+(`php artisan queue:work`).

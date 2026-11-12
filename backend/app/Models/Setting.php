@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\Auditable;
 use App\Services\Audit\AuditLogger;
+use App\Services\Settings\SettingsService;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +25,8 @@ class Setting extends Model
      */
     public function getAuditRedact(): array
     {
-        return app(AuditLogger::class)->isSecretKey((string) $this->key) ? ['value'] : [];
+        $key = (string) $this->key;
+
+        return app(AuditLogger::class)->isSecretKey($key) || app(SettingsService::class)->isSecret($key) ? ['value'] : [];
     }
 }

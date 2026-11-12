@@ -42,6 +42,16 @@ return [
         'en' => 'English',
     ],
     'nav' => [
+        // Phase 8b.
+        'hr_requests' => 'طلبات الموظفين',
+        'hr_request_categories' => 'تصنيفات الطلبات',
+        'hr_letter_templates' => 'قوالب الخطابات',
+        'announcements' => 'الإعلانات',
+        'notification_templates' => 'قوالب الإشعارات',
+        'notification_deliveries' => 'سجل الإرسال',
+        'my_requests' => 'طلباتي',
+        'notification_preferences' => 'إعدادات الإشعارات',
+        'notifications' => 'الإشعارات',
         'performance_reviews' => 'تقييمات الأداء',
         'performance_goals' => 'الأهداف ومؤشرات الأداء',
         'performance_cycles' => 'دورات التقييم',
@@ -87,6 +97,7 @@ return [
         'salary_components' => 'مكونات الراتب',
         'statutory_rules' => 'القواعد النظامية',
         'sections' => [
+            'services' => 'خدمات الموارد البشرية',
             'performance' => 'الأداء',
             'training' => 'التدريب والتطوير',
             'assets' => 'الأصول والعهد',

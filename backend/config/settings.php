@@ -10,7 +10,9 @@
 | `settings` table; everything else falls back to the default below.
 |
 | Read with `setting('group.name')` or App\Services\Settings\SettingsService.
-| Types: string | integer | boolean | decimal (string, never float) | list.
+| Types: string | integer | boolean | decimal (string, never float) | list |
+| secret (encrypted at rest, never echoed back; an empty form value keeps it).
+| 'form' => false keeps a key off the generic settings form (set by its own screen).
 | `rules` are Laravel validation rules applied on the admin settings screen.
 | `options` (optional) limits a value, or each item of a list, to that set.
 |
@@ -111,11 +113,86 @@ return [
         'calendar_conflict_threshold' => ['type' => 'integer', 'default' => 2, 'rules' => ['required', 'integer', 'between:2,50']],
     ],
 
+    // Notification channels and automation lead times (Phase 8b). Per-user choices are notification
+    // preferences; the texts are notification templates (admin/notification-templates).
     'notifications' => [
         'email_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
         'push_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
         'contract_expiry_reminder_days' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'between:1,365']],
         'document_expiry_reminder_days' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'between:1,365']],
+        // Managers and HR are told about birthdays this many days ahead (0 = only on the day); greetings on the day.
+        'birthday_notice_days' => ['type' => 'integer', 'default' => 3, 'rules' => ['required', 'integer', 'between:0,30']],
+        'birthday_greetings_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'work_anniversary_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Managers and HR are reminded this many days before a probation period ends.
+        'probation_reminder_days' => ['type' => 'integer', 'default' => 14, 'rules' => ['required', 'integer', 'between:1,90']],
+        // Employees are reminded of a check-in without a check-out this long after the scheduled end.
+        'missing_checkout_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'missing_checkout_after_minutes' => ['type' => 'integer', 'default' => 120, 'rules' => ['required', 'integer', 'between:15,1440']],
+        'late_arrival_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Unexplained absences (attendance issue): the employee and their direct manager.
+        'absence_alerts_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        // Enrolled employees are reminded this many days before a training session starts.
+        'training_reminder_days' => ['type' => 'integer', 'default' => 2, 'rules' => ['required', 'integer', 'between:1,30']],
+        // Approvers receive a digest of requests waiting longer than this.
+        'approvals_digest_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'approvals_reminder_hours' => ['type' => 'integer', 'default' => 24, 'rules' => ['required', 'integer', 'between:1,336']],
+    ],
+
+    // Outgoing e-mail (Phase 8b). Applied at runtime over config/mail.php; "log" writes messages to the
+    // application log (blocker B6: SMTP credentials not supplied yet). The password is encrypted at rest
+    // and never shown again.
+    'mail' => [
+        'mailer' => ['type' => 'string', 'default' => env('MAIL_MAILER', 'log') === 'smtp' ? 'smtp' : 'log', 'rules' => ['required'], 'options' => ['log', 'smtp']],
+        'host' => ['type' => 'string', 'default' => (string) env('MAIL_HOST', ''), 'rules' => ['nullable', 'required_if:mailer,smtp', 'string', 'max:255']],
+        'port' => ['type' => 'integer', 'default' => (int) env('MAIL_PORT', 587), 'rules' => ['required', 'integer', 'between:1,65535']],
+        'encryption' => ['type' => 'string', 'default' => 'tls', 'rules' => ['required'], 'options' => ['none', 'tls', 'ssl']],
+        'username' => ['type' => 'string', 'default' => '', 'rules' => ['nullable', 'string', 'max:255']],
+        'password' => ['type' => 'secret', 'default' => null, 'rules' => ['nullable', 'string', 'max:255']],
+        'from_address' => ['type' => 'string', 'default' => (string) env('MAIL_FROM_ADDRESS', 'hello@example.com'), 'rules' => ['required', 'email', 'max:255']],
+        'from_name' => ['type' => 'string', 'default' => (string) env('MAIL_FROM_NAME', 'HRM Plus'), 'rules' => ['required', 'string', 'max:100']],
+    ],
+
+    // Mobile push (Phase 8b). "simulated" records each push in the delivery log without sending it
+    // (blocker B5: Firebase credentials not supplied yet); "fcm" uses the FCM HTTP v1 API with the uploaded
+    // service-account key (encrypted at rest, never shown again — uploaded on this screen, not typed).
+    'push' => [
+        'provider' => ['type' => 'string', 'default' => 'simulated', 'rules' => ['required'], 'options' => ['simulated', 'fcm']],
+        'fcm_service_account' => ['type' => 'secret', 'default' => null, 'rules' => ['nullable', 'string'], 'form' => false],
+        'android_channel_id' => ['type' => 'string', 'default' => 'hrm_plus_default', 'rules' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9_.-]+$/']],
+        'ttl_hours' => ['type' => 'integer', 'default' => 24, 'rules' => ['required', 'integer', 'between:1,672']],
+    ],
+
+    // Retention of operational records (Phase 8b), purged daily by system:purge-retention. Payroll,
+    // attendance, audit and HR records are never purged by this job. Biometric retention is under
+    // face_verification.
+    'retention' => [
+        'read_notifications_days' => ['type' => 'integer', 'default' => 180, 'rules' => ['required', 'integer', 'between:7,3650']],
+        'delivery_log_days' => ['type' => 'integer', 'default' => 90, 'rules' => ['required', 'integer', 'between:7,3650']],
+        'login_history_days' => ['type' => 'integer', 'default' => 730, 'rules' => ['required', 'integer', 'between:30,3650']],
+        'inactive_device_token_days' => ['type' => 'integer', 'default' => 120, 'rules' => ['required', 'integer', 'between:7,3650']],
+    ],
+
+    // HR requests and services (Phase 8b). Categories carry their own SLA; this is the fallback.
+    'hr_requests' => [
+        'employee_requests_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'default_sla_hours' => ['type' => 'integer', 'default' => 48, 'rules' => ['required', 'integer', 'between:1,2160']],
+        // Requests past their due time are escalated (scheduled), then again every N hours up to the max level.
+        'escalation_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'escalation_repeat_hours' => ['type' => 'integer', 'default' => 24, 'rules' => ['required', 'integer', 'between:1,336']],
+        'max_escalation_level' => ['type' => 'integer', 'default' => 2, 'rules' => ['required', 'integer', 'between:1,5']],
+        'attachment_max_kb' => ['type' => 'integer', 'default' => 5120, 'rules' => ['required', 'integer', 'between:100,20480']],
+        'allowed_extensions' => [
+            'type' => 'list', 'default' => ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'], 'rules' => ['array'],
+            'options' => ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
+        ],
+    ],
+
+    // Announcements (Phase 8b): defaults of the publish form.
+    'announcements' => [
+        'email_by_default' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
+        'push_by_default' => ['type' => 'boolean', 'default' => true, 'rules' => ['boolean']],
+        'attachment_max_kb' => ['type' => 'integer', 'default' => 10240, 'rules' => ['required', 'integer', 'between:100,20480']],
     ],
 
     'documents' => [
@@ -137,8 +214,16 @@ return [
         'next_sequence' => ['type' => 'integer', 'default' => 1, 'rules' => ['required', 'integer', 'min:1']],
     ],
 
+    // Password policy, sessions and sign-in throttling (Phase 8b: applied at runtime). There is no
+    // two-factor authentication yet (spec: optional).
     'security' => [
         'password_min_length' => ['type' => 'integer', 'default' => 8, 'rules' => ['required', 'integer', 'between:8,64']],
+        'password_require_mixed_case' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
+        'password_require_symbols' => ['type' => 'boolean', 'default' => false, 'rules' => ['boolean']],
+        // Idle minutes before a web session (admin and portal) expires.
+        'session_lifetime_minutes' => ['type' => 'integer', 'default' => (int) env('SESSION_LIFETIME', 120), 'rules' => ['required', 'integer', 'between:5,1440']],
+        'login_max_attempts' => ['type' => 'integer', 'default' => (int) env('AUTH_LOGIN_MAX_ATTEMPTS', 5), 'rules' => ['required', 'integer', 'between:3,20']],
+        'login_lockout_seconds' => ['type' => 'integer', 'default' => (int) env('AUTH_LOGIN_DECAY_SECONDS', 60), 'rules' => ['required', 'integer', 'between:30,3600']],
     ],
 
     'approvals' => [

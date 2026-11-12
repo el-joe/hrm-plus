@@ -4,59 +4,54 @@ namespace App\Notifications\Recruitment;
 
 use App\Models\Interview;
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Notifications\CentreNotification;
 
 /**
- * To an interviewer: assigned to an interview, or (reminder = true) the
- * interview is coming up. Database + mail (when e-mail notifications are on).
- * The link opens the admin interview page or, for employee accounts, the portal.
+ * An interviewer was added to a panel, or is reminded of an upcoming interview
+ * (templates "interview_assigned", "interview_reminder").
  */
-class InterviewAssigned extends Notification implements ShouldQueue
+class InterviewAssigned extends CentreNotification
 {
-    use Queueable;
-
     public function __construct(public readonly Interview $interview, public readonly bool $reminder = false) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    public function event(): string
     {
-        return setting('notifications.email_enabled') ? ['database', 'mail'] : ['database'];
+        return $this->reminder ? 'interview_reminder' : 'interview_assigned';
     }
 
-    public function toMail(User $notifiable): MailMessage
+    protected function actionLabelKey(): string
     {
-        $data = $this->toArray($notifiable);
-
-        return (new MailMessage)->subject($data['title'])->line($data['message'])->action(__('recruitment.mail.open_interview'), $data['url']);
+        return 'recruitment.mail.open_interview';
     }
 
     /**
-     * @return array{kind: string, interview_id: int, title: string, message: string, url: string}
+     * @return array<string, scalar|null>
      */
-    public function toArray(object $notifiable): array
+    public function placeholders(object $notifiable, ?string $locale): array
     {
         $interview = $this->interview->loadMissing(['application.candidate', 'application.vacancy']);
-        $locale = $notifiable instanceof User ? $notifiable->locale : null;
         $start = $interview->localStart();
-        $key = $this->reminder ? 'reminder' : 'assigned';
 
         return [
-            'kind' => $this->reminder ? 'interview_reminder' : 'interview_assigned',
-            'interview_id' => $interview->getKey(),
-            'title' => __("recruitment.notifications.interview_{$key}_title", [], $locale),
-            'message' => __("recruitment.notifications.interview_{$key}_message", [
-                'candidate' => $interview->application->candidate->localized('name', $locale),
-                'vacancy' => $interview->application->vacancy->localized('title', $locale),
-                'date' => $start->toDateString(), 'time' => $start->format('H:i'), 'timezone' => $interview->timezone,
-            ], $locale),
+            'candidate' => $interview->application->candidate->localized('name', $locale),
+            'vacancy' => $interview->application->vacancy->localized('title', $locale),
+            'date' => $start->toDateString(),
+            'time' => $start->format('H:i'),
+            'timezone' => $interview->timezone,
+        ];
+    }
+
+    /**
+     * @return array{kind: string, interview_id: int, url: string}
+     */
+    public function payload(object $notifiable): array
+    {
+        return [
+            'kind' => $this->event(),
+            'interview_id' => $this->interview->getKey(),
             'url' => $notifiable instanceof User && $notifiable->isEmployee()
-                ? route('portal.interviews.show', $interview)
-                : route('admin.interviews.show', $interview),
+                ? route('portal.interviews.show', $this->interview)
+                : route('admin.interviews.show', $this->interview),
         ];
     }
 }

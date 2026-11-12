@@ -7,6 +7,11 @@
 return [
 
     'groups' => [
+        'mail' => 'E-mail delivery',
+        'push' => 'Push notifications',
+        'retention' => 'Data retention',
+        'hr_requests' => 'HR requests',
+        'announcements' => 'Announcements',
         'performance' => 'Performance',
         'training' => 'Training',
         'disciplinary' => 'Disciplinary actions',
@@ -25,6 +30,42 @@ return [
         'face_verification' => 'Face verification',
     ],
     'keys' => [
+        'mail' => [
+            'mailer' => 'Mailer',
+            'host' => 'SMTP host',
+            'port' => 'SMTP port',
+            'encryption' => 'Encryption',
+            'username' => 'SMTP user name',
+            'password' => 'SMTP password',
+            'from_address' => 'Sender address',
+            'from_name' => 'Sender name',
+        ],
+        'push' => [
+            'provider' => 'Push provider',
+            'fcm_service_account' => 'FCM service-account key',
+            'android_channel_id' => 'Android notification channel id',
+            'ttl_hours' => 'Keep undelivered pushes for (hours)',
+        ],
+        'retention' => [
+            'read_notifications_days' => 'Delete read in-app notifications after (days)',
+            'delivery_log_days' => 'Keep the delivery log (days)',
+            'login_history_days' => 'Keep login history (days)',
+            'inactive_device_token_days' => 'Forget push devices unused for (days)',
+        ],
+        'hr_requests' => [
+            'employee_requests_enabled' => 'Employees may submit requests',
+            'default_sla_hours' => 'Default response time (hours, when the category has none)',
+            'escalation_enabled' => 'Escalate overdue requests',
+            'escalation_repeat_hours' => 'Escalate again every (hours)',
+            'max_escalation_level' => 'Highest escalation level',
+            'attachment_max_kb' => 'Maximum attachment size (KB)',
+            'allowed_extensions' => 'Allowed attachment types',
+        ],
+        'announcements' => [
+            'email_by_default' => 'E-mail new announcements by default',
+            'push_by_default' => 'Push new announcements by default',
+            'attachment_max_kb' => 'Maximum attachment size (KB)',
+        ],
         'performance' => [
             'employees_can_add_goals' => 'Employees may add their own goals',
             'acknowledgement_days' => 'Days to acknowledge an approved review',
@@ -95,6 +136,17 @@ return [
             'calendar_conflict_threshold' => 'Leave calendar: flag a department when this many are away',
         ],
         'notifications' => [
+            'birthday_notice_days' => 'Tell managers about birthdays (days before, 0 = on the day)',
+            'birthday_greetings_enabled' => 'Send birthday greetings to employees',
+            'work_anniversary_enabled' => 'Send work anniversary notifications',
+            'probation_reminder_days' => 'Probation end reminder (days before)',
+            'missing_checkout_enabled' => 'Remind employees of a missing check-out',
+            'missing_checkout_after_minutes' => 'Missing check-out reminder after the shift end (minutes)',
+            'late_arrival_enabled' => 'Tell employees about late arrivals',
+            'absence_alerts_enabled' => 'Alert employees and managers of unexplained absences',
+            'training_reminder_days' => 'Training session reminder (days before)',
+            'approvals_digest_enabled' => 'Send a daily pending-approvals digest',
+            'approvals_reminder_hours' => 'Include approvals waiting longer than (hours)',
             'email_enabled' => 'Send email notifications',
             'push_enabled' => 'Send push notifications',
             'contract_expiry_reminder_days' => 'Contract expiry reminder (days before)',
@@ -111,6 +163,11 @@ return [
             'next_sequence' => 'Next number',
         ],
         'security' => [
+            'password_require_mixed_case' => 'Passwords need upper and lower case letters',
+            'password_require_symbols' => 'Passwords need a symbol',
+            'session_lifetime_minutes' => 'Sign out idle web sessions after (minutes)',
+            'login_max_attempts' => 'Failed sign-ins before a lockout',
+            'login_lockout_seconds' => 'Lockout duration (seconds)',
             'password_min_length' => 'Minimum password length',
         ],
         'approvals' => [
@@ -139,6 +196,12 @@ return [
         ],
     ],
     'options' => [
+        'log' => 'Log only (no e-mail leaves the server)',
+        'smtp' => 'SMTP',
+        'none' => 'None',
+        'tls' => 'STARTTLS',
+        'ssl' => 'SSL / TLS',
+        'fcm' => 'Firebase Cloud Messaging (HTTP v1)',
         'saturday' => 'Saturday',
         'sunday' => 'Sunday',
         'monday' => 'Monday',

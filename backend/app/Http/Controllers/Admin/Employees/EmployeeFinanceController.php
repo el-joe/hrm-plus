@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Employees;
 
 use App\Actions\Employees\ChangeEmployeeSalary;
+use App\Actions\Employees\SaveEmployeeBankAccount;
 use App\Enums\PayBasis;
 use App\Enums\SalaryChangeType;
 use App\Http\Controllers\Controller;
@@ -13,7 +14,6 @@ use App\Models\EmployeeBankAccount;
 use App\Models\EmployeeSalary;
 use App\Services\Employees\EmploymentHistory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -73,16 +73,9 @@ class EmployeeFinanceController extends Controller
 
     private function saveAccount(Employee $employee, EmployeeBankAccount $account, BankAccountRequest $request): void
     {
-        DB::transaction(function () use ($employee, $account, $request): void {
-            $data = $request->validated();
-            $isPrimary = $request->boolean('is_primary') || ! $employee->bankAccounts()->whereKeyNot($account->getKey() ?? 0)->exists();
+        $data = $request->validated();
+        unset($data['is_primary']);
 
-            $account->fill([...$data, 'is_primary' => $isPrimary, 'employee_id' => $employee->getKey()])->save();
-
-            if ($isPrimary) {
-                $employee->bankAccounts()->whereKeyNot($account->getKey())->where('is_primary', true)->get()
-                    ->each(fn (EmployeeBankAccount $other) => $other->update(['is_primary' => false]));
-            }
-        });
+        app(SaveEmployeeBankAccount::class)->handle($employee, $account, $data, $request->boolean('is_primary'));
     }
 }

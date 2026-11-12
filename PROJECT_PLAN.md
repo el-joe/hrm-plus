@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–7 complete (6 and 7: tests written, not run yet); Phase 8a (performance, training, assets, disciplinary) done — tests written, not run; 8b (HR requests, announcements, notifications, settings) and 8c (dashboard widgets, reports centre) next**
+Last updated: 2026-11-12 · Status: **Phases 0–7 complete (6 and 7: tests written, not run yet); Phase 8a (performance, training, assets, disciplinary) and 8b (HR requests, announcements, notifications & automation, remaining settings) done — tests written, not run; 8c (dashboard widgets, reports centre) next**
 
 ---
 
@@ -45,8 +45,8 @@ The spec does not name a mobile developer or a UI designer. Both are assigned to
 | B2 | Approval of the dependency list in section 4 | Phase 2 | Phase 2 cannot start |
 | B3 | Fingerprint device manufacturer, model, firmware | Phase 5 | Ship adapter interface + simulated adapter + CSV/Excel import only; no brand is claimed as supported |
 | B4 | Face verification provider choice and licence/credentials | Phase 5 / 10 | Ship provider interface + clearly labelled simulated adapter + setup guide |
-| B5 | Firebase project (FCM) and Apple push credentials | Phase 10 | Push code is wired, delivery untested |
-| B6 | SMTP credentials | Phase 8 | Mail goes to the log driver |
+| B5 | Firebase project (FCM) and Apple push credentials | Phase 10 | Push code is wired (FCM HTTP v1, key uploaded in Settings → Push), delivery untested; simulated provider until then |
+| B6 | SMTP credentials | Phase 8 | Mail goes to the log driver; SMTP is configured in Settings → E-mail delivery (encrypted password, test send) |
 | B7 | Country, currency and statutory rules (tax, social insurance) | Phase 7 | Engine ships with configurable, effective-dated rule tables and no seeded statutory rates |
 | B8 | Company name, logo, brand colours, real bundle id | Phase 1 / 10 | Neutral enterprise palette; placeholder bundle id |
 | B9 | Accept Android licences (`flutter doctor --android-licenses`) | Phase 10 | No Android build |
@@ -200,13 +200,13 @@ Must finish before any UI code is written.
 - [x] Performance: cycles, goals, KPIs, self and manager assessment, competencies, scoring, approval
 - [x] Training: programmes, courses, providers, enrolment, sessions, attendance, certificates, skills, budgets, expiry reminders
 - [x] Assets: catalogue, assignment, handover, return, condition, acknowledgement, offboarding clearance
-- [ ] HR requests: categories, priority, assignment, internal notes, employee-visible replies, escalation, history
-- [ ] Announcements: targeting by company, branch, department, group; attachments; read status
+- [x] HR requests: categories, priority, assignment, internal notes, employee-visible replies, escalation, history
+- [x] Announcements: targeting by company, branch, department, group; attachments; read status
 - [x] Disciplinary: warnings, violations, investigations, employee response, approval, restricted access
-- [ ] Notifications: in-app, email, push; templates; preferences; queued delivery; scheduled jobs (contract expiry, birthdays, missing checkout, reminders)
+- [x] Notifications: in-app, email, push; templates; preferences; queued delivery; scheduled jobs (contract expiry, birthdays, missing checkout, reminders)
 - [ ] Admin dashboard: all 22 widgets from live queries, permission-aware, filterable
 - [ ] Reports centre: 48 reports across employee, attendance, leave, payroll, recruitment, performance; shared filters; Excel, CSV and Arabic PDF export; data-scope enforcement
-- [ ] Remaining settings screens
+- [x] Remaining settings screens
 
 **Phase 8a delivered (Performance, Training, Assets, Disciplinary — spec modules 10, 11, 12, 15).** Schema in
 `backend/database/migrations/2026_11_19_1000*`–`1003*`; screens under `admin/{performance,training,assets,disciplinary}`,
@@ -247,8 +247,43 @@ default; HR Specialist / managers keep `disciplinary.create` = report incidents 
   `type`); active warnings = `DisciplinaryAction::activeWarnings()`; awaiting response = approved, `responded_at` null; deductions
   `deduction_amount` / `pay_entry_id`. Both models are data-scoped through the employee.
 
+**Phase 8b delivered (HR requests, Announcements, Notifications & Automation, System settings — spec modules 13, 14, 17, 18).**
+Schema `backend/database/migrations/2026_11_20_1000*`–`1002*`. *HR requests*: categories (general / letter / profile_change, SLA hours,
+default assignee, escalation user, optional `hr_request` approval workflow, required attachment, custom fields), letter templates
+(`{{placeholders}}`, mPDF PDF snapshot), requests with thread (employee-visible replies vs internal notes, never exposed to the
+employee), private attachments, history (`hr_request_events`), SLA escalation (`hr-requests:escalate`), **profile change requests**
+(encrypted old/new values, applied through `UpdateEmployee` / new `SaveEmployeeBankAccount` with audit + History-tab entry; identity
+fields need `employee_sensitive.update`, bank fields `employee_financials.update`). *Announcements*: bilingual sanitised rich text
+(allow-list DOM sanitiser), targeting by branch / department (incl. sub-departments) / employee group / employment type, scheduling,
+expiry, pinning, mandatory acknowledgement, per-employee read/ack tracking + stats/export, notify once on going live. *Notification
+centre*: every user notification extends `App\Notifications\CentreNotification` — event registry `config/notification_events.php`
+(70 events), editable templates per event × channel × language (`{{placeholder}}` whitelist, no Blade), per-user preferences
+(mandatory events locked), channels database / mail / push (`PushChannel` interface: FCM HTTP v1 with service-account JWT via
+openssl, or the labelled simulated provider), queued with retries, delivery log, device tokens (`/api/v1/me/devices`), bell + list in
+both areas. Automations: attendance alerts (missing check-out, late, absence), birthdays / anniversaries / probation end, training
+reminders, approvals digest, retention purge. *Settings*: new groups E-mail delivery (test send), Push (FCM key upload, test push),
+Data retention, HR requests, Announcements; Security gained password policy, session lifetime, login throttling (applied at runtime);
+secret settings encrypted, never echoed, redacted in audit. `permissions:sync` revokes dropped sync-granted defaults (`--dry-run`).
+Candidate e-mails (no account) stay plain mail notifications outside the template system. No 2FA (none existed; spec "optional").
+
+**Notes for 8c (dashboard widgets and reports reading Phase 8b).**
+- *HR requests:* `hr_requests.status` ∈ pending_approval, open, in_progress, awaiting_employee (open set), resolved, rejected,
+  cancelled (closed set); `priority` low/normal/high/urgent; overdue = open set except awaiting_employee with `due_at < now()`;
+  escalated = `escalation_level > 0`; SLA met = `resolved_at <= due_at`; first response time = `first_response_at - created_at`;
+  group by `hr_request_category_id` (→ `type`), snapshot `branch_id` / `department_id`, `assigned_to`, `source` (portal/api/admin).
+  Data-scoped through the employee; admins without `hr_requests.manage` see only assigned/unassigned ones —
+  use `App\Services\HrRequests\HrRequestVisibility`. Profile changes: `hr_profile_changes.status` pending/applied/rejected (values
+  encrypted — count only). Letters issued = `hr_request_attachments.is_letter`.
+- *Announcements:* live = status `published`, `publish_at <= now`, not expired (scopes on `Announcement`); audience and read stats
+  from `App\Services\Announcements\AnnouncementReadStats` (audience = active employees matching targets today); reads in
+  `announcement_reads` (`read_at`, `acknowledged_at`). Restricted admins: same visibility as the admin list (`AnnouncementPolicy`).
+- *Notifications:* in-app = Laravel `notifications` table (`data->event`, `read_at`); delivery health from `notification_deliveries`
+  (`channel` mail/push, `status` sent/simulated/failed/skipped, `attempts`); registered devices `device_tokens`. A widget for the
+  signed-in admin can reuse `NotificationInbox::unreadCount()`; pending approvals waiting > N hours = the digest query in
+  `App\Services\Notifications\Automation\ApprovalsDigest`.
+
 ### Phase 9 — Employee web portal · M
-- [ ] Home, profile with change requests, attendance with correction requests, leaves, payroll and payslips, HR requests, announcements, notifications, performance, training, assets, documents, account settings
+- [ ] Home, profile with change requests, attendance with correction requests, leaves, payroll and payslips, HR requests, announcements, notifications, performance, training, assets, documents, account settings *(8b: home cards for requests / announcements / notifications, profile change requests, My requests, Announcements, Notifications + settings pages are done)*
 - [ ] Ownership enforcement on every route
 - [ ] Responsive pass on phone widths
 - [ ] Tests: an employee cannot read another employee's data anywhere

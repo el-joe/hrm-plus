@@ -59,6 +59,7 @@
             <div class="ms-auto flex items-center gap-2">
                 <div class="hidden sm:block">@include('partials.locale-switcher')</div>
                 @include('partials.theme-toggle')
+                @include('partials.notification-bell', ['area' => 'portal'])
 
                 <x-dropdown :label="__('app.ui.user_menu')">
                     <x-slot:trigger>

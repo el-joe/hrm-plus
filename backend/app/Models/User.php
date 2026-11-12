@@ -71,6 +71,22 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<DeviceToken, $this>
+     */
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    /**
+     * @return HasMany<NotificationPreference, $this>
+     */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    /**
      * @return HasMany<LoginHistory, $this>
      */
     public function loginHistories(): HasMany

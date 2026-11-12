@@ -79,6 +79,10 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             require __DIR__.'/api/performance.php';
             require __DIR__.'/api/training.php';
             require __DIR__.'/api/assets.php';
+            // HR requests, announcements, notifications, notification preferences and device tokens (Phase 8b).
+            require __DIR__.'/api/hr_requests.php';
+            require __DIR__.'/api/announcements.php';
+            require __DIR__.'/api/notifications.php';
             Route::post('face/enrol', [V1\FaceController::class, 'enrol'])->middleware('throttle:attendance-checkin')->name('face.enrol');
         });
 

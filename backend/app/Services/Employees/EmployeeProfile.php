@@ -19,6 +19,7 @@ use App\Services\Disciplinary\DisciplinaryTimeline;
 use App\Services\Disciplinary\EmployeeDisciplinaryTab;
 use App\Services\Employees\Contracts\ProfileTab;
 use App\Services\Employees\Contracts\TimelineSource;
+use App\Services\HrRequests\HrRequestTimeline;
 use App\Services\Leave\LeaveBalanceCalculator;
 use App\Services\Leave\LeaveYear;
 use App\Services\Payroll\PayEntryResolver;
@@ -67,6 +68,8 @@ class EmployeeProfile
         TrainingTimeline::class,
         AssetTimeline::class,
         DisciplinaryTimeline::class,
+        // Phase 8b: applied profile change requests and issued letters.
+        HrRequestTimeline::class,
     ];
 
     public function __construct(

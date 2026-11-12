@@ -249,6 +249,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         require __DIR__.'/admin/assets.php';
         require __DIR__.'/admin/disciplinary.php';
 
+        // HR requests and services, announcements, notification centre / templates / delivery log (Phase 8b).
+        require __DIR__.'/admin/hr_requests.php';
+        require __DIR__.'/admin/announcements.php';
+        require __DIR__.'/admin/notifications.php';
+
         // Access control. Record-level rules live in AdminUserPolicy / RolePolicy
         // and are enforced inside the controllers and Form Requests.
         Route::resource('admin-users', Admin\AdminUserController::class);
@@ -330,6 +335,11 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         require __DIR__.'/portal/training.php';
         require __DIR__.'/portal/assets.php';
         require __DIR__.'/portal/disciplinary.php';
+
+        // My requests (incl. letters and profile change requests), announcements, notifications (Phase 8b).
+        require __DIR__.'/portal/hr_requests.php';
+        require __DIR__.'/portal/announcements.php';
+        require __DIR__.'/portal/notifications.php';
 
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');

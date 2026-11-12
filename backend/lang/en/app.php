@@ -42,6 +42,16 @@ return [
         'en' => 'English',
     ],
     'nav' => [
+        // Phase 8b.
+        'hr_requests' => 'HR requests',
+        'hr_request_categories' => 'Request categories',
+        'hr_letter_templates' => 'Letter templates',
+        'announcements' => 'Announcements',
+        'notification_templates' => 'Notification templates',
+        'notification_deliveries' => 'Delivery log',
+        'my_requests' => 'My requests',
+        'notification_preferences' => 'Notification settings',
+        'notifications' => 'Notifications',
         'performance_reviews' => 'Performance reviews',
         'performance_goals' => 'Goals & KPIs',
         'performance_cycles' => 'Review cycles',
@@ -87,6 +97,7 @@ return [
         'salary_components' => 'Salary components',
         'statutory_rules' => 'Statutory rules',
         'sections' => [
+            'services' => 'HR services',
             'performance' => 'Performance',
             'training' => 'Training & development',
             'assets' => 'Assets',

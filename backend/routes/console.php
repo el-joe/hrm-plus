@@ -35,3 +35,12 @@ Schedule::command('payroll:scan-corrections')->dailyAt('02:45')->withoutOverlapp
 // per certificate), and approved performance reviews not acknowledged in time (reminder to the employee).
 Schedule::command('training:send-certificate-reminders')->dailyAt('07:10')->withoutOverlapping()->onOneServer();
 Schedule::command('performance:send-acknowledgement-reminders')->dailyAt('07:20')->withoutOverlapping()->onOneServer();
+// Phase 8b: HR request SLA escalation, scheduled announcements, notification automations (attendance alerts,
+// people events, probation, training reminders, approvals digest) and retention purge.
+Schedule::command('hr-requests:escalate')->hourly()->withoutOverlapping()->onOneServer();
+Schedule::command('announcements:publish-scheduled')->everyFiveMinutes()->withoutOverlapping()->onOneServer();
+Schedule::command('notifications:attendance-alerts')->hourlyAt(15)->withoutOverlapping()->onOneServer();
+Schedule::command('notifications:people-events')->dailyAt('07:30')->withoutOverlapping()->onOneServer();
+Schedule::command('notifications:training-reminders')->dailyAt('07:40')->withoutOverlapping()->onOneServer();
+Schedule::command('notifications:approvals-digest')->weekdays()->at('08:00')->withoutOverlapping()->onOneServer();
+Schedule::command('system:purge-retention')->dailyAt('03:15')->withoutOverlapping()->onOneServer();

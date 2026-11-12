@@ -86,6 +86,24 @@ return [
             'report' => false,
         ],
 
+        // HR request attachments and issued letters (Phase 8b): streamed only after the policy / ownership check.
+        'hr_request_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/hr-requests'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
+        // Announcement attachments (Phase 8b): streamed to admins and to employees in the audience only.
+        'announcement_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/announcements'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -30,6 +30,9 @@ import { initAttendanceBulk } from './pages/attendance-bulk';
 import { initLeaveForms, initLeaveReject } from './pages/leave';
 import { initPayrollForms } from './pages/payroll';
 import { initPayrollRunProgress } from './pages/payroll-run';
+import { initAnnouncementForm } from './pages/announcements';
+import { initNotificationBell } from './ui/notification-bell';
+import { initNotificationTemplates } from './pages/notification-templates';
 
 export { http, HttpError } from './lib/http';
 export { toast } from './ui/toast';
@@ -58,6 +61,7 @@ function boot() {
     initCheckGroups();
     initGlobalSearch();
     initPrint();
+    initNotificationBell();
 
     if (document.querySelector('[data-org-chart]')) {
         initOrgChart();
@@ -101,6 +105,14 @@ function boot() {
 
     if (document.querySelector('[data-payroll-progress]')) {
         initPayrollRunProgress();
+    }
+
+    if (document.querySelector('[data-format-toolbar]')) {
+        initAnnouncementForm();
+    }
+
+    if (document.querySelector('[data-template-editor]')) {
+        initNotificationTemplates();
     }
 }
 

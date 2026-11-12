@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
         $this->call(TrainingDefaultsSeeder::class);
         $this->call(AssetDefaultsSeeder::class);
         $this->call(DisciplinaryDefaultsSeeder::class);
+        // Phase 8b: request categories, letter templates and the "hr_request" workflow; notification templates.
+        $this->call(HrRequestDefaultsSeeder::class);
+        $this->call(NotificationDefaultsSeeder::class);
 
         if (! app()->isProduction()) {
             $this->call(OrganisationStructureSeeder::class);
@@ -40,6 +43,10 @@ class DatabaseSeeder extends Seeder
             $this->call(TrainingDemoSeeder::class);
             $this->call(AssetDemoSeeder::class);
             $this->call(DisciplinaryDemoSeeder::class);
+            // Devices + push first, so the request / announcement demo notifications also show simulated pushes.
+            $this->call(NotificationDemoSeeder::class);
+            $this->call(HrRequestDemoSeeder::class);
+            $this->call(AnnouncementDemoSeeder::class);
         }
     }
 }

@@ -162,6 +162,16 @@ return [
             ],
         ],
         [
+            // Phase 8b: HR requests and services, announcements.
+            'key' => 'services',
+            'items' => [
+                ['key' => 'hr_requests', 'route' => 'admin.hr-requests.index', 'ability' => 'hr_requests.view', 'icon' => 'inbox', 'active' => ['admin.hr-requests.*']],
+                ['key' => 'hr_request_categories', 'route' => 'admin.hr-request-categories.index', 'ability' => 'hr_requests.manage', 'icon' => 'layers', 'active' => ['admin.hr-request-categories.*']],
+                ['key' => 'hr_letter_templates', 'route' => 'admin.hr-letter-templates.index', 'ability' => 'hr_requests.manage', 'icon' => 'file-text', 'active' => ['admin.hr-letter-templates.*']],
+                ['key' => 'announcements', 'route' => 'admin.announcements.index', 'ability' => 'announcements.view', 'icon' => 'megaphone', 'active' => ['admin.announcements.*']],
+            ],
+        ],
+        [
             'key' => 'structure',
             'items' => [
                 ['key' => 'company', 'route' => 'admin.company.show', 'ability' => 'company.view', 'icon' => 'building', 'active' => ['admin.company.*']],
@@ -188,6 +198,9 @@ return [
             'items' => [
                 ['key' => 'audit_logs', 'route' => 'admin.audit-logs.index', 'ability' => 'audit_logs.view', 'icon' => 'history', 'active' => ['admin.audit-logs.*']],
                 ['key' => 'settings', 'route' => 'admin.settings.index', 'ability' => 'settings.view', 'icon' => 'settings', 'active' => ['admin.settings.*']],
+                // Phase 8b: notification texts per event / channel / language, and the delivery log.
+                ['key' => 'notification_templates', 'route' => 'admin.notification-templates.index', 'ability' => 'notifications.view', 'icon' => 'mail', 'active' => ['admin.notification-templates.*']],
+                ['key' => 'notification_deliveries', 'route' => 'admin.notification-deliveries.index', 'ability' => 'notifications.view', 'icon' => 'send', 'active' => ['admin.notification-deliveries.*']],
                 ['key' => 'ui_kit', 'route' => 'admin.ui-kit', 'ability' => 'viewUiKit', 'icon' => 'layout-grid', 'active' => ['admin.ui-kit']],
             ],
         ],
@@ -200,6 +213,9 @@ return [
         ['key' => 'my_leaves', 'route' => 'portal.leaves', 'ability' => null, 'icon' => 'calendar', 'active' => ['portal.leaves*']],
         ['key' => 'my_payroll', 'route' => 'portal.payroll', 'ability' => null, 'icon' => 'coins', 'active' => ['portal.payroll*']],
         // "more" => true: listed under the "More" menu (desktop) / sheet (mobile bottom bar).
+        // Phase 8b: HR requests (incl. letters and profile change requests) and announcements.
+        ['key' => 'my_requests', 'route' => 'portal.requests.index', 'ability' => null, 'icon' => 'inbox', 'active' => ['portal.requests.*'], 'more' => true],
+        ['key' => 'announcements', 'route' => 'portal.announcements.index', 'ability' => null, 'icon' => 'megaphone', 'active' => ['portal.announcements.*'], 'more' => true],
         ['key' => 'my_loans', 'route' => 'portal.loans', 'ability' => null, 'icon' => 'wallet', 'active' => ['portal.loans*'], 'more' => true],
         ['key' => 'my_performance', 'route' => 'portal.performance', 'ability' => null, 'icon' => 'award', 'active' => ['portal.performance*'], 'more' => true],
         ['key' => 'my_training', 'route' => 'portal.training', 'ability' => null, 'icon' => 'book-open', 'active' => ['portal.training*'], 'more' => true],
@@ -207,6 +223,7 @@ return [
         ['key' => 'my_disciplinary', 'route' => 'portal.disciplinary', 'ability' => 'viewOwnDisciplinary', 'icon' => 'alert-triangle', 'active' => ['portal.disciplinary*'], 'more' => true],
         ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding'], 'more' => true],
         ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*'], 'more' => true],
+        ['key' => 'notification_preferences', 'route' => 'portal.notification-preferences.edit', 'ability' => null, 'icon' => 'bell', 'active' => ['portal.notification-preferences.*', 'portal.notifications.*'], 'more' => true],
     ],
 
 ];

@@ -45,6 +45,9 @@ class AdminAccessManager
 
         $after = $role->permissions()->orderBy('name')->pluck('name')->all();
 
+        // Re-granted by hand: permissions:sync must never revoke these when they leave a default set.
+        app(PermissionSynchroniser::class)->markManuallyGranted($role, array_values(array_diff($after, $before)));
+
         if ($before !== $after) {
             $this->audit->log('role.permissions_updated', $role, ['permissions' => $before], ['permissions' => $after]);
         }

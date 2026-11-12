@@ -7,6 +7,11 @@
 return [
 
     'groups' => [
+        'mail' => 'إرسال البريد الإلكتروني',
+        'push' => 'إشعارات الجوال',
+        'retention' => 'الاحتفاظ بالبيانات',
+        'hr_requests' => 'طلبات الموظفين',
+        'announcements' => 'الإعلانات',
         'performance' => 'الأداء',
         'training' => 'التدريب',
         'disciplinary' => 'الإجراءات التأديبية',
@@ -25,6 +30,42 @@ return [
         'face_verification' => 'التحقق بالوجه',
     ],
     'keys' => [
+        'mail' => [
+            'mailer' => 'طريقة الإرسال',
+            'host' => 'خادم SMTP',
+            'port' => 'منفذ SMTP',
+            'encryption' => 'التشفير',
+            'username' => 'اسم مستخدم SMTP',
+            'password' => 'كلمة مرور SMTP',
+            'from_address' => 'عنوان المرسل',
+            'from_name' => 'اسم المرسل',
+        ],
+        'push' => [
+            'provider' => 'مزوّد إشعارات الجوال',
+            'fcm_service_account' => 'مفتاح حساب خدمة FCM',
+            'android_channel_id' => 'معرّف قناة إشعارات أندرويد',
+            'ttl_hours' => 'الاحتفاظ بالإشعارات غير المسلّمة لمدة (ساعة)',
+        ],
+        'retention' => [
+            'read_notifications_days' => 'حذف الإشعارات المقروءة بعد (يوم)',
+            'delivery_log_days' => 'الاحتفاظ بسجل الإرسال (يوم)',
+            'login_history_days' => 'الاحتفاظ بسجل الدخول (يوم)',
+            'inactive_device_token_days' => 'نسيان أجهزة الجوال غير المستخدمة منذ (يوم)',
+        ],
+        'hr_requests' => [
+            'employee_requests_enabled' => 'السماح للموظفين بتقديم الطلبات',
+            'default_sla_hours' => 'مدة الاستجابة الافتراضية (ساعة، إن لم يحددها التصنيف)',
+            'escalation_enabled' => 'تصعيد الطلبات المتأخرة',
+            'escalation_repeat_hours' => 'إعادة التصعيد كل (ساعة)',
+            'max_escalation_level' => 'أعلى مستوى تصعيد',
+            'attachment_max_kb' => 'أقصى حجم للمرفق (كيلوبايت)',
+            'allowed_extensions' => 'أنواع المرفقات المسموحة',
+        ],
+        'announcements' => [
+            'email_by_default' => 'إرسال الإعلانات الجديدة بالبريد افتراضياً',
+            'push_by_default' => 'إرسال الإعلانات الجديدة كإشعار جوال افتراضياً',
+            'attachment_max_kb' => 'أقصى حجم للمرفق (كيلوبايت)',
+        ],
         'performance' => [
             'employees_can_add_goals' => 'السماح للموظفين بإضافة أهدافهم',
             'acknowledgement_days' => 'أيام الإقرار بالتقييم المعتمد',
@@ -95,6 +136,17 @@ return [
             'calendar_conflict_threshold' => 'تقويم الإجازات: تنبيه عند غياب هذا العدد من القسم نفسه',
         ],
         'notifications' => [
+            'birthday_notice_days' => 'إبلاغ المديرين بأعياد الميلاد (قبل بالأيام، 0 = في اليوم نفسه)',
+            'birthday_greetings_enabled' => 'إرسال تهنئة عيد الميلاد للموظفين',
+            'work_anniversary_enabled' => 'إرسال إشعارات ذكرى التعيين',
+            'probation_reminder_days' => 'تذكير بانتهاء فترة الاختبار (قبل بالأيام)',
+            'missing_checkout_enabled' => 'تذكير الموظفين بالانصراف غير المسجل',
+            'missing_checkout_after_minutes' => 'التذكير بالانصراف بعد نهاية الوردية بـ (دقيقة)',
+            'late_arrival_enabled' => 'إبلاغ الموظفين بالتأخير',
+            'absence_alerts_enabled' => 'تنبيه الموظفين والمديرين بالغياب غير المبرر',
+            'training_reminder_days' => 'تذكير بالدورة التدريبية (قبل بالأيام)',
+            'approvals_digest_enabled' => 'إرسال ملخص يومي بالموافقات المعلقة',
+            'approvals_reminder_hours' => 'تضمين الموافقات المنتظرة أكثر من (ساعة)',
             'email_enabled' => 'إرسال إشعارات البريد الإلكتروني',
             'push_enabled' => 'إرسال إشعارات الجوال',
             'contract_expiry_reminder_days' => 'تذكير انتهاء العقد (أيام قبل)',
@@ -111,6 +163,11 @@ return [
             'next_sequence' => 'الرقم التالي',
         ],
         'security' => [
+            'password_require_mixed_case' => 'كلمة المرور تتطلب أحرفاً كبيرة وصغيرة',
+            'password_require_symbols' => 'كلمة المرور تتطلب رمزاً',
+            'session_lifetime_minutes' => 'إنهاء جلسات الويب الخاملة بعد (دقيقة)',
+            'login_max_attempts' => 'محاولات الدخول الفاشلة قبل الإيقاف المؤقت',
+            'login_lockout_seconds' => 'مدة الإيقاف المؤقت (ثانية)',
             'password_min_length' => 'الحد الأدنى لطول كلمة المرور',
         ],
         'approvals' => [
@@ -139,6 +196,12 @@ return [
         ],
     ],
     'options' => [
+        'log' => 'السجل فقط (لا يخرج أي بريد من الخادم)',
+        'smtp' => 'SMTP',
+        'none' => 'بدون',
+        'tls' => 'STARTTLS',
+        'ssl' => 'SSL / TLS',
+        'fcm' => 'Firebase Cloud Messaging (HTTP v1)',
         'saturday' => 'السبت',
         'sunday' => 'الأحد',
         'monday' => 'الاثنين',

@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Models\AdminDataScope;
+use App\Models\Announcement;
+use App\Models\AnnouncementAttachment;
+use App\Models\AnnouncementRead;
+use App\Models\AnnouncementTarget;
 use App\Models\ApprovalAction;
 use App\Models\ApprovalRequest;
 use App\Models\ApprovalWorkflow;
@@ -38,6 +42,7 @@ use App\Models\Company;
 use App\Models\Competency;
 use App\Models\CostCenter;
 use App\Models\Department;
+use App\Models\DeviceToken;
 use App\Models\DisciplinaryAction;
 use App\Models\DisciplinaryCase;
 use App\Models\DisciplinaryCaseNote;
@@ -60,6 +65,15 @@ use App\Models\FaceConsent;
 use App\Models\FaceEnrolment;
 use App\Models\FaceVerification;
 use App\Models\Holiday;
+use App\Models\HrLetterTemplate;
+use App\Models\HrProfileChange;
+use App\Models\HrRequest;
+use App\Models\HrRequestAttachment;
+use App\Models\HrRequestCategory;
+use App\Models\HrRequestCategoryField;
+use App\Models\HrRequestEvent;
+use App\Models\HrRequestFieldValue;
+use App\Models\HrRequestMessage;
 use App\Models\Interview;
 use App\Models\InterviewScorecard;
 use App\Models\JobApplication;
@@ -73,6 +87,9 @@ use App\Models\LeaveType;
 use App\Models\LoanChange;
 use App\Models\LoanInstalment;
 use App\Models\LoginHistory;
+use App\Models\NotificationDelivery;
+use App\Models\NotificationPreference;
+use App\Models\NotificationTemplate;
 use App\Models\OffboardingCase;
 use App\Models\OffboardingItem;
 use App\Models\Onboarding;
@@ -130,6 +147,8 @@ use App\Policies\AdminUserPolicy;
 use App\Services\Attendance\Contracts\LeaveProvider;
 use App\Services\Authorization\DataScopeManager;
 use App\Services\Leave\ApprovedLeaveProvider;
+use App\Services\Notifications\NotificationInbox;
+use App\Services\Settings\RuntimeSettings;
 use App\Support\Navigation\NavigationBuilder;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -165,6 +184,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureMorphMap();
+        // Session lifetime and (once configured) the mail transport come from system settings (Phase 8b).
+        app(RuntimeSettings::class)->apply();
         $this->configureAuthorization();
         $this->configureRateLimiting();
         $this->configurePasswords();
@@ -306,6 +327,24 @@ class AppServiceProvider extends ServiceProvider
             'disciplinary_case_note' => DisciplinaryCaseNote::class,
             'disciplinary_evidence' => DisciplinaryEvidence::class,
             'disciplinary_action' => DisciplinaryAction::class,
+            // Phase 8b: HR requests, announcements, notification centre.
+            'hr_request_category' => HrRequestCategory::class,
+            'hr_request_category_field' => HrRequestCategoryField::class,
+            'hr_letter_template' => HrLetterTemplate::class,
+            'hr_request' => HrRequest::class,
+            'hr_request_message' => HrRequestMessage::class,
+            'hr_request_attachment' => HrRequestAttachment::class,
+            'hr_request_field_value' => HrRequestFieldValue::class,
+            'hr_request_event' => HrRequestEvent::class,
+            'hr_profile_change' => HrProfileChange::class,
+            'announcement' => Announcement::class,
+            'announcement_target' => AnnouncementTarget::class,
+            'announcement_attachment' => AnnouncementAttachment::class,
+            'announcement_read' => AnnouncementRead::class,
+            'notification_template' => NotificationTemplate::class,
+            'notification_preference' => NotificationPreference::class,
+            'notification_delivery' => NotificationDelivery::class,
+            'device_token' => DeviceToken::class,
         ]);
     }
 
@@ -377,9 +416,19 @@ class AppServiceProvider extends ServiceProvider
 
     private function configurePasswords(): void
     {
-        Password::defaults(fn (): Password => Password::min((int) setting('security.password_min_length'))
-            ->letters()
-            ->numbers());
+        Password::defaults(function (): Password {
+            $rule = Password::min((int) setting('security.password_min_length'))->letters()->numbers();
+
+            if (setting('security.password_require_mixed_case')) {
+                $rule->mixedCase();
+            }
+
+            if (setting('security.password_require_symbols')) {
+                $rule->symbols();
+            }
+
+            return $rule;
+        });
 
         // Send each account to the reset form of its own area.
         ResetPassword::createUrlUsing(fn (User $user, string $token): string => route(
@@ -400,6 +449,17 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts.employee', function (ViewContract $view): void {
             $view->with('navigation', app(NavigationBuilder::class)->portal(request()->user(), Route::currentRouteName()));
+        });
+
+        // Notification bell (Phase 8b): the signed-in user's unread count and latest notifications.
+        View::composer('partials.notification-bell', function (ViewContract $view): void {
+            $user = request()->user();
+            $inbox = app(NotificationInbox::class);
+
+            $view->with([
+                'bellUnread' => $user ? $inbox->unreadCount($user) : 0,
+                'bellItems' => $user ? $inbox->latest($user, 6) : collect(),
+            ]);
         });
     }
 }

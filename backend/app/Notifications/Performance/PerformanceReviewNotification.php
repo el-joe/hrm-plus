@@ -4,73 +4,56 @@ namespace App\Notifications\Performance;
 
 use App\Models\PerformanceReview;
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Notifications\CentreNotification;
 
 /**
- * Performance review events, database + mail (mail when setting notifications.email_enabled):
- *
- * - to the employee: launched (self-assessment open), approved (please acknowledge),
- *   acknowledgement_reminder;
- * - to the reviewer's admin account(s): self_submitted (ready for the manager assessment),
- *   returned (calibration sent it back), launched_reviewer (reviews to assess, sent when
- *   self-assessment is off);
- * - to approvers: awaiting_approval.
- *
- * Admin recipients get the admin review page, employees the portal review page.
+ * Performance review events (templates "performance_*") to the employee, the reviewer and HR.
  */
-class PerformanceReviewNotification extends Notification implements ShouldQueue
+class PerformanceReviewNotification extends CentreNotification
 {
-    use Queueable;
-
     public const KINDS = ['launched', 'launched_reviewer', 'self_submitted', 'awaiting_approval', 'approved', 'returned', 'acknowledgement_reminder'];
 
     public function __construct(public readonly PerformanceReview $review, public readonly string $kind, public readonly ?string $reason = null) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    public function event(): string
     {
-        return setting('notifications.email_enabled') ? ['database', 'mail'] : ['database'];
+        return 'performance_'.$this->kind;
     }
 
-    public function toMail(User $notifiable): MailMessage
+    protected function actionLabelKey(): string
     {
-        $data = $this->toArray($notifiable);
-        $mail = (new MailMessage)->subject($data['title'])->line($data['message']);
-
-        if ($this->reason) {
-            $mail->line(__('performance.notifications.reason', ['reason' => $this->reason], $notifiable->locale));
-        }
-
-        return $mail->action(__('performance.notifications.open', [], $notifiable->locale), $data['url']);
+        return 'performance.notifications.open';
     }
 
     /**
-     * @return array{kind: string, performance_review_id: int, title: string, message: string, reason: ?string, url: string}
+     * @return array<string, scalar|null>
      */
-    public function toArray(object $notifiable): array
+    public function placeholders(object $notifiable, ?string $locale): array
     {
-        $locale = $notifiable instanceof User ? $notifiable->locale : null;
         $review = $this->review->loadMissing([
             'employee' => fn ($query) => $query->withoutGlobalScopes(),
             'cycle',
         ]);
-        $isAdmin = $notifiable instanceof User && $notifiable->isAdmin() && $notifiable->employee_id !== $review->employee_id;
+
+        return [
+            'employee' => $review->employee->localized('name', $locale),
+            'cycle' => $review->cycle->localized('name', $locale),
+            'reason' => $this->reason,
+        ];
+    }
+
+    /**
+     * @return array{kind: string, performance_review_id: int, reason: ?string, url: string}
+     */
+    public function payload(object $notifiable): array
+    {
+        $isAdmin = $notifiable instanceof User && $notifiable->isAdmin() && $notifiable->employee_id !== $this->review->employee_id;
 
         return [
             'kind' => 'performance_'.$this->kind,
-            'performance_review_id' => $review->id,
-            'title' => __('performance.notifications.'.$this->kind.'_title', [], $locale),
-            'message' => __('performance.notifications.'.$this->kind.'_message', [
-                'employee' => $review->employee->localized('name', $locale),
-                'cycle' => $review->cycle->localized('name', $locale),
-            ], $locale),
+            'performance_review_id' => $this->review->id,
             'reason' => $this->reason,
-            'url' => $isAdmin ? route('admin.performance-reviews.show', $review) : route('portal.performance.reviews.show', $review->id),
+            'url' => $isAdmin ? route('admin.performance-reviews.show', $this->review) : route('portal.performance.reviews.show', $this->review->id),
         ];
     }
 }

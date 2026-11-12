@@ -3,50 +3,41 @@
 namespace App\Notifications\Lifecycle;
 
 use App\Models\Onboarding;
-use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Notifications\CentreNotification;
 
 /**
- * To the new employee's own account: your onboarding checklist is ready.
+ * "Your onboarding checklist is ready" to the new employee (template "onboarding_started").
  */
-class OnboardingStarted extends Notification implements ShouldQueue
+class OnboardingStarted extends CentreNotification
 {
-    use Queueable;
-
     public function __construct(public readonly Onboarding $onboarding) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    public function event(): string
     {
-        return setting('notifications.email_enabled') ? ['database', 'mail'] : ['database'];
+        return 'onboarding_started';
     }
 
-    public function toMail(User $notifiable): MailMessage
+    protected function actionLabelKey(): string
     {
-        $data = $this->toArray($notifiable);
-
-        return (new MailMessage)->subject($data['title'])->line($data['message'])->action(__('onboarding.notifications.open'), $data['url']);
+        return 'onboarding.notifications.open';
     }
 
     /**
-     * @return array{kind: string, onboarding_id: int, title: string, message: string, url: string}
+     * @return array<string, scalar|null>
      */
-    public function toArray(object $notifiable): array
+    public function placeholders(object $notifiable, ?string $locale): array
     {
-        $locale = $notifiable instanceof User ? $notifiable->locale : null;
+        return ['count' => $this->onboarding->tasks()->where('assignee', 'employee')->count()];
+    }
 
+    /**
+     * @return array{kind: string, onboarding_id: int, url: string}
+     */
+    public function payload(object $notifiable): array
+    {
         return [
             'kind' => 'onboarding_started',
             'onboarding_id' => $this->onboarding->getKey(),
-            'title' => __('onboarding.notifications.started_title', [], $locale),
-            'message' => __('onboarding.notifications.started_message', [
-                'count' => $this->onboarding->tasks()->where('assignee', 'employee')->count(),
-            ], $locale),
             'url' => route('portal.onboarding'),
         ];
     }

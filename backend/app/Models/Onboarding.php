@@ -7,7 +7,9 @@ use App\Enums\TaskStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
 use App\Models\Scopes\DataScope;
+use Database\Factories\OnboardingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['employee_id', 'onboarding_template_id', 'job_application_id', 'start_date', 'status', 'created_by'])]
 class Onboarding extends Model
 {
-    use Auditable, HasDataScope;
+    /** @use HasFactory<OnboardingFactory> */
+    use Auditable, HasDataScope, HasFactory;
 
     /**
      * @return array<string, string>

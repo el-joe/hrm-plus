@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\PayComponentCategory;
 use App\Enums\PayComponentKind;
 use App\Enums\PayrollLineSource;
+use Database\Factories\PayrollItemLineFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -17,6 +19,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class PayrollItemLine extends Model
 {
+    /** @use HasFactory<PayrollItemLineFactory> */
+    use HasFactory;
+
     /** @var list<string> */
     protected $guarded = ['id'];
 

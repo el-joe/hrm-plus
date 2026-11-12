@@ -28,6 +28,13 @@ class LeaveReports
     /** @var Collection<int, LeaveType>|null */
     private ?Collection $types = null;
 
+    /**
+     * Balance summaries loaded by primeBalances(), keyed "year" => employee id => type id => figures.
+     *
+     * @var array<int, array<int, array<int, array{balance: string, pending: string, available: string, used: string}>>>
+     */
+    private array $primedBalances = [];
+
     public function __construct(private readonly LeaveBalanceCalculator $balances, private readonly LeaveYear $years) {}
 
     /**
@@ -194,9 +201,20 @@ class LeaveReports
     /**
      * @return array<string, string|int|null>
      */
+    /**
+     * Load the balances of a page / chunk of employees in one go (the balances report).
+     *
+     * @param  list<int>  $employeeIds
+     */
+    public function primeBalances(array $employeeIds, int $year): void
+    {
+        $this->primedBalances[$year] = $this->balances->summary($employeeIds, $this->balanceTypes()->modelKeys(), $year) + ($this->primedBalances[$year] ?? []);
+    }
+
     private function balanceRow(Employee $employee, int $year): array
     {
-        $summary = $this->balances->summary([$employee->id], $this->balanceTypes()->modelKeys(), $year)[$employee->id] ?? [];
+        $summary = $this->primedBalances[$year][$employee->id]
+            ?? $this->balances->summary([$employee->id], $this->balanceTypes()->modelKeys(), $year)[$employee->id] ?? [];
 
         return [
             'employee_number' => $employee->employee_number,

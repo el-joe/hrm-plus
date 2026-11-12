@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\AttendanceScope;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\DescribesAttendanceScope;
+use Database\Factories\AttendancePolicyAssignmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['attendance_policy_id', 'scope_type', 'scope_id', 'effective_from', 'effective_to', 'created_by'])]
 class AttendancePolicyAssignment extends Model
 {
-    use Auditable, DescribesAttendanceScope;
+    /** @use HasFactory<AttendancePolicyAssignmentFactory> */
+    use Auditable, DescribesAttendanceScope, HasFactory;
 
     /**
      * @return array<string, string>

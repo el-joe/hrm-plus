@@ -9,8 +9,10 @@ use App\Enums\InterviewType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
 use App\Models\Scopes\DataScope;
+use Database\Factories\InterviewFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -27,7 +29,8 @@ use Illuminate\Support\Carbon;
 ])]
 class Interview extends Model
 {
-    use Auditable, HasDataScope;
+    /** @use HasFactory<InterviewFactory> */
+    use Auditable, HasDataScope, HasFactory;
 
     /** @var list<string> */
     protected array $auditExclude = ['reminder_sent_at'];

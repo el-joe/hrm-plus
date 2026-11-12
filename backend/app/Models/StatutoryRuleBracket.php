@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\StatutoryRuleBracketFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['statutory_rule_version_id', 'lower_bound', 'upper_bound', 'rate', 'sort_order'])]
 class StatutoryRuleBracket extends Model
 {
+    /** @use HasFactory<StatutoryRuleBracketFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

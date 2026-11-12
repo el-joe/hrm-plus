@@ -6,7 +6,9 @@ use App\Enums\PayrollRunStatus;
 use App\Enums\PayrollRunType;
 use App\Models\Concerns\HasApprovals;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\PayrollRunFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,7 +29,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable(['reference', 'payroll_period_id', 'type', 'name', 'status', 'scope', 'scope_summary', 'branch_id', 'corrects_run_id', 'offboarding_case_id', 'currency', 'notes', 'created_by'])]
 class PayrollRun extends Model
 {
-    use HasApprovals, HasDataScope;
+    /** @use HasFactory<PayrollRunFactory> */
+    use HasApprovals, HasDataScope, HasFactory;
 
     public const WORKFLOW = 'payroll_run';
 

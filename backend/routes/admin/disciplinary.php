@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::resource('violation-types', Disciplinary\ViolationTypeController::class)->except('show');
 Route::patch('violation-types/{violation_type}/status', [Disciplinary\ViolationTypeController::class, 'status'])->name('violation-types.status');
 
-Route::get('disciplinary-cases/export', [Disciplinary\DisciplinaryCaseController::class, 'export'])->name('disciplinary-cases.export');
+Route::get('disciplinary-cases/export', [Disciplinary\DisciplinaryCaseController::class, 'export'])->middleware('throttle:exports')->name('disciplinary-cases.export');
 Route::resource('disciplinary-cases', Disciplinary\DisciplinaryCaseController::class)->only(['index', 'create', 'store', 'show']);
 Route::prefix('disciplinary-cases/{disciplinary_case}')->name('disciplinary-cases.')->group(function (): void {
     Route::post('investigate', [Disciplinary\DisciplinaryCaseController::class, 'investigate'])->name('investigate');

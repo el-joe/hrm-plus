@@ -7,7 +7,9 @@ use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
 use App\Models\Contracts\GuardsDeletion;
+use Database\Factories\AttendanceStatusFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['code', 'name_ar', 'name_en', 'category', 'counts_as_worked', 'is_paid', 'sort_order', 'is_active'])]
 class AttendanceStatus extends Model implements GuardsDeletion
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<AttendanceStatusFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     public const ABSENT = 'absent';
 

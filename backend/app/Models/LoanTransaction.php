@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\LoanTransactionType;
+use Database\Factories\LoanTransactionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['employee_loan_id', 'loan_instalment_id', 'type', 'amount', 'balance_after', 'occurred_on', 'reference', 'note', 'created_by'])]
 class LoanTransaction extends Model
 {
+    /** @use HasFactory<LoanTransactionFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

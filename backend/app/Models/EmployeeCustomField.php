@@ -7,7 +7,9 @@ use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
 use App\Models\Contracts\GuardsDeletion;
+use Database\Factories\EmployeeCustomFieldFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['code', 'name_ar', 'name_en', 'type', 'is_required', 'visible_to_employee', 'sort_order', 'is_active'])]
 class EmployeeCustomField extends Model implements GuardsDeletion
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<EmployeeCustomFieldFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     /**
      * Get the attributes that should be cast.

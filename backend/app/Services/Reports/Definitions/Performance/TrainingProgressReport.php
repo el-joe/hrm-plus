@@ -30,6 +30,11 @@ class TrainingProgressReport extends Report
         return 'performance';
     }
 
+    public function areaPermissions(): array
+    {
+        return ['training.view'];
+    }
+
     public function defaults(): array
     {
         return ['from' => now()->startOfYear()->format('Y-m-d'), 'to' => now()->endOfYear()->format('Y-m-d')];

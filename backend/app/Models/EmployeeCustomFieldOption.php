@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\EmployeeCustomFieldOptionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['custom_field_id', 'value', 'label_ar', 'label_en', 'sort_order'])]
 class EmployeeCustomFieldOption extends Model
 {
+    /** @use HasFactory<EmployeeCustomFieldOptionFactory> */
+    use HasFactory;
+
     public $timestamps = false;
 
     public function label(): string

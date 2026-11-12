@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Training\TrainingCertificateRequest;
 use App\Models\Employee;
 use App\Models\TrainingCertificate;
 use App\Models\TrainingCourse;
+use App\Services\Employees\SensitiveDataAccessLog;
 use App\Services\Employees\Spreadsheet;
 use App\Services\Training\TrainingFileStore;
 use App\Support\IndexSorting;
@@ -94,9 +95,11 @@ class TrainingCertificateController extends Controller
         return redirect()->route('admin.training-certificates.index')->with('status', __('training.certificates.deleted', ['name' => $trainingCertificate->name]));
     }
 
-    public function download(TrainingCertificate $trainingCertificate, TrainingFileStore $files): StreamedResponse
+    public function download(Request $request, TrainingCertificate $trainingCertificate, TrainingFileStore $files, SensitiveDataAccessLog $log): StreamedResponse
     {
         Gate::authorize('view', $trainingCertificate);
+
+        $log->record(SensitiveDataAccessLog::DOCUMENT, $trainingCertificate, ['file'], ['employee_id' => $trainingCertificate->employee_id], $request->user());
 
         return $files->response($trainingCertificate);
     }

@@ -33,7 +33,7 @@ class AttendanceImportController extends Controller
 
     public function analyse(Request $request, AttendanceImporter $importer): View
     {
-        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,csv,txt', 'max:'.(int) setting('documents.max_upload_size_kb')]]);
+        $request->validate(['file' => ['required', 'file', 'extensions:xlsx,csv', 'mimes:xlsx,csv,txt', 'max:'.(int) setting('documents.max_upload_size_kb')]]);
 
         $token = $importer->stash($request->file('file'), $request->user());
         $file = $importer->stashed($token, $request->user());

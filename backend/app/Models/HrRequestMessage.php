@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\HrRequestMessageType;
 use App\Models\Concerns\Auditable;
+use Database\Factories\HrRequestMessageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,7 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['hr_request_id', 'type', 'body', 'author_id', 'from_employee'])]
 class HrRequestMessage extends Model
 {
-    use Auditable;
+    /** @use HasFactory<HrRequestMessageFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @var list<string>

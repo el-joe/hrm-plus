@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\HrRequestEventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['hr_request_id', 'type', 'from_value', 'to_value', 'note', 'visible_to_employee', 'actor_id', 'created_at'])]
 class HrRequestEvent extends Model
 {
+    /** @use HasFactory<HrRequestEventFactory> */
+    use HasFactory;
+
     public const UPDATED_AT = null;
 
     /**

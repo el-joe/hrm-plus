@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\BreakType;
+use Database\Factories\ShiftBreakFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['name', 'type', 'start_time', 'end_time', 'duration_minutes', 'is_paid', 'sort_order'])]
 class ShiftBreak extends Model
 {
+    /** @use HasFactory<ShiftBreakFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

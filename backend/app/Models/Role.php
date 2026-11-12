@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditable;
+use Database\Factories\RoleFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Lang;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    use Auditable;
+    /** @use HasFactory<RoleFactory> */
+    use Auditable, HasFactory;
 
     /**
      * Get the attributes that should be cast.

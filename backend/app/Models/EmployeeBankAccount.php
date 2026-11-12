@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Models\Concerns\Auditable;
 use App\Support\SensitiveValue;
+use Database\Factories\EmployeeBankAccountFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Hidden(['account_number', 'iban', 'iban_hash'])]
 class EmployeeBankAccount extends Model
 {
-    use Auditable;
+    /** @use HasFactory<EmployeeBankAccountFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @var list<string>

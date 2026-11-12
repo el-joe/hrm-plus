@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\StageCategory;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasLocalizedName;
+use Database\Factories\RecruitmentStageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['vacancy_id', 'code', 'name_ar', 'name_en', 'category', 'sort_order', 'notify_candidate', 'is_active'])]
 class RecruitmentStage extends Model
 {
-    use Auditable, HasLocalizedName;
+    /** @use HasFactory<RecruitmentStageFactory> */
+    use Auditable, HasFactory, HasLocalizedName;
 
     /**
      * @return array<string, string>

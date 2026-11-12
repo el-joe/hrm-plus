@@ -32,11 +32,13 @@ class ComponentCalculator
      *
      * @param  list<ComponentRule>  $rules
      * @param  array<string, string>  $known  amounts already known by code (e.g. structure results for entries based on them)
+     * @param  bool  $round  false: unrounded amounts (SCALE decimals) for the caller to sum over salary segments and
+     *                       round once with finalise()
      * @return array<string, string>
      *
      * @throws PayrollConfigurationException on a percentage cycle or a missing base
      */
-    public function evaluate(array $rules, CalculationContext $context, array $known = []): array
+    public function evaluate(array $rules, CalculationContext $context, array $known = [], bool $round = true): array
     {
         $pending = $rules;
         $results = $known;
@@ -53,10 +55,10 @@ class ComponentCalculator
                     continue;
                 }
 
-                $amount = $this->amount($rule, $context, $results);
+                $amount = $this->amount($rule, $context, $results, $round);
 
                 if ($amount !== null) {
-                    $computed[$rule->code] = isset($computed[$rule->code]) ? bcadd($computed[$rule->code], $amount, $rule->precision) : $amount;
+                    $computed[$rule->code] = isset($computed[$rule->code]) ? bcadd($computed[$rule->code], $amount, $round ? $rule->precision : PayrollMath::SCALE) : $amount;
                     $results[$rule->code] = $computed[$rule->code];
                 }
 
@@ -90,9 +92,12 @@ class ComponentCalculator
 
             if ($entry->rule->prorate && ($entry->activeFrom !== $periodStart || $entry->activeTo !== $periodEnd)) {
                 $share = $proration->factor($periodStart, $periodEnd, $entry->activeFrom, $entry->activeTo);
+                [$activeDays, $periodDays] = $proration->fraction($periodStart, $periodEnd, $entry->activeFrom, $entry->activeTo);
                 $entryContext = new CalculationContext(
                     $context->basic, $context->dayRate, $context->hourRate, $context->minuteRate,
                     PayrollMath::mul($context->prorationFactor, $share), $context->quantities, $context->overtime,
+                    $context->prorationNumerator === null ? null : bcmul($context->prorationNumerator, (string) $activeDays),
+                    $context->prorationDenominator === null ? null : bcmul($context->prorationDenominator, (string) $periodDays),
                 );
             }
 
@@ -111,7 +116,7 @@ class ComponentCalculator
      *
      * @throws PayrollConfigurationException when a percentage base is unknown
      */
-    public function amount(ComponentRule $rule, CalculationContext $context, array $results = []): ?string
+    public function amount(ComponentRule $rule, CalculationContext $context, array $results = [], bool $round = true): ?string
     {
         $raw = match ($rule->calculationType) {
             PayCalculationType::Basic => $context->basic,
@@ -127,6 +132,14 @@ class ComponentCalculator
             return null;
         }
 
+        return $round ? $this->finalise($rule, $raw) : $raw;
+    }
+
+    /**
+     * Round an unrounded amount to the rule's precision and mode (never below zero): the one rounding of a line.
+     */
+    public function finalise(ComponentRule $rule, string $raw): string
+    {
         $rounded = PayrollMath::round($raw, $rule->precision, $rule->rounding);
 
         return bccomp($rounded, '0', $rule->precision) < 0 ? bcadd('0', '0', $rule->precision) : $rounded;
@@ -134,7 +147,7 @@ class ComponentCalculator
 
     private function prorated(string $amount, ComponentRule $rule, CalculationContext $context): string
     {
-        return $rule->prorate ? PayrollMath::mul($amount, $context->prorationFactor) : $amount;
+        return $rule->prorate ? $context->prorate($amount) : $amount;
     }
 
     /**

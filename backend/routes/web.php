@@ -98,7 +98,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         // sensitive / financial / document permissions) live in EmployeePolicy
         // and the Form Requests; nested records are scoped to their employee.
         Route::prefix('employees')->name('employees.')->group(function (): void {
-            Route::get('export', Employees\EmployeeExportController::class)->name('export');
+            Route::get('export', Employees\EmployeeExportController::class)->middleware('throttle:exports')->name('export');
             Route::get('import', [Employees\EmployeeImportController::class, 'create'])->name('import');
             Route::get('import/template', [Employees\EmployeeImportController::class, 'template'])->name('import.template');
             Route::post('import', [Employees\EmployeeImportController::class, 'analyse'])->name('import.analyse');

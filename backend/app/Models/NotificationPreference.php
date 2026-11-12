@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\NotificationPreferenceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'event', 'channel', 'enabled'])]
 class NotificationPreference extends Model
 {
+    /** @use HasFactory<NotificationPreferenceFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

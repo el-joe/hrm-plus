@@ -156,7 +156,10 @@ return [
         // dashboard widgets of every module (aggregates, inside the data scope); salary columns and payroll
         // reports also need employee_financials.view, disciplinary ones disciplinary.view (both logged).
         // reports.export: Excel / CSV / PDF exports and queued exports (My exports).
-        'reports' => ['view', 'export'],
+        // Reports (Phase 8c / 11). reports.view opens the report centre; each area also needs its
+        // module's view permission (App\Services\Reports\ReportRegistry::AREA_PERMISSIONS) unless the
+        // admin holds reports.manage: every report area (the Reports Viewer role).
+        'reports' => ['view', 'export', 'manage'],
         // Phase 8b. Everyone has their own notification centre and preferences (no permission).
         // notifications.view: notification templates (read) and the delivery log; manage: edit / reset
         // templates and retry failed deliveries. Mail / push configuration is settings.manage.
@@ -310,7 +313,7 @@ return [
         ],
         'Reports Viewer' => [
             'description' => 'Read-only access to the dashboard and reports (no salary or disciplinary columns).',
-            'permissions' => ['dashboard.view', 'reports.view', 'reports.export'],
+            'permissions' => ['dashboard.view', 'reports.view', 'reports.export', 'reports.manage'],
         ],
     ],
 

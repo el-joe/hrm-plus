@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureCareerPageEnabled;
 use App\Http\Middleware\EnsureEmployeeApiAccount;
 use App\Http\Middleware\EnsurePortalAccess;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'careers' => EnsureCareerPageEnabled::class,
         ]);
 
+        $middleware->append(SecurityHeaders::class);
         $middleware->web(append: [SetLocale::class]);
         $middleware->api(prepend: [ForceJsonResponse::class], append: [SetLocale::class]);
 

@@ -48,6 +48,15 @@ abstract class Report
      */
     abstract public function row(mixed $record, array $filters): array;
 
+    /**
+     * Called with each batch of records (a screen page, an export chunk) before row() maps them,
+     * so a report can load what its rows need in one query instead of one per row.
+     *
+     * @param  Collection<int, mixed>  $records
+     * @param  array<string, mixed>  $filters
+     */
+    public function prepareRows(Collection $records, array $filters): void {}
+
     public function title(): string
     {
         return __('reports.items.'.$this->key().'.title');
@@ -59,7 +68,7 @@ abstract class Report
     }
 
     /**
-     * Permissions required besides reports.view (all of them).
+     * Permissions required besides reports.view and the area permission (all of them).
      *
      * @return list<string>
      */
@@ -68,9 +77,23 @@ abstract class Report
         return [];
     }
 
+    /**
+     * Module permissions that open this report (any one of them) unless the admin holds reports.manage.
+     *
+     * @return list<string>
+     */
+    public function areaPermissions(): array
+    {
+        return ReportRegistry::AREA_PERMISSIONS[$this->area()] ?? [];
+    }
+
     public function isAvailableTo(User $user): bool
     {
         if (! $user->isAdmin() || ! $user->can('reports.view')) {
+            return false;
+        }
+
+        if (! $user->can('reports.manage') && ! $user->canAny($this->areaPermissions())) {
             return false;
         }
 

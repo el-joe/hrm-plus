@@ -10,7 +10,8 @@ use App\Models\User;
  * figures of Phase 2). Each widget:
  *
  *   any       the admin needs ONE of these permissions (the source module's view permission, or
- *             reports.view: the dashboard shows aggregates the reports centre already offers);
+ *             reports.manage: every report area — the aggregates the reports centre already offers;
+ *             Phase 11: plain reports.view no longer shows other modules' figures);
  *   requires  permissions needed on top (money → employee_financials.view);
  *   scope     how the data scope applies (documentation; enforced by the scoped models / queries);
  *   filters   which dashboard filters it honours (date range, branch, department, employee group);
@@ -29,28 +30,28 @@ class WidgetRegistry
      */
     public const WIDGETS = [
         // Module 1 (spec order).
-        'total_employees' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'users', 'method' => 'totalEmployees'],
-        'active_employees' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'check-circle', 'method' => 'activeEmployees'],
-        'inactive_employees' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'minus-circle', 'method' => 'inactiveEmployees'],
-        'employees_on_leave' => ['any' => ['leaves.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'calendar', 'method' => 'employeesOnLeave'],
-        'absent_today' => ['any' => ['attendance.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'x-circle', 'method' => 'absentToday'],
-        'present_now' => ['any' => ['attendance.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'log-in', 'method' => 'presentNow'],
-        'late_arrivals' => ['any' => ['attendance.view', 'reports.view'], 'scope' => 'attendance day (branch / department snapshot)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'clock', 'method' => 'lateArrivals'],
-        'pending_leave_requests' => ['any' => ['leaves.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'inbox', 'method' => 'pendingLeaveRequests'],
-        'pending_hr_requests' => ['any' => ['hr_requests.view', 'reports.view'], 'scope' => 'employee + HrRequestVisibility', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'message-square', 'method' => 'pendingHrRequests'],
-        'new_candidates' => ['any' => ['recruitment.view', 'reports.view'], 'scope' => 'vacancy', 'filters' => ['date', 'branch', 'department'], 'size' => 'sm', 'icon' => 'user-plus', 'method' => 'newCandidates'],
-        'open_vacancies' => ['any' => ['recruitment.view', 'reports.view'], 'scope' => 'vacancy', 'filters' => ['branch', 'department'], 'size' => 'sm', 'icon' => 'briefcase', 'method' => 'openVacancies'],
-        'contract_expirations' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'file-text', 'method' => 'contractExpirations'],
-        'upcoming_birthdays' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'award', 'method' => 'upcomingBirthdays'],
-        'upcoming_anniversaries' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'history', 'method' => 'upcomingAnniversaries'],
-        'payroll_summary' => ['any' => ['payroll.view', 'reports.view'], 'requires' => ['employee_financials.view'], 'scope' => 'payroll item (period-end placement)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'md', 'icon' => 'coins', 'method' => 'payrollSummary'],
-        'monthly_salary_expenses' => ['any' => ['payroll.view', 'reports.view'], 'requires' => ['employee_financials.view'], 'scope' => 'payroll item (period-end placement)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'md', 'icon' => 'bar-chart', 'method' => 'monthlySalaryExpenses'],
-        'branch_comparison' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['date', 'department', 'group'], 'size' => 'md', 'icon' => 'building', 'method' => 'branchComparison'],
-        'department_comparison' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['date', 'branch', 'group'], 'size' => 'md', 'icon' => 'sitemap', 'method' => 'departmentComparison'],
-        'recruitment_statistics' => ['any' => ['recruitment.view', 'reports.view'], 'scope' => 'vacancy', 'filters' => ['date', 'branch', 'department'], 'size' => 'md', 'icon' => 'briefcase', 'method' => 'recruitmentStatistics'],
-        'attendance_trends' => ['any' => ['attendance.view', 'reports.view'], 'scope' => 'attendance day (branch / department snapshot)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'lg', 'icon' => 'trend-up', 'method' => 'attendanceTrends'],
-        'employee_turnover' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'md', 'icon' => 'refresh', 'method' => 'employeeTurnover'],
-        'employee_distribution' => ['any' => ['employees.view', 'reports.view'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'layout-grid', 'method' => 'employeeDistribution'],
+        'total_employees' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'users', 'method' => 'totalEmployees'],
+        'active_employees' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'check-circle', 'method' => 'activeEmployees'],
+        'inactive_employees' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'minus-circle', 'method' => 'inactiveEmployees'],
+        'employees_on_leave' => ['any' => ['leaves.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'calendar', 'method' => 'employeesOnLeave'],
+        'absent_today' => ['any' => ['attendance.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'x-circle', 'method' => 'absentToday'],
+        'present_now' => ['any' => ['attendance.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'log-in', 'method' => 'presentNow'],
+        'late_arrivals' => ['any' => ['attendance.view', 'reports.manage'], 'scope' => 'attendance day (branch / department snapshot)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'clock', 'method' => 'lateArrivals'],
+        'pending_leave_requests' => ['any' => ['leaves.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'inbox', 'method' => 'pendingLeaveRequests'],
+        'pending_hr_requests' => ['any' => ['hr_requests.view', 'reports.manage'], 'scope' => 'employee + HrRequestVisibility', 'filters' => ['branch', 'department', 'group'], 'size' => 'sm', 'icon' => 'message-square', 'method' => 'pendingHrRequests'],
+        'new_candidates' => ['any' => ['recruitment.view', 'reports.manage'], 'scope' => 'vacancy', 'filters' => ['date', 'branch', 'department'], 'size' => 'sm', 'icon' => 'user-plus', 'method' => 'newCandidates'],
+        'open_vacancies' => ['any' => ['recruitment.view', 'reports.manage'], 'scope' => 'vacancy', 'filters' => ['branch', 'department'], 'size' => 'sm', 'icon' => 'briefcase', 'method' => 'openVacancies'],
+        'contract_expirations' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'file-text', 'method' => 'contractExpirations'],
+        'upcoming_birthdays' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'award', 'method' => 'upcomingBirthdays'],
+        'upcoming_anniversaries' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'history', 'method' => 'upcomingAnniversaries'],
+        'payroll_summary' => ['any' => ['payroll.view', 'reports.manage'], 'requires' => ['employee_financials.view'], 'scope' => 'payroll item (period-end placement)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'md', 'icon' => 'coins', 'method' => 'payrollSummary'],
+        'monthly_salary_expenses' => ['any' => ['payroll.view', 'reports.manage'], 'requires' => ['employee_financials.view'], 'scope' => 'payroll item (period-end placement)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'md', 'icon' => 'bar-chart', 'method' => 'monthlySalaryExpenses'],
+        'branch_comparison' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['date', 'department', 'group'], 'size' => 'md', 'icon' => 'building', 'method' => 'branchComparison'],
+        'department_comparison' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['date', 'branch', 'group'], 'size' => 'md', 'icon' => 'sitemap', 'method' => 'departmentComparison'],
+        'recruitment_statistics' => ['any' => ['recruitment.view', 'reports.manage'], 'scope' => 'vacancy', 'filters' => ['date', 'branch', 'department'], 'size' => 'md', 'icon' => 'briefcase', 'method' => 'recruitmentStatistics'],
+        'attendance_trends' => ['any' => ['attendance.view', 'reports.manage'], 'scope' => 'attendance day (branch / department snapshot)', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'lg', 'icon' => 'trend-up', 'method' => 'attendanceTrends'],
+        'employee_turnover' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['date', 'branch', 'department', 'group'], 'size' => 'md', 'icon' => 'refresh', 'method' => 'employeeTurnover'],
+        'employee_distribution' => ['any' => ['employees.view', 'reports.manage'], 'scope' => 'employee', 'filters' => ['branch', 'department', 'group'], 'size' => 'md', 'icon' => 'layout-grid', 'method' => 'employeeDistribution'],
 
         // System figures (Phase 2, kept).
         'payroll_pending' => ['system' => true, 'any' => ['payroll.view'], 'scope' => 'payroll run', 'filters' => [], 'size' => 'sm', 'icon' => 'coins', 'method' => 'payrollPending'],

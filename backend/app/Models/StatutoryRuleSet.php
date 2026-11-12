@@ -8,7 +8,9 @@ use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
 use App\Models\Contracts\GuardsDeletion;
 use Carbon\CarbonInterface;
+use Database\Factories\StatutoryRuleSetFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -20,7 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['code', 'name_ar', 'name_en', 'country_code', 'type', 'is_demo', 'description', 'is_active'])]
 class StatutoryRuleSet extends Model implements GuardsDeletion
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<StatutoryRuleSetFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     /**
      * @return array<string, string>

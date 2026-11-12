@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\ReportExportStatus;
+use Database\Factories\ReportExportFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,6 +18,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'report', 'format', 'locale', 'filters', 'status', 'rows', 'file_path', 'file_name', 'error', 'started_at', 'completed_at', 'expires_at'])]
 class ReportExport extends Model
 {
+    /** @use HasFactory<ReportExportFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

@@ -41,10 +41,10 @@ class ScheduleResolver
     /** @var Collection<int, ScheduleAssignment>|null */
     private ?Collection $assignments = null;
 
-    /** @var array<int, WorkSchedule> */
+    /** @var array<int, ?WorkSchedule> */
     private array $schedules = [];
 
-    /** @var array<int, Shift> */
+    /** @var array<int, ?Shift> */
     private array $shifts = [];
 
     /** @var array<int, list<int>> */
@@ -128,12 +128,16 @@ class ScheduleResolver
     }
 
     /**
-     * Load the overrides of many employees at once (calendar pages).
+     * Load what resolving many employees needs in a handful of queries (calendar pages, the bulk
+     * screen, dashboards): their overrides in the range, group memberships and placement history.
      *
      * @param  list<int>  $employeeIds
      */
     public function preloadOverrides(array $employeeIds, CarbonImmutable $from, CarbonImmutable $to): void
     {
+        $this->timeline->preload($employeeIds);
+        $this->preloadGroups($employeeIds);
+
         $rows = ScheduleOverride::query()->withoutGlobalScopes()
             ->whereIn('employee_id', $employeeIds)
             ->whereBetween('work_date', [$from->format('Y-m-d'), $to->format('Y-m-d')])
@@ -259,14 +263,61 @@ class ScheduleResolver
             ->get();
     }
 
+    /**
+     * Schedules and shifts are small reference tables: the first lookup loads every assigned
+     * schedule (with its days) / every shift (with its breaks) in one query each.
+     */
     private function schedule(int $id): ?WorkSchedule
     {
-        return $this->schedules[$id] ??= WorkSchedule::query()->with('days')->find($id);
+        if (! array_key_exists($id, $this->schedules)) {
+            $ids = $this->assignments()->pluck('work_schedule_id')->push($id)->unique()->diff(array_keys($this->schedules))->values()->all();
+            $loaded = WorkSchedule::query()->with('days')->whereKey($ids)->get()->keyBy('id');
+
+            foreach ($ids as $scheduleId) {
+                $this->schedules[$scheduleId] = $loaded->get($scheduleId);
+            }
+        }
+
+        return $this->schedules[$id];
     }
 
     private function shift(int $id): ?Shift
     {
-        return $this->shifts[$id] ??= Shift::query()->with('breaks')->find($id);
+        if (! array_key_exists($id, $this->shifts)) {
+            foreach (Shift::query()->with('breaks')->get() as $shift) {
+                $this->shifts[$shift->id] ??= $shift;
+            }
+
+            $this->shifts[$id] ??= null;
+        }
+
+        return $this->shifts[$id];
+    }
+
+    /**
+     * @param  list<int>  $employeeIds
+     */
+    private function preloadGroups(array $employeeIds): void
+    {
+        $missing = array_values(array_diff($employeeIds, array_keys($this->groups)));
+
+        if ($missing === []) {
+            return;
+        }
+
+        $memberships = DB::table('employee_group_members')
+            ->join('employee_groups', 'employee_groups.id', '=', 'employee_group_members.employee_group_id')
+            ->whereIn('employee_group_members.employee_id', $missing)
+            ->where('employee_groups.is_active', true)
+            ->get(['employee_group_members.employee_id', 'employee_group_members.employee_group_id']);
+
+        foreach ($missing as $employeeId) {
+            $this->groups[$employeeId] = [];
+        }
+
+        foreach ($memberships as $membership) {
+            $this->groups[(int) $membership->employee_id][] = (int) $membership->employee_group_id;
+        }
     }
 
     /**

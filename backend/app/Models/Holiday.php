@@ -6,8 +6,10 @@ use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
 use Carbon\CarbonInterface;
+use Database\Factories\HolidayFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['name_ar', 'name_en', 'start_date', 'end_date', 'is_recurring', 'is_paid', 'branch_id', 'description', 'is_active'])]
 class Holiday extends Model
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<HolidayFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     /**
      * @return array<string, string>

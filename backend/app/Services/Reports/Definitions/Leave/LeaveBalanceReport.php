@@ -3,8 +3,10 @@
 namespace App\Services\Reports\Definitions\Leave;
 
 use App\Services\Attendance\BulkAttendance;
+use App\Services\Leave\LeaveReports;
 use App\Services\Leave\LeaveYear;
 use App\Services\Reports\ReportFilters;
+use Illuminate\Support\Collection;
 
 /**
  * Reuses the Phase 6 "balances" report: available balance per leave type for a leave year.
@@ -19,6 +21,16 @@ class LeaveBalanceReport extends LegacyLeaveReport
     protected function legacyKey(): string
     {
         return 'balances';
+    }
+
+    public function areaPermissions(): array
+    {
+        return ['leaves.view', 'leave_balances.view'];
+    }
+
+    public function prepareRows(Collection $records, array $filters): void
+    {
+        app(LeaveReports::class)->primeBalances($records->pluck('id')->map(fn ($id): int => (int) $id)->all(), (int) $filters['year']);
     }
 
     public function filters(): array

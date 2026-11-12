@@ -4,14 +4,17 @@ namespace App\Models;
 
 use App\Enums\CustomFieldType;
 use App\Models\Concerns\Auditable;
+use Database\Factories\EmployeeCustomFieldValueFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['employee_id', 'custom_field_id', 'value_text', 'value_number', 'value_date', 'value_boolean'])]
 class EmployeeCustomFieldValue extends Model
 {
-    use Auditable;
+    /** @use HasFactory<EmployeeCustomFieldValueFactory> */
+    use Auditable, HasFactory;
 
     /**
      * Get the attributes that should be cast.

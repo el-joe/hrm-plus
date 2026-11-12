@@ -26,6 +26,24 @@ class ReportRegistry
     public const AREAS = ['employees', 'attendance', 'leave', 'payroll', 'recruitment', 'performance', 'requests', 'assets', 'disciplinary'];
 
     /**
+     * Module view permissions that open each report area (any one of them), besides reports.view.
+     * reports.manage opens every area (Phase 11: a Recruiter sees recruitment reports only).
+     *
+     * @var array<string, list<string>>
+     */
+    public const AREA_PERMISSIONS = [
+        'employees' => ['employees.view'],
+        'attendance' => ['attendance.view'],
+        'leave' => ['leaves.view'],
+        'payroll' => ['payroll.view', 'payslips.view', 'loans.view', 'allowances.view', 'deductions.view'],
+        'recruitment' => ['recruitment.view'],
+        'performance' => ['performance.view'],
+        'requests' => ['hr_requests.view'],
+        'assets' => ['assets.view'],
+        'disciplinary' => ['disciplinary.view'],
+    ];
+
+    /**
      * Spec module 16 "Required Reports" → report key.
      *
      * @var array<string, list<string>>

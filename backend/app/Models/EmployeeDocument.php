@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\DocumentCategory;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\EmployeeDocumentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,7 +25,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class EmployeeDocument extends Model
 {
-    use Auditable, HasDataScope, SoftDeletes;
+    /** @use HasFactory<EmployeeDocumentFactory> */
+    use Auditable, HasDataScope, HasFactory, SoftDeletes;
 
     /**
      * @var list<string>

@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\HrRequestFieldType;
+use Database\Factories\HrRequestCategoryFieldFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['hr_request_category_id', 'key', 'label_ar', 'label_en', 'type', 'options', 'is_required', 'sort_order'])]
 class HrRequestCategoryField extends Model
 {
+    /** @use HasFactory<HrRequestCategoryFieldFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

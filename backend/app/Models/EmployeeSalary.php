@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\PayBasis;
 use App\Enums\SalaryChangeType;
 use App\Models\Concerns\Auditable;
+use Database\Factories\EmployeeSalaryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['employee_id', 'change_type', 'effective_date', 'basic_salary', 'pay_basis', 'previous_salary', 'currency', 'reason', 'applied_at', 'cancelled_at', 'created_by'])]
 class EmployeeSalary extends Model
 {
-    use Auditable;
+    /** @use HasFactory<EmployeeSalaryFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @var list<string>

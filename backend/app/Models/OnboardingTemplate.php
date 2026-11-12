@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
+use Database\Factories\OnboardingTemplateFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['name_ar', 'name_en', 'description', 'department_id', 'position_id', 'employment_type_id', 'is_active'])]
 class OnboardingTemplate extends Model
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<OnboardingTemplateFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     protected function hasCodeColumn(): bool
     {

@@ -17,6 +17,7 @@ use App\Models\PayEntryAttachment;
 use App\Models\SalaryComponent;
 use App\Policies\PayEntryPolicy;
 use App\Services\Authorization\DataScopeManager;
+use App\Services\Employees\SensitiveDataAccessLog;
 use App\Services\Employees\Spreadsheet;
 use App\Services\Payroll\PayEntryImporter;
 use App\Services\Payroll\PayrollFileStore;
@@ -172,18 +173,19 @@ abstract class PayEntryController extends Controller
 
         $data = $request->validate([
             'attachments' => ['required', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:'.(int) setting('documents.max_upload_size_kb'), 'mimes:'.implode(',', (array) setting('documents.allowed_extensions'))],
+            'attachments.*' => ['file', 'max:'.(int) setting('documents.max_upload_size_kb'), 'mimes:'.implode(',', (array) setting('documents.allowed_extensions')), 'extensions:'.implode(',', (array) setting('documents.allowed_extensions'))],
         ]);
         $entries->addAttachments($payEntry, array_values($data['attachments']), $request->user());
 
         return back()->with('status', __('payroll.entries.attachments_added'));
     }
 
-    public function attachment(PayEntry $payEntry, PayEntryAttachment $attachment, PayrollFileStore $files): StreamedResponse
+    public function attachment(Request $request, PayEntry $payEntry, PayEntryAttachment $attachment, PayrollFileStore $files, SensitiveDataAccessLog $log): StreamedResponse
     {
         $this->ensureKind($payEntry);
         Gate::authorize('view', $payEntry);
         abort_unless($attachment->pay_entry_id === $payEntry->id, 404);
+        $log->record(SensitiveDataAccessLog::DOCUMENT, $payEntry, ['attachment'], ['employee_id' => $payEntry->employee_id, 'attachment' => $attachment->getKey()], $request->user());
 
         return $files->response($attachment->file_path, $attachment->file_name, $attachment->file_mime);
     }
@@ -209,7 +211,7 @@ abstract class PayEntryController extends Controller
     {
         Gate::authorize('create', [PayEntry::class, $this->kind()]);
 
-        $request->validate(['file' => ['required', 'file', 'max:5120', 'mimes:xlsx,csv,txt']]);
+        $request->validate(['file' => ['required', 'file', 'max:5120', 'extensions:xlsx,csv', 'mimes:xlsx,csv,txt']]);
         $token = $importer->stash($request->file('file'), $request->user());
         $file = $importer->stashed($token, $request->user());
 

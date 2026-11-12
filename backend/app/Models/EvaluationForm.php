@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
+use Database\Factories\EvaluationFormFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -15,7 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['name_ar', 'name_en', 'description', 'is_active'])]
 class EvaluationForm extends Model
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<EvaluationFormFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     /**
      * @return array<string, string>

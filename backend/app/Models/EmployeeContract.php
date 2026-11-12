@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\ContractType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\EmployeeContractFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -22,7 +24,8 @@ use Illuminate\Support\Carbon;
 ])]
 class EmployeeContract extends Model
 {
-    use Auditable, HasDataScope;
+    /** @use HasFactory<EmployeeContractFactory> */
+    use Auditable, HasDataScope, HasFactory;
 
     /**
      * @var list<string>

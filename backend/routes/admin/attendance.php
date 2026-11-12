@@ -17,7 +17,7 @@ Route::prefix('attendance')->name('attendance.')->group(function (): void {
     Route::get('calendar', Attendance\AttendanceCalendarController::class)->can('attendance.view')->name('calendar');
     Route::get('reports', [Attendance\AttendanceReportController::class, 'index'])->name('reports.index');
     Route::get('reports/{report}', [Attendance\AttendanceReportController::class, 'show'])->where('report', '[a-z_]+')->name('reports.show');
-    Route::get('reports/{report}/export', [Attendance\AttendanceReportController::class, 'export'])->where('report', '[a-z_]+')->name('reports.export');
+    Route::get('reports/{report}/export', [Attendance\AttendanceReportController::class, 'export'])->where('report', '[a-z_]+')->middleware('throttle:exports')->name('reports.export');
 
     // Phase 5b: raw event review (devices, mobile, manual), mobile review queue, work locations, face register.
     Route::get('events', [Attendance\RawEventController::class, 'index'])->can('attendance.view')->name('events.index');
@@ -33,9 +33,9 @@ Route::prefix('attendance')->name('attendance.')->group(function (): void {
     Route::delete('face-enrolments/{enrolment}', [Attendance\FaceEnrolmentController::class, 'destroy'])->whereNumber('enrolment')->name('face.destroy');
 
     Route::get('/', [Attendance\DailyAttendanceController::class, 'index'])->can('attendance.view')->name('daily');
-    Route::get('export', [Attendance\DailyAttendanceController::class, 'export'])->can('attendance.export')->name('daily.export');
+    Route::get('export', [Attendance\DailyAttendanceController::class, 'export'])->can('attendance.export')->middleware('throttle:exports')->name('daily.export');
     Route::get('timesheet', [Attendance\TimesheetController::class, 'index'])->can('attendance.view')->name('timesheet');
-    Route::get('timesheet/export', [Attendance\TimesheetController::class, 'export'])->can('attendance.export')->name('timesheet.export');
+    Route::get('timesheet/export', [Attendance\TimesheetController::class, 'export'])->can('attendance.export')->middleware('throttle:exports')->name('timesheet.export');
 
     Route::get('days/{day}', [Attendance\AttendanceDayController::class, 'show'])->whereNumber('day')->name('days.show');
     Route::post('days/{day}/reprocess', [Attendance\AttendanceDayController::class, 'reprocess'])->whereNumber('day')->name('days.reprocess');

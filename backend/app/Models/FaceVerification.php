@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\FaceVerificationResult;
 use App\Enums\PunchDirection;
+use Database\Factories\FaceVerificationFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class FaceVerification extends Model
 {
+    /** @use HasFactory<FaceVerificationFactory> */
+    use HasFactory;
+
     /** @var list<string> */
     protected $guarded = ['id'];
 

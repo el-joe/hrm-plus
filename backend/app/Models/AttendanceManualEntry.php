@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\ManualEntryAction;
+use Database\Factories\AttendanceManualEntryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -14,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 #[Fillable(['employee_id', 'work_date', 'shift_id', 'shift_key', 'action', 'check_in_at', 'check_out_at', 'attendance_status_id', 'note'])]
 class AttendanceManualEntry extends Model
 {
+    /** @use HasFactory<AttendanceManualEntryFactory> */
+    use HasFactory;
+
     protected static function booted(): void
     {
         static::saving(function (AttendanceManualEntry $entry): void {

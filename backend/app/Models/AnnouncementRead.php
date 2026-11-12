@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\AnnouncementReadFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['announcement_id', 'employee_id', 'read_at', 'acknowledged_at', 'acknowledged_via'])]
 class AnnouncementRead extends Model
 {
+    /** @use HasFactory<AnnouncementReadFactory> */
+    use HasFactory;
+
     public $timestamps = false;
 
     /**

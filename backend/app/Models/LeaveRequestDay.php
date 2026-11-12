@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\LeaveDayPart;
+use Database\Factories\LeaveRequestDayFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['leave_request_id', 'employee_id', 'date', 'leave_year', 'day_part', 'amount', 'hours', 'is_counted', 'day_kind'])]
 class LeaveRequestDay extends Model
 {
+    /** @use HasFactory<LeaveRequestDayFactory> */
+    use HasFactory;
+
     public $timestamps = false;
 
     /**

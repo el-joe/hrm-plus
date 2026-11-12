@@ -27,6 +27,11 @@ return [
         'face_template',
         'credential',
         'authorization',
+        // Personal identifiers (Phase 11): also redacted when they reach meta or a model without $hidden.
+        'national_id',
+        'passport_number',
+        'iban',
+        'account_number',
     ],
 
     'redacted_placeholder' => '[REDACTED]',

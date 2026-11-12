@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\OverrideSource;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\ScheduleOverrideFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['employee_id', 'work_date', 'shift_id', 'shift_key', 'source', 'schedule_change_request_id', 'note', 'created_by'])]
 class ScheduleOverride extends Model
 {
-    use Auditable, ScopedThroughEmployee;
+    /** @use HasFactory<ScheduleOverrideFactory> */
+    use Auditable, HasFactory, ScopedThroughEmployee;
 
     protected static function booted(): void
     {

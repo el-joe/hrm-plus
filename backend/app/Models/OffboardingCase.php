@@ -8,7 +8,9 @@ use App\Enums\TerminationType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
 use App\Models\Scopes\DataScope;
+use Database\Factories\OffboardingCaseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,7 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class OffboardingCase extends Model
 {
-    use Auditable, HasDataScope;
+    /** @use HasFactory<OffboardingCaseFactory> */
+    use Auditable, HasDataScope, HasFactory;
 
     /**
      * @return array<string, string>

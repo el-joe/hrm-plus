@@ -7,6 +7,8 @@ use App\Enums\MobileAttemptOutcome;
 use App\Enums\PunchDirection;
 use App\Enums\ReviewStatus;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\AttendanceMobileAttemptFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,7 +23,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class AttendanceMobileAttempt extends Model
 {
-    use HasDataScope;
+    /** @use HasFactory<AttendanceMobileAttemptFactory> */
+    use HasDataScope, HasFactory;
 
     /** @var list<string> */
     protected $guarded = ['id'];

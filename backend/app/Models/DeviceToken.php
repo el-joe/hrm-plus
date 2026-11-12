@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Database\Factories\DeviceTokenFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Hidden(['token', 'token_hash'])]
 class DeviceToken extends Model
 {
+    /** @use HasFactory<DeviceTokenFactory> */
+    use HasFactory;
+
     public const PLATFORMS = ['android', 'ios', 'web'];
 
     /**

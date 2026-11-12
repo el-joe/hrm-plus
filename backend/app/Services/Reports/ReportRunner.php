@@ -48,11 +48,13 @@ class ReportRunner
             }
 
             $page = $source->paginate($perPage)->withQueryString();
+            $report->prepareRows($page->getCollection(), $filters);
             $mapped = $page->getCollection()->map(fn ($record): array => $this->only($report->row($record, $filters), $columns));
             $page->setCollection($mapped);
             $total = $page->total();
             $all = $report->hasChart() || $this->hasTotals($columns) ? ($total <= self::SCREEN_TOTALS_LIMIT ? collect($this->stream($report, $filters, $user)) : null) : collect();
         } else {
+            $report->prepareRows($source, $filters);
             $all = $this->sorted($source->map(fn ($record): array => $this->only($report->row($record, $filters), $columns))->values(), $sort, $direction);
             $current = LengthAwarePaginator::resolveCurrentPage();
             $page = new LengthAwarePaginator($all->forPage($current, $perPage)->values(), $all->count(), $perPage, $current, [
@@ -84,6 +86,8 @@ class ReportRunner
         $source = $report->query($filters, $user);
 
         if ($source instanceof Collection) {
+            $report->prepareRows($source, $filters);
+
             foreach ($source as $record) {
                 yield $this->only($report->row($record, $filters), $columns);
             }
@@ -91,8 +95,13 @@ class ReportRunner
             return;
         }
 
-        foreach ($source->lazy(500) as $record) {
-            yield $this->only($report->row($record, $filters), $columns);
+        foreach ($source->lazy(500)->chunk(500) as $chunk) {
+            $records = collect($chunk->all());
+            $report->prepareRows($records, $filters);
+
+            foreach ($records as $record) {
+                yield $this->only($report->row($record, $filters), $columns);
+            }
         }
     }
 

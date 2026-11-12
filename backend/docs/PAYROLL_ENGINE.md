@@ -83,13 +83,16 @@ use App\Services\Payroll\{ComponentCalculator, SalaryRates, Proration, Statutory
 use App\Services\Payroll\Data\CalculationContext;
 
 $rates = app(SalaryRates::class)->for($segment->basicSalary, $segment->payBasis); // day, hour, minute
-$factor = app(Proration::class)->factor($periodStart, $periodEnd, $segment->from, $segment->to);
+$proration = app(Proration::class);
+$factor = $proration->factor($periodStart, $periodEnd, $segment->from, $segment->to);       // display: 0.677419
+[$days, $periodDays] = $proration->fraction($periodStart, $periodEnd, $segment->from, $segment->to); // exact: [21, 31]
 $context = new CalculationContext(
-    basic: bcmul($segment->basicSalary, $factor, 6),   // monthly × factor; daily × paid days; hourly × hours
+    basic: PayrollMath::fraction($segment->basicSalary, (string) $days, (string) $periodDays), // monthly: salary × days ÷ period days
     dayRate: $rates['day'], hourRate: $rates['hour'], minuteRate: $rates['minute'],
     prorationFactor: $factor,
     quantities: ['late_minutes' => '45', 'early_leave_minutes' => '0', 'absent_days' => '1', 'unpaid_leave_days' => '0.5'],
     overtime: [['hours' => '6.5', 'multiplier' => '1.50'], ['hours' => '4', 'multiplier' => '2.00']],
+    prorationNumerator: (string) $days, prorationDenominator: (string) $periodDays,
 );
 
 $calculator = app(ComponentCalculator::class);
@@ -100,8 +103,21 @@ $entries   = $calculator->evaluateEntries($inputs->entries, $context, $inputs->p
 - `evaluate()` resolves percentage chains in dependency order and throws
   `App\Exceptions\PayrollConfigurationException` on a loop or a base that is not part of the call.
   Statutory rules return no amount.
-- Rounding happens once per component (`precision`, `rounding`: half_up / down / up), never on
+- Rounding happens once per component line (`precision`, `rounding`: half_up / down / up), never on
   intermediate values (`PayrollMath::SCALE` = 6).
+- **Proration (Phase 11 decision)**: a monthly salary (and every prorated fixed component or recurring
+  entry) is prorated **exactly**: `amount × paid days ÷ period days`, computed with bcmath with the
+  division last (`PayrollMath::fraction()`), and rounded **once** on the payroll line. The 6-decimal
+  `prorationFactor` (e.g. `0.677419` for 21 / 31) is only shown on payslips and stored in snapshots — it is
+  never multiplied into an amount. Example, October (31 days):
+  - joiner on the 11th, salary 6,000: 6000 × 21 ÷ 31 = 4064.516… → **4,064.52** (a truncated factor
+    would give 6000 × 0.677419 = 4064.51);
+  - salary change 6,000 → 9,000 on the 16th: 6000 × 15 ÷ 31 + 9000 × 16 ÷ 31 = 2903.2258… + 4645.1612…
+    = 7548.387… → **7,548.39** (segments are summed unrounded, the BASIC line is rounded once);
+  - a prorated recurring entry inside a partial month multiplies both fractions
+    (`amount × paid days × entry days ÷ period days²`).
+  Percentage components are based on the rounded line they refer to (e.g. housing = 25 % of the BASIC
+  line as shown on the payslip).
 - Rates (`SalaryRates`): monthly / fixed → day = salary ÷ `payroll.working_days_per_month`, hour =
   day ÷ `payroll.working_hours_per_day`; daily → day = salary; hourly → hour = salary.
 - **Pay basis semantics for 7b**: `monthly` prorated on partial periods and reduced by attendance /
@@ -180,12 +196,12 @@ Pure (reads only). Order for regular runs and final settlements:
    case is completed uses the case's last working day). Salary segments are clipped to it.
 2. **Per salary segment** (mid-period changes): rates (`SalaryRates`), its own attendance quantities
    (`AttendanceQuantities`) and unpaid days (`LeavePayrollFeed::unpaidDays`); the segment-sensitive rules
-   (basic + per-minute / per-day / overtime) are evaluated per segment and summed.
-   - `monthly`: basic × calendar-day factor; attendance and unpaid-leave deductions apply;
+   (basic + per-minute / per-day / overtime) are evaluated per segment, summed unrounded, then each line is rounded once.
+   - `monthly`: salary × calendar days ÷ period days (exact, rounded once on the line); attendance and unpaid-leave deductions apply;
    - `daily`: day rate × paid days (present / late + holidays + paid leave); absences and unpaid leave are simply not paid;
    - `hourly`: hour rate × worked hours;
    - `fixed`: full amount of the salary in force at the period end, no proration, no attendance deductions (overtime paid).
-3. **Fixed / percentage structure lines** once, on the combined context (sum of basics, sum of factors).
+3. **Fixed / percentage structure lines** once, on the combined context (sum of basics; paid days of all segments ÷ period days).
 4. **Entries** (`PayrollInputs::entries`) one line each — they **add** to structure lines of the same component.
 5. **Leave encashment**: `LeavePayrollFeed::encashments()` × day rate, on the component of setting
    `payroll.leave_encashment_component` (default `LEAVE_ENCASH`; missing component = blocking warning).

@@ -6,7 +6,9 @@ use App\Enums\HandoverCategory;
 use App\Enums\TaskAssignee;
 use App\Enums\TaskStatus;
 use App\Models\Concerns\Auditable;
+use Database\Factories\OffboardingItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 #[Fillable(['offboarding_case_id', 'category', 'title', 'description', 'assignee', 'itemable_type', 'itemable_id', 'status', 'note', 'sort_order'])]
 class OffboardingItem extends Model
 {
-    use Auditable;
+    /** @use HasFactory<OffboardingItemFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

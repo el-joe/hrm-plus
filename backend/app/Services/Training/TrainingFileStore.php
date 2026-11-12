@@ -30,7 +30,9 @@ class TrainingFileStore
      */
     public static function rules(): array
     {
-        return ['file', 'max:'.(int) setting('documents.max_upload_size_kb'), 'mimes:'.implode(',', (array) setting('documents.allowed_extensions'))];
+        $extensions = implode(',', (array) setting('documents.allowed_extensions'));
+
+        return ['file', 'max:'.(int) setting('documents.max_upload_size_kb'), 'mimes:'.$extensions, 'extensions:'.$extensions];
     }
 
     /**

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\DeviceSyncStatus;
 use App\Enums\DeviceSyncType;
+use Database\Factories\AttendanceDeviceSyncLogFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class AttendanceDeviceSyncLog extends Model
 {
+    /** @use HasFactory<AttendanceDeviceSyncLogFactory> */
+    use HasFactory;
+
     /** @var list<string> */
     protected $guarded = ['id'];
 

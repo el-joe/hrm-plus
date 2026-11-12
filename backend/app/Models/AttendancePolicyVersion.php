@@ -8,7 +8,9 @@ use App\Enums\MissingPunchAction;
 use App\Enums\MobileRuleAction;
 use App\Models\Concerns\Auditable;
 use BackedEnum;
+use Database\Factories\AttendancePolicyVersionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -31,7 +33,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class AttendancePolicyVersion extends Model
 {
-    use Auditable;
+    /** @use HasFactory<AttendancePolicyVersionFactory> */
+    use Auditable, HasFactory;
 
     /**
      * Rule columns (everything the engine reads), in form order.

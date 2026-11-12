@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\AttendanceScope;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\DescribesAttendanceScope;
+use Database\Factories\ScheduleAssignmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['work_schedule_id', 'scope_type', 'scope_id', 'effective_from', 'effective_to', 'note', 'created_by'])]
 class ScheduleAssignment extends Model
 {
-    use Auditable, DescribesAttendanceScope;
+    /** @use HasFactory<ScheduleAssignmentFactory> */
+    use Auditable, DescribesAttendanceScope, HasFactory;
 
     /**
      * @return array<string, string>

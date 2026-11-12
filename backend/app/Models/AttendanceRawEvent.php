@@ -7,7 +7,9 @@ use App\Enums\RawEventKind;
 use App\Enums\RawEventSource;
 use App\Enums\RawEventStatus;
 use App\Services\Authorization\DataScopeManager;
+use Database\Factories\AttendanceRawEventFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -25,6 +27,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class AttendanceRawEvent extends Model
 {
+    /** @use HasFactory<AttendanceRawEventFactory> */
+    use HasFactory;
+
     /**
      * Mass assignment is closed: RawEventRecorder sets attributes explicitly.
      *

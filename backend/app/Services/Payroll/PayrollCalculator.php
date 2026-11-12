@@ -230,6 +230,8 @@ class PayrollCalculator
         $units = [];
         $totalBasic = '0';
         $totalFactor = '0';
+        $paidDays = 0;
+        $periodDays = (int) $start->diffInDays($end) + 1;
         $lastRates = ['day' => '0', 'hour' => '0', 'minute' => '0'];
         $contexts = [];
         $totals = ['late_minutes' => '0', 'early_leave_minutes' => '0', 'absent_days' => '0', 'unpaid_leave_days' => '0', 'overtime' => []];
@@ -243,14 +245,15 @@ class PayrollCalculator
             $attendance = $this->attendance->between($employee->id, $segment->from, $segment->to);
             $unpaid = $this->leave->unpaidDays($employee, CarbonImmutable::parse($segment->from), CarbonImmutable::parse($segment->to));
             $unpaidBreakdown = [...$unpaidBreakdown, ...$this->leave->unpaidBreakdown($employee, CarbonImmutable::parse($segment->from), CarbonImmutable::parse($segment->to))->all()];
-            $periodDays = (int) $start->diffInDays($end) + 1;
             $segmentDays = (int) CarbonImmutable::parse($segment->from)->diffInDays(CarbonImmutable::parse($segment->to)) + 1;
             $factor = $this->proration->factor($start, $end, $segment->from, $segment->to);
+            [$activeDays] = $this->proration->fraction($start, $end, $segment->from, $segment->to);
             $overtime = array_map(fn (array $row): array => ['hours' => $row['hours'], 'multiplier' => $row['multiplier']], $attendance['overtime']);
 
             [$basic, $basicPart, $quantity, $factorUsed] = match ($segment->payBasis) {
+                // Exact: salary × days ÷ period days (division last), rounded once on the BASIC line.
                 PayBasis::Monthly => [
-                    PayrollMath::mul($segment->basicSalary, $factor),
+                    PayrollMath::fraction($segment->basicSalary, (string) $activeDays, (string) $periodDays),
                     $factor === '1'
                         ? ['key' => 'basic_full', 'params' => ['salary' => Money::format($segment->basicSalary)]]
                         : ['key' => 'basic_monthly', 'params' => ['salary' => Money::format($segment->basicSalary), 'days' => $segmentDays, 'period_days' => $periodDays, 'from' => $segment->from, 'to' => $segment->to]],
@@ -286,7 +289,13 @@ class PayrollCalculator
                 })(),
             };
 
-            $context = new CalculationContext($basic, $rates['day'], $rates['hour'], $rates['minute'], $factorUsed, $quantity, $overtime);
+            $segmentPaidDays = match (true) {
+                $segment->payBasis === PayBasis::Monthly => $activeDays,
+                bccomp($factorUsed, '0', PayrollMath::SCALE) === 0 => 0,
+                default => $periodDays,
+            };
+            $paidDays += $segmentPaidDays;
+            $context = new CalculationContext($basic, $rates['day'], $rates['hour'], $rates['minute'], $factorUsed, $quantity, $overtime, (string) $segmentPaidDays, (string) $periodDays);
             $contexts[] = ['segment' => $segment->toArray(), ...$context->toArray(), 'attendance' => array_diff_key($attendance, ['policy_version_ids' => true])];
             $totalBasic = bcadd($totalBasic, $basic, PayrollMath::SCALE);
             $totalFactor = bcadd($totalFactor, $factorUsed, PayrollMath::SCALE);
@@ -298,10 +307,11 @@ class PayrollCalculator
 
             $totals['overtime'] = [...$totals['overtime'], ...$attendance['overtime']];
 
-            foreach ($this->components->evaluate($sensitive, $context) as $code => $amount) {
+            // Unrounded per segment; each line is rounded once after the segments are summed.
+            foreach ($this->components->evaluate($sensitive, $context, round: false) as $code => $raw) {
                 $rule = $this->ruleByCode($sensitive, $code);
-                $amounts[$code] = bcadd($amounts[$code] ?? '0', $amount, 2);
-                $parts[$code] = [...($parts[$code] ?? []), ...$this->sensitiveExplanation($rule, $context, $amount, $basicPart, $attendance['overtime'])];
+                $amounts[$code] = bcadd($amounts[$code] ?? '0', $raw, PayrollMath::SCALE);
+                $parts[$code] = [...($parts[$code] ?? []), ...$this->sensitiveExplanation($rule, $context, $this->components->finalise($rule, $raw), $basicPart, $attendance['overtime'])];
 
                 if ($rule->calculationType->isQuantityBased()) {
                     $qty = $rule->calculationType === PayCalculationType::OvertimeHours
@@ -324,6 +334,7 @@ class PayrollCalculator
 
         foreach ($amounts as $code => $amount) {
             $rule = $this->ruleByCode($sensitive, $code);
+            $amount = $amounts[$code] = $this->components->finalise($rule, $amount);
             $source = match (true) {
                 $rule->calculationType === PayCalculationType::Basic => PayrollLineSource::Basic,
                 $rule->calculationType === PayCalculationType::UnpaidLeaveDays => PayrollLineSource::Leave,
@@ -340,6 +351,7 @@ class PayrollCalculator
         $combined = new CalculationContext(
             $totalBasic, $lastRates['day'], $lastRates['hour'], $lastRates['minute'], $state->factor,
             ['late_minutes' => $totals['late_minutes'], 'early_leave_minutes' => $totals['early_leave_minutes'], 'absent_days' => $totals['absent_days'], 'unpaid_leave_days' => $totals['unpaid_leave_days']],
+            [], (string) min($paidDays, $periodDays), (string) $periodDays,
         );
         $known = $amounts;
 

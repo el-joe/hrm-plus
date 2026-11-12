@@ -272,10 +272,12 @@ class HrRequestController extends Controller
         return back()->with('status', __('hr_requests.messages.attached'));
     }
 
-    public function attachment(HrRequest $hrRequest, HrRequestAttachment $attachment, HrRequestFileStore $files): StreamedResponse
+    public function attachment(Request $request, HrRequest $hrRequest, HrRequestAttachment $attachment, HrRequestFileStore $files, SensitiveDataAccessLog $log): StreamedResponse
     {
         abort_unless($attachment->hr_request_id === $hrRequest->id, 404);
         Gate::authorize('view', $hrRequest);
+
+        $log->record(SensitiveDataAccessLog::DOCUMENT, $attachment, ['file'], ['employee_id' => $hrRequest->employee_id, 'hr_request' => $hrRequest->reference], $request->user());
 
         return $files->response($attachment->file_path, $attachment->file_name, $attachment->file_mime);
     }

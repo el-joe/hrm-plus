@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\AttendanceDayStatus;
 use App\Enums\OvertimeStatus;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\AttendanceDayFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class AttendanceDay extends Model
 {
-    use HasDataScope;
+    /** @use HasFactory<AttendanceDayFactory> */
+    use HasDataScope, HasFactory;
 
     /** @var list<string> */
     protected $guarded = ['id'];

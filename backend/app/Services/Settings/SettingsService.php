@@ -165,7 +165,7 @@ class SettingsService
 
     public function flush(): void
     {
-        Cache::forget(self::CACHE_KEY);
+        Cache::memo()->forget(self::CACHE_KEY);
     }
 
     /**
@@ -187,12 +187,13 @@ class SettingsService
     }
 
     /**
-     * Stored overrides as key => raw string value.
+     * Stored overrides as key => raw string value. Memoised for the request / job (Cache::memo), so
+     * the dozens of setting() calls of a page cost one cache read, not one each.
      *
      * @return array<string, string|null>
      */
     private function stored(): array
     {
-        return Cache::rememberForever(self::CACHE_KEY, fn (): array => Setting::query()->pluck('value', 'key')->all());
+        return Cache::memo()->rememberForever(self::CACHE_KEY, fn (): array => Setting::query()->pluck('value', 'key')->all());
     }
 }

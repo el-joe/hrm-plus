@@ -41,7 +41,8 @@ return [
             'driver' => 'local',
             'permissions' => $groupReadable,
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Never served over HTTP (Phase 11): private files are only streamed by authorised controllers.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

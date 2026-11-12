@@ -150,6 +150,7 @@ use App\Policies\AdminUserPolicy;
 use App\Services\Attendance\Contracts\LeaveProvider;
 use App\Services\Authorization\DataScopeManager;
 use App\Services\Leave\ApprovedLeaveProvider;
+use App\Services\Leave\LeaveReports;
 use App\Services\Notifications\NotificationInbox;
 use App\Services\Settings\RuntimeSettings;
 use App\Support\Navigation\NavigationBuilder;
@@ -178,6 +179,8 @@ class AppServiceProvider extends ServiceProvider
         // One instance per request (and per queued job): it carries the admin
         // whose data scopes are currently being enforced.
         $this->app->scoped(DataScopeManager::class);
+        // Memoises leave types and primed balance summaries for one request / job (reports).
+        $this->app->scoped(LeaveReports::class);
 
         // Approved leave reaches the attendance engine through this hook (Phase 6).
         $this->app->bind(LeaveProvider::class, ApprovedLeaveProvider::class);
@@ -389,12 +392,13 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewOwnInterviews', fn (User $user): bool => Interview::query()->withoutGlobalScopes()->assignedTo($user)->exists());
 
         // Attendance reports (Phase 5b): attendance staff and report viewers.
-        Gate::define('viewAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.view') || $user->can('reports.view')));
-        Gate::define('exportAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.export') || $user->can('reports.export')));
+        // reports.view alone no longer opens a module's reports (Phase 11): reports.manage does (Reports Viewer).
+        Gate::define('viewAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.view') || ($user->can('reports.view') && $user->can('reports.manage'))));
+        Gate::define('exportAttendanceReports', fn (User $user): bool => $user->isAdmin() && ($user->can('attendance.export') || ($user->can('reports.export') && Gate::forUser($user)->allows('viewAttendanceReports'))));
 
         // Leave reports (Phase 6): leave staff and report viewers.
-        Gate::define('viewLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.view') || $user->can('reports.view')));
-        Gate::define('exportLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.export') || $user->can('reports.export')));
+        Gate::define('viewLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.view') || ($user->can('reports.view') && $user->can('reports.manage'))));
+        Gate::define('exportLeaveReports', fn (User $user): bool => $user->isAdmin() && ($user->can('leaves.export') || ($user->can('reports.export') && Gate::forUser($user)->allows('viewLeaveReports'))));
 
         // Disciplinary (Phase 8a): case files need disciplinary.view (restricted); holders of
         // disciplinary.create without it may report incidents and follow the cases they reported.
@@ -441,6 +445,11 @@ class AppServiceProvider extends ServiceProvider
         ]);
         RateLimiter::for('password-code-check', fn (Request $request): Limit => Limit::perMinute(10)
             ->by('code-check|'.($request->user('sanctum')?->getAuthIdentifier() ?: Str::lower((string) $request->input('email'))).'|'.$request->ip()));
+
+        // Spreadsheet / PDF exports and report downloads (Phase 11), per signed-in user: they are the
+        // heaviest queries of the admin area and the easiest way to pull bulk personal data.
+        RateLimiter::for('exports', fn (Request $request): Limit => Limit::perMinute((int) config('security.exports_per_minute', 20))
+            ->by('export|'.($request->user()?->getAuthIdentifier() ?: $request->ip())));
 
         // Public career page applications, per IP (setting recruitment.career_applications_per_hour).
         RateLimiter::for('career-apply', fn (Request $request): Limit => Limit::perHour(max(1, (int) setting('recruitment.career_applications_per_hour')))

@@ -6,8 +6,10 @@ use App\Enums\AssetAssignmentStatus;
 use App\Enums\AssetCondition;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\AssetAssignmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -23,7 +25,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 ])]
 class AssetAssignment extends Model
 {
-    use Auditable, ScopedThroughEmployee;
+    /** @use HasFactory<AssetAssignmentFactory> */
+    use Auditable, HasFactory, ScopedThroughEmployee;
 
     /**
      * @var array<string, mixed>

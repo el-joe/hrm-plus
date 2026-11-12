@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditable;
+use Database\Factories\TrainingCourseSkillFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,7 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['training_course_id', 'skill_id', 'level'])]
 class TrainingCourseSkill extends Model
 {
-    use Auditable;
+    /** @use HasFactory<TrainingCourseSkillFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

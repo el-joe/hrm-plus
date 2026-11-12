@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\LoanInstalmentStatus;
+use Database\Factories\LoanInstalmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -17,6 +19,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 #[Fillable(['employee_loan_id', 'employee_id', 'sequence', 'due_date', 'amount', 'paid_amount', 'status', 'is_final_settlement'])]
 class LoanInstalment extends Model
 {
+    /** @use HasFactory<LoanInstalmentFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

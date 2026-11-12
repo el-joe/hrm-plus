@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\WorkLocationScope;
 use App\Models\Concerns\Auditable;
+use Database\Factories\AttendanceWorkLocationRuleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['scope_type', 'scope_id', 'branch_location_id', 'allow_anywhere', 'effective_from', 'effective_to', 'note', 'created_by'])]
 class AttendanceWorkLocationRule extends Model
 {
-    use Auditable;
+    /** @use HasFactory<AttendanceWorkLocationRuleFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

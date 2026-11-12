@@ -7,7 +7,9 @@ use App\Enums\PayComponentKind;
 use App\Enums\PayrollAdjustmentSource;
 use App\Enums\PayrollAdjustmentStatus;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\PayrollAdjustmentFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -20,7 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PayrollAdjustment extends Model
 {
-    use ScopedThroughEmployee;
+    /** @use HasFactory<PayrollAdjustmentFactory> */
+    use HasFactory, ScopedThroughEmployee;
 
     /** @var list<string> */
     protected $guarded = ['id'];

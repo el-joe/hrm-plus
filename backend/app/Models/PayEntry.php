@@ -11,8 +11,10 @@ use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasApprovals;
 use App\Models\Concerns\HasDataScope;
 use Carbon\CarbonInterface;
+use Database\Factories\PayEntryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,7 +40,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 ])]
 class PayEntry extends Model
 {
-    use Auditable, HasApprovals, HasDataScope;
+    /** @use HasFactory<PayEntryFactory> */
+    use Auditable, HasApprovals, HasDataScope, HasFactory;
 
     public const WORKFLOWS = ['earning' => 'payroll_allowance', 'deduction' => 'payroll_deduction'];
 

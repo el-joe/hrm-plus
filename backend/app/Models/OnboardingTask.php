@@ -6,15 +6,18 @@ use App\Enums\OnboardingTaskAction;
 use App\Enums\TaskAssignee;
 use App\Enums\TaskStatus;
 use App\Models\Concerns\Auditable;
+use Database\Factories\OnboardingTaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['onboarding_id', 'title_ar', 'title_en', 'description', 'assignee', 'action', 'due_date', 'status', 'note', 'sort_order'])]
 class OnboardingTask extends Model
 {
-    use Auditable;
+    /** @use HasFactory<OnboardingTaskFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

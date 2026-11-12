@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\PaymentStatus;
 use App\Enums\PayslipStatus;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\PayslipFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Payslip extends Model
 {
-    use HasDataScope;
+    /** @use HasFactory<PayslipFactory> */
+    use HasDataScope, HasFactory;
 
     /** @var list<string> */
     protected $guarded = ['id'];

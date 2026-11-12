@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\SalaryStructureLineFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['salary_structure_version_id', 'salary_component_id', 'amount', 'rate', 'base_component_id', 'sort_order'])]
 class SalaryStructureLine extends Model
 {
+    /** @use HasFactory<SalaryStructureLineFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

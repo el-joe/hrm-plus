@@ -20,7 +20,7 @@ describe('index and forms', function () {
 
         $response = $this->actingAs($actor, 'admin')->get('/admin/roles/'.$role->id.'/edit')->assertOk();
 
-        expect($response->viewData('granted'))->toEqualCanonicalizing(['dashboard.view', 'reports.view', 'reports.export'])
+        expect($response->viewData('granted'))->toEqualCanonicalizing(['dashboard.view', 'reports.view', 'reports.export', 'reports.manage'])
             ->and($response->viewData('modules'))->toHaveKey('payroll');
 
         $response->assertSee('value="payroll.approve"', false);

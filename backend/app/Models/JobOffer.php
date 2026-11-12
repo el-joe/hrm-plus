@@ -7,8 +7,10 @@ use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasApprovals;
 use App\Models\Concerns\HasDataScope;
 use App\Models\Scopes\DataScope;
+use Database\Factories\JobOfferFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -25,7 +27,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Hidden(['basic_salary'])]
 class JobOffer extends Model
 {
-    use Auditable, HasApprovals, HasDataScope;
+    /** @use HasFactory<JobOfferFactory> */
+    use Auditable, HasApprovals, HasDataScope, HasFactory;
 
     public const WORKFLOW = 'job_offer';
 

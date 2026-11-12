@@ -3,13 +3,18 @@
 namespace App\Models;
 
 use App\Enums\ApprovalActionType;
+use Database\Factories\ApprovalActionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['approval_request_id', 'approval_workflow_step_id', 'step_sequence', 'step_name', 'action', 'acted_by', 'reason'])]
 class ApprovalAction extends Model
 {
+    /** @use HasFactory<ApprovalActionFactory> */
+    use HasFactory;
+
     public const UPDATED_AT = null;
 
     /**

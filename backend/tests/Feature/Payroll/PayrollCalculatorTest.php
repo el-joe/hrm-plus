@@ -126,7 +126,7 @@ describe('proration', function () {
         $result = ($this->calculate)($employee);
 
         expect($result->prorationFactor)->toBe('0.677419')   // 21 / 31
-            ->and(($this->line)($result, 'BASIC')->amount)->toBe('4064.51')
+            ->and(($this->line)($result, 'BASIC')->amount)->toBe('4064.52')   // exact 6000 × 21 ÷ 31 = 4064.516…, rounded once
             ->and(($this->line)($result, 'HOUSING')->amount)->toBe('1016.13')
             ->and(($this->line)($result, 'TRANSPORT')->amount)->toBe('338.71')
             ->and(collect($result->warnings)->pluck('code'))->toContain('partial_period');
@@ -151,7 +151,7 @@ describe('proration', function () {
 
         $result = ($this->calculate)($employee->refresh());
 
-        expect(($this->line)($result, 'BASIC')->amount)->toBe('7548.38')   // per segment, salary × factor (6 decimals, docs/PAYROLL_ENGINE.md): 6000 × 0.483870 = 2903.22 + 9000 × 0.516129 = 4645.16
+        expect(($this->line)($result, 'BASIC')->amount)->toBe('7548.39')   // exact per segment, summed, rounded once (docs/PAYROLL_ENGINE.md): 6000 × 15 ÷ 31 + 9000 × 16 ÷ 31 = 7548.387…
             ->and($result->inputs['contexts'])->toHaveCount(2)
             ->and(($this->line)($result, 'BASIC')->explanation)->toHaveCount(2);
     });

@@ -8,7 +8,9 @@ use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
 use App\Models\Contracts\GuardsDeletion;
 use Carbon\CarbonInterface;
+use Database\Factories\WorkScheduleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -21,7 +23,8 @@ use Illuminate\Support\Collection;
 #[Fillable(['code', 'name_ar', 'name_en', 'type', 'cycle_length_days', 'cycle_start_date', 'description', 'is_active'])]
 class WorkSchedule extends Model implements GuardsDeletion
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<WorkScheduleFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     /**
      * @return array<string, string>

@@ -178,7 +178,8 @@ describe('requests', function () {
         expect($csv)->toContain('E-ALX')->not->toContain('E-CAI');
 
         $this->actingAs(adminWithRoles('Recruiter'), 'admin')->get(route('admin.leave-calendar'))->assertForbidden();
-        $this->get(route('admin.leave-reports.index'))->assertOk(); // reports.view
+        $this->get(route('admin.leave-reports.index'))->assertForbidden(); // reports.view alone no longer opens leave reports (Phase 11)
+        $this->actingAs(adminWithRoles('Reports Viewer'), 'admin')->get(route('admin.leave-reports.index'))->assertOk(); // reports.manage
         $this->actingAs(adminWithPermissions('dashboard.view'), 'admin')->get(route('admin.leave-reports.index'))->assertForbidden();
     });
 });

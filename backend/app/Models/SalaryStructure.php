@@ -7,7 +7,9 @@ use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasLocalizedName;
 use App\Models\Contracts\GuardsDeletion;
 use Carbon\CarbonInterface;
+use Database\Factories\SalaryStructureFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['code', 'name_ar', 'name_en', 'description', 'is_active'])]
 class SalaryStructure extends Model implements GuardsDeletion
 {
-    use Auditable, HasActiveFlag, HasLocalizedName;
+    /** @use HasFactory<SalaryStructureFactory> */
+    use Auditable, HasActiveFlag, HasFactory, HasLocalizedName;
 
     /**
      * @return HasMany<SalaryStructureVersion, $this>

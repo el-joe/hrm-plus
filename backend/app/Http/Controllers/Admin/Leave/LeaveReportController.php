@@ -12,6 +12,7 @@ use App\Services\Audit\AuditLogger;
 use App\Services\Employees\Spreadsheet;
 use App\Services\Leave\LeaveReports;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -47,8 +48,7 @@ class LeaveReportController extends Controller
             'filters' => $filters,
             'columns' => $this->reports->columns($report),
             'numeric' => $this->reports->numeric($report),
-            'rows' => $this->reports->query($report, $filters)->paginate(25)->withQueryString()
-                ->through(fn ($record): array => $this->reports->row($report, $record, $filters)),
+            'rows' => $this->page($report, $filters),
             'canExport' => $this->canExport($request->user(), $report),
             'types' => LeaveType::query()->ordered()->get(),
             'statuses' => LeaveRequestStatus::cases(),
@@ -68,10 +68,16 @@ class LeaveReportController extends Controller
         $count = 0;
 
         $rows = (function () use ($report, $filters, &$count): \Generator {
-            foreach ($this->reports->query($report, $filters)->cursor() as $record) {
-                $count++;
+            foreach ($this->reports->query($report, $filters)->lazy(500)->chunk(500) as $chunk) {
+                if ($report === 'balances') {
+                    $this->reports->primeBalances($chunk->pluck('id')->map(fn ($id): int => (int) $id)->values()->all(), (int) $filters['year']);
+                }
 
-                yield array_values($this->reports->row($report, $record, $filters));
+                foreach ($chunk as $record) {
+                    $count++;
+
+                    yield array_values($this->reports->row($report, $record, $filters));
+                }
             }
         })();
 
@@ -104,5 +110,22 @@ class LeaveReportController extends Controller
         ]);
 
         return $this->reports->withDefaults($report, array_filter($filters, fn ($value): bool => $value !== null && $value !== ''));
+    }
+
+    /**
+     * One screen page; the balances report loads the page's balances in one go.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return LengthAwarePaginator<int, array<string, mixed>>
+     */
+    private function page(string $report, array $filters): LengthAwarePaginator
+    {
+        $page = $this->reports->query($report, $filters)->paginate(25)->withQueryString();
+
+        if ($report === 'balances') {
+            $this->reports->primeBalances($page->getCollection()->pluck('id')->map(fn ($id): int => (int) $id)->all(), (int) $filters['year']);
+        }
+
+        return $page->through(fn ($record): array => $this->reports->row($report, $record, $filters));
     }
 }

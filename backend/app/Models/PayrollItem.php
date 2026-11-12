@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\PayBasis;
 use App\Enums\PayrollItemStatus;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\PayrollItemFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class PayrollItem extends Model
 {
-    use HasDataScope;
+    /** @use HasFactory<PayrollItemFactory> */
+    use HasDataScope, HasFactory;
 
     public const PAY_SLOT = 'regular';
 

@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\FaceEnrolmentStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\FaceEnrolmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Hidden(['provider_reference', 'template_path', 'image_path'])]
 class FaceEnrolment extends Model
 {
-    use Auditable, HasDataScope;
+    /** @use HasFactory<FaceEnrolmentFactory> */
+    use Auditable, HasDataScope, HasFactory;
 
     /** @var list<string> */
     protected $guarded = ['id'];

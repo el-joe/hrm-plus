@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\AnnouncementTargetType;
 use App\Models\Concerns\Auditable;
+use Database\Factories\AnnouncementTargetFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,7 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['announcement_id', 'target_type', 'target_id'])]
 class AnnouncementTarget extends Model
 {
-    use Auditable;
+    /** @use HasFactory<AnnouncementTargetFactory> */
+    use Auditable, HasFactory;
 
     public $timestamps = false;
 

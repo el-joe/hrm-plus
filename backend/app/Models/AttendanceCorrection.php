@@ -7,7 +7,9 @@ use App\Enums\CorrectionStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasApprovals;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\AttendanceCorrectionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -25,7 +27,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 ])]
 class AttendanceCorrection extends Model
 {
-    use Auditable, HasApprovals, ScopedThroughEmployee;
+    /** @use HasFactory<AttendanceCorrectionFactory> */
+    use Auditable, HasApprovals, HasFactory, ScopedThroughEmployee;
 
     public const WORKFLOW = 'attendance_correction';
 

@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditable;
+use Database\Factories\DisciplinaryEvidenceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,7 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['disciplinary_case_id', 'description', 'file_path', 'file_name', 'file_mime', 'file_size', 'uploaded_by'])]
 class DisciplinaryEvidence extends Model
 {
-    use Auditable;
+    /** @use HasFactory<DisciplinaryEvidenceFactory> */
+    use Auditable, HasFactory;
 
     protected $table = 'disciplinary_evidence';
 

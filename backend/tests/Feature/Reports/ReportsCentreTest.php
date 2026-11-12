@@ -45,7 +45,7 @@ function alexScopedViewer(): User
 }
 
 describe('access', function () {
-    it('opens the catalogue and a report with reports.view only', function () {
+    it('opens every area to the Reports Viewer (reports.manage)', function () {
         $this->actingAs(adminWithRoles('Reports Viewer'), 'admin')
             ->get(route('admin.reports.index'))->assertOk()->assertSee(__('reports.items.employee_directory.title'))
             ->assertDontSee(__('reports.items.payroll_summary.title'));
@@ -61,6 +61,26 @@ describe('access', function () {
 
         $this->actingAs(adminWithPermissions('reports.view'), 'admin')
             ->get(route('admin.reports.export', ['employee_directory', 'format' => 'csv']))->assertForbidden();
+    });
+
+    it('opens only the areas whose module the admin may view (a Recruiter sees recruitment reports only)', function () {
+        $this->actingAs(adminWithRoles('Recruiter'), 'admin')
+            ->get(route('admin.reports.index'))->assertOk()
+            ->assertSee(__('reports.items.vacancies.title'))
+            ->assertDontSee(__('reports.items.daily_attendance.title'))
+            ->assertDontSee(__('reports.items.employee_directory.title'));
+
+        $this->get(route('admin.reports.show', 'vacancies'))->assertOk();
+        $this->get(route('admin.reports.show', 'daily_attendance'))->assertForbidden();
+        $this->get(route('admin.reports.show', 'employee_directory'))->assertForbidden();
+        $this->get(route('admin.attendance.reports.index'))->assertForbidden();
+        $this->get(route('admin.leave-reports.index'))->assertForbidden();
+    });
+
+    it('needs the area permission besides reports.view', function () {
+        $this->actingAs(adminWithPermissions('reports.view', 'attendance.view'), 'admin')
+            ->get(route('admin.reports.show', 'daily_attendance'))->assertOk();
+        $this->get(route('admin.reports.show', 'employee_directory'))->assertForbidden();
     });
 
     it('validates filters and refuses a range longer than allowed', function () {

@@ -7,7 +7,9 @@ use App\Enums\RequestStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasApprovals;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\LoanChangeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['employee_loan_id', 'type', 'loan_instalment_id', 'new_instalment_count', 'new_start_date', 'reason', 'requested_by'])]
 class LoanChange extends Model
 {
-    use Auditable, HasApprovals, ScopedThroughEmployee;
+    /** @use HasFactory<LoanChangeFactory> */
+    use Auditable, HasApprovals, HasFactory, ScopedThroughEmployee;
 
     /**
      * @var array<string, mixed>

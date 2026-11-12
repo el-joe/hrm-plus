@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::resource('asset-categories', Assets\AssetCategoryController::class)->except('show');
 
-Route::get('assets/export', [Assets\AssetController::class, 'export'])->name('assets.export');
+Route::get('assets/export', [Assets\AssetController::class, 'export'])->middleware('throttle:exports')->name('assets.export');
 Route::resource('assets', Assets\AssetController::class)->except('destroy');
 Route::post('assets/{asset}/status/{action}', [Assets\AssetController::class, 'status'])
     ->whereIn('action', ['maintenance', 'maintenance_done', 'damaged', 'lost', 'retire'])->name('assets.status');
@@ -20,7 +20,7 @@ Route::prefix('asset-assignments')->name('asset-assignments.')->controller(Asset
     Route::get('/', 'index')->name('index');
     Route::get('create', 'create')->name('create');
     Route::post('/', 'store')->name('store');
-    Route::get('export', 'export')->name('export');
+    Route::get('export', 'export')->middleware('throttle:exports')->name('export');
     Route::post('{assignment}/return', 'recordReturn')->whereNumber('assignment')->name('return');
     Route::post('{assignment}/acknowledge', 'acknowledge')->whereNumber('assignment')->name('acknowledge');
     Route::post('{assignment}/lost', 'lost')->whereNumber('assignment')->name('lost');

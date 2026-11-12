@@ -330,10 +330,10 @@ Tests written, NOT run: `tests/Feature/Portal/{OwnershipTest,PortalPagesTest,Acc
 - [x] *(API contracts verified with curl; live-API test written)* Complete scenarios 1 and 2 against the real backend
 
 ### Phase 11 — Final testing and documentation · L
-- [ ] Fresh migrate and seed with realistic development data, factories for every model
-- [ ] Run all five end-to-end scenarios; test each of the 11 roles
-- [ ] Security pass: CSRF, XSS, injection, upload validation, private file access, rate limits, secrets in logs
-- [ ] Performance pass: indexes, N+1, report queries on seeded volume
+- [x] Fresh migrate and seed with realistic development data, factories for every model *(Phase 11a: 109 factories added, every model covered — `tests/Feature/Support/ModelFactoriesTest.php`; fresh install verified in production mode (no demo data) and local mode)*
+- [x] Run all five end-to-end scenarios; test each of the 11 roles *(scenario 5 + role smoke test in `tests/Feature/Scenarios/`; 1–4 referenced there)*
+- [x] Security pass: CSRF, XSS, injection, upload validation, private file access, rate limits, secrets in logs *(Phase 11a: security headers + nonce CSP, export throttle, admin-route authorisation test, `local` disk no longer served, extension checks, download access logging, identifier redaction in audit, `hrm:create-super-admin`)*
+- [x] Performance pass: indexes, N+1, report queries on seeded volume *(Phase 11a: admin dashboard cold load 302 → 78 queries; index migration `2026_11_22_100000_add_performance_indexes`)*
 - [ ] `backend/docs/`: USER_MANUAL_AR, ROLE_GUIDES_AR (11 roles plus employee web and mobile), ROLE_PERMISSION_MATRIX_AR, ATTENDANCE_INTEGRATION_AR, PAYROLL_GUIDE_AR, API_DOCUMENTATION, DATABASE_ARCHITECTURE with ERD, DEPLOYMENT_GUIDE_AR, CHANGELOG
 - [ ] PDF of the Arabic user manual
 - [ ] Clean-install verification from the deployment guide

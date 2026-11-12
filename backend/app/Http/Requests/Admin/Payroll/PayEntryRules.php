@@ -40,7 +40,7 @@ trait PayEntryRules
             'reason' => ['nullable', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'attachments' => ['nullable', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:'.$maxSize, 'mimes:'.$extensions],
+            'attachments.*' => ['file', 'max:'.$maxSize, 'mimes:'.$extensions, 'extensions:'.$extensions],
         ];
     }
 

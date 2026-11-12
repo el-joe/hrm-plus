@@ -39,7 +39,7 @@ class DeviceImportController extends Controller
     public function analyse(Request $request, AttendanceDevice $attendanceDevice, DeviceLogImporter $importer): View
     {
         Gate::authorize('manage', $attendanceDevice);
-        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,csv,txt', 'max:'.(int) setting('documents.max_upload_size_kb')]]);
+        $request->validate(['file' => ['required', 'file', 'extensions:xlsx,csv,txt', 'mimes:xlsx,csv,txt', 'max:'.(int) setting('documents.max_upload_size_kb')]]);
 
         $token = $importer->stash($request->file('file'), $request->user());
         $file = $importer->stashed($token, $request->user());

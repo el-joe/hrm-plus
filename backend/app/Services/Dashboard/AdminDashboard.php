@@ -82,17 +82,24 @@ class AdminDashboard
     {
         $widgets = [];
         $access = $this->accessHash($admin);
+        $cacheKeys = [];
 
         foreach ($this->registry->visible($admin) as $key) {
+            $relevant = $this->relevantFilters($filters, WidgetRegistry::WIDGETS[$key]['filters']);
+            $cacheKeys[$key] = 'dashboard:'.$admin->id.':'.$key.':'.$access.':'.md5((string) json_encode($relevant));
+        }
+
+        // One cache read and one write for the whole page instead of one round trip per widget.
+        $cached = $refresh || $cacheKeys === [] ? [] : Cache::many(array_values($cacheKeys));
+        $fresh = [];
+
+        foreach ($cacheKeys as $key => $cacheKey) {
             $definition = WidgetRegistry::WIDGETS[$key];
-            $relevant = $this->relevantFilters($filters, $definition['filters']);
-            $cacheKey = 'dashboard:'.$admin->id.':'.$key.':'.$access.':'.md5((string) json_encode($relevant));
+            $data = $cached[$cacheKey] ?? null;
 
-            if ($refresh) {
-                Cache::forget($cacheKey);
+            if (! is_array($data)) {
+                $data = $fresh[$cacheKey] = $this->widgets->{$definition['method']}($filters, $admin);
             }
-
-            $data = Cache::remember($cacheKey, self::CACHE_SECONDS, fn (): array => $this->widgets->{$definition['method']}($filters, $admin));
 
             $widgets[] = [
                 'key' => $key,
@@ -102,6 +109,10 @@ class AdminDashboard
                 'filters' => $definition['filters'],
                 'data' => $data,
             ];
+        }
+
+        if ($fresh !== []) {
+            Cache::putMany($fresh, self::CACHE_SECONDS);
         }
 
         return $widgets;

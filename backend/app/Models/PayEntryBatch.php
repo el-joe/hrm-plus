@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\PayComponentKind;
+use Database\Factories\PayEntryBatchFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['source', 'kind', 'entries_count', 'file_name', 'note', 'created_by'])]
 class PayEntryBatch extends Model
 {
+    /** @use HasFactory<PayEntryBatchFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

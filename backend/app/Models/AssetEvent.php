@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\AssetCondition;
 use App\Enums\AssetEventType;
+use Database\Factories\AssetEventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['asset_id', 'asset_assignment_id', 'employee_id', 'type', 'condition', 'note', 'occurred_on', 'created_by'])]
 class AssetEvent extends Model
 {
+    /** @use HasFactory<AssetEventFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

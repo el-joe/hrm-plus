@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\TrainingAttendanceStatus;
 use App\Models\Concerns\Auditable;
+use Database\Factories\TrainingAttendanceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,7 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['training_enrolment_id', 'date', 'status', 'note', 'recorded_by'])]
 class TrainingAttendance extends Model
 {
-    use Auditable;
+    /** @use HasFactory<TrainingAttendanceFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

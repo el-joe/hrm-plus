@@ -8,8 +8,10 @@ use App\Enums\DeviceSyncStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasActiveFlag;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\AttendanceDeviceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,7 +32,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Hidden(['credentials', 'push_token_hash'])]
 class AttendanceDevice extends Model
 {
-    use Auditable, HasActiveFlag, HasDataScope;
+    /** @use HasFactory<AttendanceDeviceFactory> */
+    use Auditable, HasActiveFlag, HasDataScope, HasFactory;
 
     /** @var list<string> */
     protected array $auditExclude = ['last_seen_at', 'last_sync_at', 'sync_cursor', 'last_sync_status', 'consecutive_failures', 'next_retry_at', 'last_error', 'updated_at'];

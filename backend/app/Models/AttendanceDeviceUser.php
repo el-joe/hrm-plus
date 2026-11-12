@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasDataScope;
+use Database\Factories\AttendanceDeviceUserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['attendance_device_id', 'device_scope', 'device_user_id', 'employee_id', 'name_on_device', 'created_by'])]
 class AttendanceDeviceUser extends Model
 {
-    use Auditable, HasDataScope;
+    /** @use HasFactory<AttendanceDeviceUserFactory> */
+    use Auditable, HasDataScope, HasFactory;
 
     /**
      * @return array<string, string>

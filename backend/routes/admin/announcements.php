@@ -14,7 +14,7 @@ Route::prefix('announcements/{announcement}')->name('announcements.')->group(fun
     Route::post('publish', [AnnouncementController::class, 'publish'])->name('publish');
     Route::post('archive', [AnnouncementController::class, 'archive'])->name('archive');
     Route::post('pin', [AnnouncementController::class, 'pin'])->name('pin');
-    Route::get('export', [AnnouncementController::class, 'export'])->name('export');
+    Route::get('export', [AnnouncementController::class, 'export'])->middleware('throttle:exports')->name('export');
     Route::get('attachments/{attachment}', [AnnouncementController::class, 'attachment'])->whereNumber('attachment')->name('attachments.download');
     Route::delete('attachments/{attachment}', [AnnouncementController::class, 'destroyAttachment'])->whereNumber('attachment')->name('attachments.destroy');
 });

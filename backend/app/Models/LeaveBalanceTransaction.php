@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\LeaveTransactionType;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\LeaveBalanceTransactionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class LeaveBalanceTransaction extends Model
 {
-    use ScopedThroughEmployee;
+    /** @use HasFactory<LeaveBalanceTransactionFactory> */
+    use HasFactory, ScopedThroughEmployee;
 
     public const UPDATED_AT = null;
 

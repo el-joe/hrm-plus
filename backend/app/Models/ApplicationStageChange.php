@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\ApplicationStageChangeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['job_application_id', 'from_stage_id', 'to_stage_id', 'from_stage_name', 'to_stage_name', 'note', 'changed_by', 'created_at'])]
 class ApplicationStageChange extends Model
 {
+    /** @use HasFactory<ApplicationStageChangeFactory> */
+    use HasFactory;
+
     public const UPDATED_AT = null;
 
     /**

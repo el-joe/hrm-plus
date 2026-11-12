@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('performance-reviews')->name('performance-reviews.')->controller(Performance\PerformanceReviewController::class)->group(function (): void {
     Route::get('/', 'index')->name('index');
-    Route::get('export', 'export')->name('export');
+    Route::get('export', 'export')->middleware('throttle:exports')->name('export');
     Route::get('{performance_review}', 'show')->whereNumber('performance_review')->name('show');
     Route::post('{performance_review}/assessment', 'assess')->whereNumber('performance_review')->name('assess');
     Route::post('{performance_review}/decide/{decision}', 'decide')->whereNumber('performance_review')->whereIn('decision', ['approve', 'reject'])->name('decide');

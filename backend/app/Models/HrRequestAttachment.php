@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditable;
+use Database\Factories\HrRequestAttachmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,7 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['hr_request_id', 'hr_request_message_id', 'file_path', 'file_name', 'file_mime', 'file_size', 'is_internal', 'is_letter', 'uploaded_by'])]
 class HrRequestAttachment extends Model
 {
-    use Auditable;
+    /** @use HasFactory<HrRequestAttachmentFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

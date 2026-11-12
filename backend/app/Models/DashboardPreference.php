@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\DashboardPreferenceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'order', 'hidden'])]
 class DashboardPreference extends Model
 {
+    /** @use HasFactory<DashboardPreferenceFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

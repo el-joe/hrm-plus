@@ -5,8 +5,9 @@
 <meta name="color-scheme" content="light dark">
 <title>@yield('title') — {{ config('app.name') }}</title>
 {{-- Theme and sidebar state are applied before the first paint so there is no flash.
-     Stored choice wins; otherwise the OS preference (see resources/js/ui/theme.js). --}}
-<script>
+     Stored choice wins; otherwise the OS preference (see resources/js/ui/theme.js).
+     The nonce lets it pass the Content-Security-Policy (App\Http\Middleware\SecurityHeaders). --}}
+<script nonce="{{ Vite::cspNonce() }}">
     (function () {
         var root = document.documentElement;
         try {

@@ -7,6 +7,7 @@ use App\Enums\EmployeeStatus;
 use App\Models\Employee;
 use App\Models\EmployeeAssignment;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 /**
@@ -37,6 +38,30 @@ class EmploymentTimeline
         }
 
         return $row->status === EmployeeStatus::Active ? $row : null;
+    }
+
+    /**
+     * Load the assignment history of many employees in one query (bulk screens, dashboards).
+     *
+     * @param  list<int>  $employeeIds
+     */
+    public function preload(array $employeeIds): void
+    {
+        $missing = array_values(array_diff($employeeIds, array_keys($this->history)));
+
+        if ($missing === []) {
+            return;
+        }
+
+        $rows = EmployeeAssignment::query()
+            ->whereIn('employee_id', $missing)
+            ->whereNotNull('applied_at')->whereNull('cancelled_at')
+            ->orderBy('effective_date')->orderBy('id')
+            ->get()->groupBy('employee_id');
+
+        foreach ($missing as $employeeId) {
+            $this->history[$employeeId] = $rows->get($employeeId, new EloquentCollection)->values();
+        }
     }
 
     public function forget(?int $employeeId = null): void

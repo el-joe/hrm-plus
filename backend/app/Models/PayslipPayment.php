@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\PaymentMethod;
+use Database\Factories\PayslipPaymentFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PayslipPayment extends Model
 {
+    /** @use HasFactory<PayslipPaymentFactory> */
+    use HasFactory;
+
     /** @var list<string> */
     protected $guarded = ['id'];
 

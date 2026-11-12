@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\PunchDirection;
 use App\Enums\RawEventSource;
+use Database\Factories\AttendancePunchFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class AttendancePunch extends Model
 {
+    /** @use HasFactory<AttendancePunchFactory> */
+    use HasFactory;
+
     /** @var list<string> */
     protected $guarded = ['id'];
 

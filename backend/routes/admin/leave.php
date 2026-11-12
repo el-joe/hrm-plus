@@ -20,7 +20,7 @@ Route::patch('leave-policies/{leave_policy}/status', [Leave\LeavePolicyControlle
 
 Route::prefix('leave-balances')->name('leave-balances.')->group(function (): void {
     Route::get('/', [Leave\LeaveBalanceController::class, 'index'])->can('leave_balances.view')->name('index');
-    Route::get('export', [Leave\LeaveBalanceController::class, 'export'])->can('leave_balances.export')->name('export');
+    Route::get('export', [Leave\LeaveBalanceController::class, 'export'])->can('leave_balances.export')->middleware('throttle:exports')->name('export');
     Route::get('{employee}', [Leave\LeaveBalanceController::class, 'show'])->whereNumber('employee')->can('leave_balances.view')->name('show');
     Route::post('{employee}/transactions', [Leave\LeaveBalanceController::class, 'store'])->whereNumber('employee')->can('leave_balances.update')->name('transactions.store');
 });
@@ -29,7 +29,7 @@ Route::get('leave-calendar', Leave\LeaveCalendarController::class)->can('leaves.
 
 Route::get('leave-reports', [Leave\LeaveReportController::class, 'index'])->name('leave-reports.index');
 Route::get('leave-reports/{report}', [Leave\LeaveReportController::class, 'show'])->where('report', '[a-z_]+')->name('leave-reports.show');
-Route::get('leave-reports/{report}/export', [Leave\LeaveReportController::class, 'export'])->where('report', '[a-z_]+')->name('leave-reports.export');
+Route::get('leave-reports/{report}/export', [Leave\LeaveReportController::class, 'export'])->where('report', '[a-z_]+')->middleware('throttle:exports')->name('leave-reports.export');
 
 Route::resource('leave-requests', Leave\LeaveRequestController::class)->only(['index', 'create', 'store', 'show']);
 Route::prefix('leave-requests/{leave_request}')->name('leave-requests.')->group(function (): void {

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\PayEntryAttachmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['pay_entry_id', 'file_path', 'file_name', 'file_mime', 'file_size', 'uploaded_by'])]
 class PayEntryAttachment extends Model
 {
+    /** @use HasFactory<PayEntryAttachmentFactory> */
+    use HasFactory;
+
     /**
      * @return BelongsTo<PayEntry, $this>
      */

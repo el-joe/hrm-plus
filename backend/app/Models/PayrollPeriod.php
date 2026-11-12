@@ -6,8 +6,10 @@ use App\Enums\PayrollPeriodStatus;
 use App\Enums\PayrollPeriodType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasLocalizedName;
+use Database\Factories\PayrollPeriodFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['code', 'name_ar', 'name_en', 'type', 'start_date', 'end_date', 'pay_date', 'cutoff_date', 'status', 'notes', 'created_by'])]
 class PayrollPeriod extends Model
 {
-    use Auditable, HasLocalizedName;
+    /** @use HasFactory<PayrollPeriodFactory> */
+    use Auditable, HasFactory, HasLocalizedName;
 
     /**
      * @return array<string, string>

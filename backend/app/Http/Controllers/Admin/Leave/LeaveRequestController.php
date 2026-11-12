@@ -15,6 +15,7 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Services\Approvals\ApprovalService;
 use App\Services\Employees\EmployeeFileStore;
+use App\Services\Employees\SensitiveDataAccessLog;
 use App\Services\Leave\LeaveBalanceCalculator;
 use App\Services\Leave\LeaveCalendar;
 use Illuminate\Database\Eloquent\Builder;
@@ -135,11 +136,12 @@ class LeaveRequestController extends Controller
         return redirect()->route('admin.leave-requests.show', $leaveRequest)->with('status', __('leave.requests.cancelled'));
     }
 
-    public function attachment(LeaveRequest $leaveRequest, int $attachment, EmployeeFileStore $files): StreamedResponse
+    public function attachment(Request $request, LeaveRequest $leaveRequest, int $attachment, EmployeeFileStore $files, SensitiveDataAccessLog $log): StreamedResponse
     {
         Gate::authorize('view', $leaveRequest);
 
         $file = $leaveRequest->attachments()->findOrFail($attachment);
+        $log->record(SensitiveDataAccessLog::DOCUMENT, $leaveRequest, ['attachment'], ['employee_id' => $leaveRequest->employee_id, 'attachment' => $file->getKey()], $request->user());
 
         return $files->response($file->file_path, $file->file_name, $file->file_mime);
     }

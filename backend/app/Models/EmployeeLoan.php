@@ -8,7 +8,9 @@ use App\Enums\LoanType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasApprovals;
 use App\Models\Concerns\ScopedThroughEmployee;
+use Database\Factories\EmployeeLoanFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,7 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class EmployeeLoan extends Model
 {
-    use Auditable, HasApprovals, ScopedThroughEmployee;
+    /** @use HasFactory<EmployeeLoanFactory> */
+    use Auditable, HasApprovals, HasFactory, ScopedThroughEmployee;
 
     public const WORKFLOW = 'loan_request';
 

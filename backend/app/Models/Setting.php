@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Concerns\Auditable;
 use App\Services\Audit\AuditLogger;
 use App\Services\Settings\SettingsService;
+use Database\Factories\SettingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -15,7 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['key', 'group', 'value'])]
 class Setting extends Model
 {
-    use Auditable;
+    /** @use HasFactory<SettingFactory> */
+    use Auditable, HasFactory;
 
     /**
      * A setting whose key looks secret (e.g. "notifications.smtp_password")

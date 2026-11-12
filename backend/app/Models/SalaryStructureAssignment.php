@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\SalaryStructureScope;
 use App\Models\Concerns\Auditable;
+use Database\Factories\SalaryStructureAssignmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['salary_structure_id', 'scope_type', 'scope_id', 'effective_from', 'effective_to', 'reason', 'created_by'])]
 class SalaryStructureAssignment extends Model
 {
-    use Auditable;
+    /** @use HasFactory<SalaryStructureAssignmentFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @return array<string, string>

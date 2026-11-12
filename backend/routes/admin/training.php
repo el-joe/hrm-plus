@@ -32,14 +32,14 @@ Route::prefix('training-sessions/{training_session}')->name('training-sessions.'
 
 Route::prefix('training-enrolments')->name('training-enrolments.')->controller(Training\TrainingEnrolmentController::class)->group(function (): void {
     Route::get('/', 'index')->name('index');
-    Route::get('export', 'export')->name('export');
+    Route::get('export', 'export')->middleware('throttle:exports')->name('export');
     Route::get('{training_enrolment}', 'show')->whereNumber('training_enrolment')->name('show');
     Route::post('{training_enrolment}/decide/{decision}', 'decide')->whereNumber('training_enrolment')->whereIn('decision', ['approve', 'reject'])->name('decide');
     Route::post('{training_enrolment}/cancel', 'cancel')->whereNumber('training_enrolment')->name('cancel');
     Route::post('{training_enrolment}/outcome', 'outcome')->whereNumber('training_enrolment')->name('outcome');
 });
 
-Route::get('training-certificates/export', [Training\TrainingCertificateController::class, 'export'])->name('training-certificates.export');
+Route::get('training-certificates/export', [Training\TrainingCertificateController::class, 'export'])->middleware('throttle:exports')->name('training-certificates.export');
 Route::get('training-certificates/{training_certificate}/download', [Training\TrainingCertificateController::class, 'download'])->name('training-certificates.download');
 Route::resource('training-certificates', Training\TrainingCertificateController::class)->except('show');
 

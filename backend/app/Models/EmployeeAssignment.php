@@ -6,8 +6,10 @@ use App\Enums\AssignmentChangeType;
 use App\Enums\EmployeeStatus;
 use App\Enums\TerminationType;
 use App\Models\Concerns\Auditable;
+use Database\Factories\EmployeeAssignmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -23,7 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class EmployeeAssignment extends Model
 {
-    use Auditable;
+    /** @use HasFactory<EmployeeAssignmentFactory> */
+    use Auditable, HasFactory;
 
     /**
      * Get the attributes that should be cast.

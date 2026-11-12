@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\CandidateTagFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 #[Fillable(['name'])]
 class CandidateTag extends Model
 {
+    /** @use HasFactory<CandidateTagFactory> */
+    use HasFactory;
+
     /**
      * @return BelongsToMany<Candidate, $this>
      */

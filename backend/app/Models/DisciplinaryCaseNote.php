@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\DisciplinaryNoteType;
 use App\Models\Concerns\Auditable;
+use Database\Factories\DisciplinaryCaseNoteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,7 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['disciplinary_case_id', 'type', 'body', 'created_by'])]
 class DisciplinaryCaseNote extends Model
 {
-    use Auditable;
+    /** @use HasFactory<DisciplinaryCaseNoteFactory> */
+    use Auditable, HasFactory;
 
     /**
      * @var list<string>

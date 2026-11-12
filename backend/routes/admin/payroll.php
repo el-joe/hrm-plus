@@ -37,7 +37,7 @@ foreach (['allowances' => Payroll\AllowanceController::class, 'deductions' => Pa
         Route::get('import/template', 'importTemplate')->name('import.template');
         Route::post('import', 'importAnalyse')->name('import.analyse');
         Route::post('import/{token}', 'importStore')->name('import.store');
-        Route::get('export', 'export')->name('export');
+        Route::get('export', 'export')->middleware('throttle:exports')->name('export');
         Route::get('{pay_entry}', 'show')->whereNumber('pay_entry')->name('show');
         Route::post('{pay_entry}/decide/{decision}', 'decide')->whereNumber('pay_entry')->whereIn('decision', ['approve', 'reject'])->name('decide');
         Route::post('{pay_entry}/cancel', 'cancel')->whereNumber('pay_entry')->name('cancel');
@@ -54,7 +54,7 @@ Route::prefix('statutory-rules/{statutory_rule}')->name('statutory-rules.')->gro
     Route::post('versions', [Payroll\StatutoryRuleController::class, 'storeVersion'])->name('versions.store');
 });
 
-Route::get('loans/export', [Payroll\LoanController::class, 'export'])->name('loans.export');
+Route::get('loans/export', [Payroll\LoanController::class, 'export'])->middleware('throttle:exports')->name('loans.export');
 Route::resource('loans', Payroll\LoanController::class)->only(['index', 'create', 'store', 'show']);
 Route::prefix('loans/{loan}')->name('loans.')->group(function (): void {
     Route::post('decide/{decision}', [Payroll\LoanController::class, 'decide'])->whereIn('decision', ['approve', 'reject'])->name('decide');
@@ -97,7 +97,7 @@ Route::prefix('payroll-runs')->name('payroll-runs.')->controller(Payroll\Payroll
     Route::post('{payroll_run}/finalise', 'finalise')->name('finalise');
     Route::post('{payroll_run}/cancel', 'cancel')->name('cancel');
     Route::post('{payroll_run}/reverse', 'reverse')->name('reverse');
-    Route::get('{payroll_run}/export/{kind}', 'export')->whereIn('kind', ['register', 'bank'])->name('export');
+    Route::get('{payroll_run}/export/{kind}', 'export')->whereIn('kind', ['register', 'bank'])->middleware('throttle:exports')->name('export');
 });
 Route::get('payroll-runs/{payroll_run}/items/{item}', [Payroll\PayrollItemController::class, 'show'])->whereNumber(['payroll_run', 'item'])->name('payroll-runs.items.show');
 
@@ -111,7 +111,7 @@ Route::prefix('payroll-corrections')->name('payroll-corrections.')->controller(P
 
 Route::prefix('payslips')->name('payslips.')->controller(Payroll\PayslipController::class)->group(function (): void {
     Route::get('/', 'index')->name('index');
-    Route::get('export', 'export')->name('export');
+    Route::get('export', 'export')->middleware('throttle:exports')->name('export');
     Route::post('mark-paid', 'markPaid')->name('mark-paid');
     Route::get('{payslip}', 'show')->whereNumber('payslip')->name('show');
     Route::get('{payslip}/pdf', 'pdf')->whereNumber('payslip')->name('pdf');

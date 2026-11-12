@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\HrRequestFieldValueFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['hr_request_id', 'hr_request_category_field_id', 'label_ar', 'label_en', 'value'])]
 class HrRequestFieldValue extends Model
 {
+    /** @use HasFactory<HrRequestFieldValueFactory> */
+    use HasFactory;
+
     /**
      * @return BelongsTo<HrRequest, $this>
      */

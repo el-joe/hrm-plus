@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::resource('hr-request-categories', HrRequests\HrRequestCategoryController::class)->except('show');
 Route::resource('hr-letter-templates', HrRequests\HrLetterTemplateController::class);
 
-Route::get('hr-requests/export', [HrRequests\HrRequestController::class, 'export'])->name('hr-requests.export');
+Route::get('hr-requests/export', [HrRequests\HrRequestController::class, 'export'])->middleware('throttle:exports')->name('hr-requests.export');
 Route::resource('hr-requests', HrRequests\HrRequestController::class)->only(['index', 'create', 'store', 'show']);
 Route::prefix('hr-requests/{hr_request}')->name('hr-requests.')->group(function (): void {
     Route::post('assign', [HrRequests\HrRequestController::class, 'assign'])->name('assign');

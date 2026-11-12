@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\PerformanceGoalUpdateFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['performance_goal_id', 'progress', 'current_value', 'note', 'created_by'])]
 class PerformanceGoalUpdate extends Model
 {
+    /** @use HasFactory<PerformanceGoalUpdateFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */

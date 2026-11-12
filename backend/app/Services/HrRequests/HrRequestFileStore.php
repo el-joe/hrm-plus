@@ -27,7 +27,9 @@ class HrRequestFileStore
      */
     public static function fileRules(): array
     {
-        return ['file', 'mimes:'.implode(',', (array) setting('hr_requests.allowed_extensions')), 'max:'.(int) setting('hr_requests.attachment_max_kb')];
+        $extensions = implode(',', (array) setting('hr_requests.allowed_extensions'));
+
+        return ['file', 'mimes:'.$extensions, 'extensions:'.$extensions, 'max:'.(int) setting('hr_requests.attachment_max_kb')];
     }
 
     /**

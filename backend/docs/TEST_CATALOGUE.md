@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**121 files, 1053 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**127 files, 1073 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -15,7 +15,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 
 | Area | Files | Tests |
 |---|---:|---:|
-| Feature/Admin | 5 | 61 |
+| Feature/Admin | 6 | 64 |
 | Feature/Announcements | 5 | 41 |
 | Feature/Api | 3 | 25 |
 | Feature/Api/V1 | 3 | 15 |
@@ -38,10 +38,12 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Performance | 3 | 32 |
 | Feature/Portal | 4 | 24 |
 | Feature/Recruitment | 3 | 22 |
-| Feature/Reports | 3 | 34 |
+| Feature/Reports | 3 | 36 |
+| Feature/Scenarios | 2 | 3 |
+| Feature/Security | 2 | 10 |
 | Feature/Settings | 2 | 16 |
 | Feature/Structure | 9 | 45 |
-| Feature/Support | 1 | 5 |
+| Feature/Support | 2 | 7 |
 | Feature/Training | 6 | 54 |
 
 ## Feature/Admin
@@ -92,6 +94,12 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - filters by event, actor and date range
 - rejects a date range that ends before it starts
 - shows the old and new values of one entry and escapes them
+
+### `tests/Feature/Admin/CreateSuperAdminCommandTest.php` (3)
+
+- creates the first Super Admin from the console with a hidden password prompt
+- refuses a weak or mismatched password and a taken e-mail
+- seeds roles, permissions and reference data but no demo data or accounts in production
 
 ### `tests/Feature/Admin/RoleControllerTest.php` (14)
 
@@ -1313,10 +1321,12 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - guards salary columns behind employee_financials.view and payroll reports as a whole
 - lists only the reports an admin may open, grouped by area
 
-### `tests/Feature/Reports/ReportsCentreTest.php` (18)
+### `tests/Feature/Reports/ReportsCentreTest.php` (20)
 
-- access › opens the catalogue and a report with reports.view only
+- access › opens every area to the Reports Viewer (reports.manage)
 - access › refuses admins without reports.view and exports without reports.export
+- access › opens only the areas whose module the admin may view (a Recruiter sees recruitment reports only)
+- access › needs the area permission besides reports.view
 - access › validates filters and refuses a range longer than allowed
 - data scope › limits the screen to the admin data scope
 - data scope › limits every export format to the admin data scope
@@ -1333,6 +1343,35 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - screen › shows totals and a chart for grouped reports
 - default roles › gives the Reports Viewer reports without salary or disciplinary access, and HR Managers the bank-detail update
 - default roles › shows the Reports sidebar section to report viewers only
+
+## Feature/Scenarios
+
+### `tests/Feature/Scenarios/DefaultRolesSmokeTest.php` (2)
+
+- signs in as each default role and gets its dashboard, sidebar and refusals
+- the smoke test covers every default role
+
+### `tests/Feature/Scenarios/ScenarioFivePermissionsTest.php` (1)
+
+- runs scenario 5: a Super Admin creates an attendance-only role and the backend enforces it everywhere
+
+## Feature/Security
+
+### `tests/Feature/Security/AdminRouteAuthorizationTest.php` (2)
+
+- every admin route requires a permission or calls a policy
+- the allow-list only names routes that exist
+
+### `tests/Feature/Security/SecurityHardeningTest.php` (8)
+
+- every state-changing browser route runs the web group with CSRF protection
+- a form post without a CSRF token is rejected outside the test environment
+- web responses carry the security headers and a nonce-based content security policy
+- API responses carry the security headers too
+- HSTS is only sent over HTTPS
+- exports are rate limited per user
+- the session cookie is http-only and secure when the app is served over https
+- personal identifiers are redacted from audit metadata
 
 ## Feature/Settings
 
@@ -1441,6 +1480,11 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - uses Arabic-Indic digits only in Arabic and only when the setting is on
 - formats amounts with bcmath and never through float
 - renders the x-date and x-number components and exposes the settings to JavaScript
+
+### `tests/Feature/Support/ModelFactoriesTest.php` (2)
+
+- has a factory for every model
+- creates a valid record with the factory
 
 ## Feature/Training
 

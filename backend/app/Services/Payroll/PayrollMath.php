@@ -46,6 +46,19 @@ final class PayrollMath
         return array_reduce($factors, fn (string $product, string $factor): string => bcmul($product, $factor, self::SCALE), '1');
     }
 
+    /**
+     * amount × numerator ÷ denominator with the division last, so the only truncation is at the
+     * SCALE-th decimal of the result (one HalfUp rounding to cents afterwards is then exact).
+     */
+    public static function fraction(string $amount, string $numerator, string $denominator): string
+    {
+        if (bccomp($numerator, $denominator, self::SCALE) === 0) {
+            return bcadd($amount, '0', self::SCALE);
+        }
+
+        return self::div(bcmul($amount, $numerator, self::SCALE), $denominator);
+    }
+
     public static function div(string $dividend, string $divisor): string
     {
         return bccomp($divisor, '0', self::SCALE) === 0 ? '0' : bcdiv($dividend, $divisor, self::SCALE);

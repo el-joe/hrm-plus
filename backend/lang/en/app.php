@@ -120,7 +120,7 @@ return [
         'report_exports' => 'My exports',
         'attendance_dashboard' => 'Attendance dashboard',
         'attendance_calendar' => 'Attendance calendar',
-        'attendance_reviews' => 'Mobile check-in review',
+        'attendance_reviews' => 'Mobile and web check-in review',
         'attendance_events' => 'Raw events',
         'attendance_reports' => 'Attendance reports',
         'attendance_devices' => 'Attendance devices',
@@ -530,7 +530,7 @@ return [
         'hint_mobile_check_in' => 'Check in from the HRM Plus mobile app (location and, when required, face verification) or at the attendance device.',
         'hint_mobile_check_out' => 'Remember to check out from the mobile app or at the attendance device when you finish.',
         'hint_device' => 'Use the attendance device at your workplace to check in and out.',
-        'pending_reviews' => '{1} 1 mobile attendance attempt is waiting for review.|[2,*] :count mobile attendance attempts are waiting for review.',
+        'pending_reviews' => '{1} 1 attendance attempt (mobile or web) is waiting for review.|[2,*] :count attendance attempts (mobile or web) are waiting for review.',
         'tasks_title' => 'Waiting for you',
         'tasks' => [
             'onboarding_task' => 'Onboarding task',

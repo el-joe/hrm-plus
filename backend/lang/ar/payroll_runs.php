@@ -91,7 +91,7 @@ return [
         'minus_employees' => '−:count مستبعد',
         'dimensions' => [
             'branch_ids' => 'الفروع', 'department_ids' => 'الأقسام (مع الأقسام الفرعية)', 'team_ids' => 'الفرق',
-            'position_ids' => 'المناصب الوظيفية', 'employee_group_ids' => 'مجموعات الموظفين', 'employee_ids' => 'موظفون بعينهم',
+            'position_ids' => 'الوظائف', 'employee_group_ids' => 'مجموعات الموظفين', 'employee_ids' => 'موظفون بعينهم',
             'exclude_employee_ids' => 'استبعاد موظفين',
         ],
     ],
@@ -126,7 +126,7 @@ return [
 
     'runs' => [
         'title' => 'مسيرات الرواتب',
-        'subtitle' => 'تسويات حسب الفرع أو القسم أو الفريق أو المنصب أو المجموعة أو موظفين بعينهم أو الشركة كاملة',
+        'subtitle' => 'تسويات حسب الفرع أو القسم أو الفريق أو الوظيفة أو المجموعة أو موظفين بعينهم أو الشركة كاملة',
         'new' => 'مسير رواتب جديد',
         'pending_approval' => 'بانتظار الاعتماد',
         'in_progress' => 'قيد الإعداد',
@@ -281,7 +281,7 @@ return [
     'explain' => [
         'basic_full' => 'الراتب الشهري :salary، الفترة كاملة',
         'basic_monthly' => 'الراتب الشهري :salary × :days / :period_days يومًا (:from → :to)',
-        'basic_fixed' => 'مبلغ ثابت :salary للفترة (دون تناسب ودون خصومات حضور)',
+        'basic_fixed' => 'مبلغ ثابت :salary للفترة (دون تناسب ودون استقطاعات حضور)',
         'basic_fixed_replaced' => 'المبلغ الثابت :salary تغيّر داخل الفترة (:from → :to)',
         'basic_daily' => ':days يوم مدفوع × :rate (:from → :to)',
         'basic_hourly' => ':hours ساعة عمل × :rate (:from → :to)',
@@ -297,8 +297,8 @@ return [
         'entry' => 'القيد :reference (:recurrence، :target)',
         'entry_instalment' => 'القسط :number من :count للقيد :reference',
         'encashment' => 'صرف :days يوم إجازة (:type، :date) × أجر اليوم :rate = :amount',
-        'insurance' => 'الأجر التأميني :gross − الخصومات :reduced ← الوعاء :base (الحد الأدنى :floor، الأقصى :ceiling) × :rate% = :amount',
-        'tax' => 'الدخل الخاضع :gross − الخصومات :reduced − التأمينات :insurance = :taxable؛ × :periods − الإعفاء :exemption = :annual سنويًا ← ضريبة :annual_tax سنويًا ÷ :periods = :amount',
+        'insurance' => 'الأجر التأميني :gross − الاستقطاعات :reduced ← الوعاء :base (الحد الأدنى :floor، الأقصى :ceiling) × :rate% = :amount',
+        'tax' => 'الدخل الخاضع :gross − الاستقطاعات :reduced − التأمينات :insurance = :taxable؛ × :periods − الإعفاء :exemption = :annual سنويًا ← ضريبة :annual_tax سنويًا ÷ :periods = :amount',
         'statutory_version' => 'الجدول :set، النسخة :version من :from',
         'demo' => 'جدول تجريبي — ليس استشارة قانونية',
         'loan' => 'القرض :reference القسط رقم :sequence المستحق :date (:amount)',
@@ -324,8 +324,8 @@ return [
         'mobile_pending_review' => ':count تسجيل حضور من الجوال بانتظار المراجعة ولا يُحتسب حضورًا بعد.',
         'incomplete_days' => ':days يوم به بصمة ناقصة.',
         'locked_adjustments' => 'عُدّل :days يوم مقفل بعد إقفال الحضور؛ التعديلات مضمّنة.',
-        'no_attendance' => 'لا يوجد حضور معالج في الفترة: لا خصومات حضور ولا عمل إضافي.',
-        'fixed_basis' => 'أجر ثابت: دون تناسب ودون خصومات حضور.',
+        'no_attendance' => 'لا يوجد حضور معالج في الفترة: لا استقطاعات حضور ولا عمل إضافي.',
+        'fixed_basis' => 'أجر ثابت: دون تناسب ودون استقطاعات حضور.',
         'moved_in_period' => 'انتقل فرعًا / قسمًا خلال الفترة؛ يُصرف له عبر هذا المسير (موقع نهاية الفترة).',
         'short' => [
             'configuration_error' => 'خطأ إعداد', 'not_employed' => 'ليس على رأس العمل', 'partial_period' => 'فترة جزئية', 'missing_salary' => 'بلا راتب',

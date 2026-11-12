@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**128 files, 1083 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**128 files, 1085 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -15,7 +15,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 
 | Area | Files | Tests |
 |---|---:|---:|
-| Feature/Admin | 6 | 64 |
+| Feature/Admin | 6 | 66 |
 | Feature/Announcements | 5 | 41 |
 | Feature/Api | 3 | 25 |
 | Feature/Api/V1 | 3 | 15 |
@@ -87,13 +87,15 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - access history › lists the full login history of one admin only
 - access history › returns 403 for the login history without the view permission
 
-### `tests/Feature/Admin/AuditLogControllerTest.php` (5)
+### `tests/Feature/Admin/AuditLogControllerTest.php` (7)
 
 - lists audit entries for an admin with the audit permission
 - returns 403 without the audit permission
 - filters by event, actor and date range
 - rejects a date range that ends before it starts
 - shows the old and new values of one entry and escapes them
+- shows translated event labels and humanises unknown keys
+- has an Arabic and English label for every audit event written in the code
 
 ### `tests/Feature/Admin/CreateSuperAdminCommandTest.php` (3)
 

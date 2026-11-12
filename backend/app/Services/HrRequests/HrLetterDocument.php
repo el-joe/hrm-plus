@@ -9,18 +9,16 @@ use App\Models\HrLetterTemplate;
 use App\Models\HrRequest;
 use App\Services\Notifications\TemplateRenderer;
 use App\Support\Money;
+use App\Support\Pdf\ArabicPdf;
 use App\Support\SensitiveValue;
 use Illuminate\Support\Facades\Storage;
-use Mpdf\Config\ConfigVariables;
-use Mpdf\Config\FontVariables;
-use Mpdf\Mpdf;
-use Mpdf\MpdfException;
 
 /**
  * Letters issued on HR requests (salary certificate, employment certificate, experience letter):
  * the template body is plain text with {{placeholders}} from PLACEHOLDERS, rendered with the
- * notification TemplateRenderer (no Blade, no expressions) and laid out as an A4 PDF with mPDF in the
- * letter's language (same set-up as the payslip PDF: Cairo font, RTL for Arabic).
+ * notification TemplateRenderer (no Blade, no expressions) and laid out as an A4 PDF in the letter's
+ * language with the shared App\Support\Pdf\ArabicPdf (same set-up as payslips and reports: Cairo
+ * font, RTL for Arabic).
  */
 class HrLetterDocument
 {
@@ -39,7 +37,7 @@ class HrLetterDocument
      */
     public const FINANCIAL_PLACEHOLDERS = ['basic_salary'];
 
-    public function __construct(private readonly TemplateRenderer $renderer) {}
+    public function __construct(private readonly TemplateRenderer $renderer, private readonly ArabicPdf $pdf) {}
 
     public function usesFinancialData(HrLetterTemplate $template): bool
     {
@@ -136,46 +134,15 @@ class HrLetterDocument
                 ? Storage::disk(UpdateCompanyProfile::LOGO_DISK)->path($company->logo_path) : null,
         ];
 
-        $html = (string) preg_replace('/[\x{064B}-\x{0652}\x{0670}]/u', '', view('hr-requests.letter-pdf', $data)->render());
-        $tempDir = storage_path('framework/mpdf');
-
-        if (! is_dir($tempDir)) {
-            mkdir($tempDir, 0775, true);
-        }
-
-        try {
-            return $this->render($html, $data, 'cairo', $tempDir);
-        } catch (MpdfException) {
-            return $this->render(str_replace('font-family: cairo', 'font-family: xbriyaz', $html), $data, 'xbriyaz', $tempDir);
-        }
+        return $this->pdf->render(view('hr-requests.letter-pdf', $data)->render(), $data['dir'], [
+            'title' => $data['title'].' '.$data['reference'],
+            'author' => $data['company']['name'] ?? config('app.name'),
+            'margins' => ['top' => 18, 'bottom' => 18, 'left' => 20, 'right' => 20],
+        ]);
     }
 
     public function fileName(HrLetterTemplate $template, HrRequest $request, string $locale): string
     {
         return $template->code.'-'.$request->reference.'-'.$locale.'.pdf';
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function render(string $html, array $data, string $font, string $tempDir): string
-    {
-        $fontDirs = (new ConfigVariables)->getDefaults()['fontDir'];
-        $fontData = (new FontVariables)->getDefaults()['fontdata'];
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => 'A4',
-            'tempDir' => $tempDir,
-            'fontDir' => [...$fontDirs, resource_path('fonts/cairo')],
-            'fontdata' => $fontData + ['cairo' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'useOTL' => 0xFF, 'useKashida' => 75]],
-            'default_font' => $font,
-            'directionality' => $data['dir'],
-            'margin_top' => 18, 'margin_bottom' => 18, 'margin_left' => 20, 'margin_right' => 20,
-        ]);
-        $mpdf->SetTitle($data['title'].' '.$data['reference']);
-        $mpdf->SetAuthor($data['company']['name'] ?? config('app.name'));
-        $mpdf->WriteHTML($html);
-
-        return $mpdf->Output('', 'S');
     }
 }

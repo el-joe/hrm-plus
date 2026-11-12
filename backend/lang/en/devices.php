@@ -193,7 +193,7 @@ return [
     ],
 
     'events' => [
-        'title' => 'Raw attendance events',
+        'title' => 'Raw events',
         'subtitle' => 'Every input as received — devices, mobile, manual — before calculation.',
         'search' => 'Employee or device reference',
         'states' => ['unmatched' => 'Unmatched', 'pending' => 'Waiting for processing', 'processed' => 'Processed', 'void' => 'Voided', 'duplicate' => 'Duplicate punch'],

@@ -25,7 +25,7 @@ return [
         'employee_turnover' => ['title' => 'Employee turnover'],
         'employee_distribution' => ['title' => 'Employee distribution'],
         'payroll_pending' => ['title' => 'Payroll runs awaiting approval'],
-        'active_admins' => ['title' => 'Active admin accounts'],
+        'active_admins' => ['title' => 'Active admin users'],
         'roles' => ['title' => 'Roles'],
         'audit_today' => ['title' => 'Audit events today'],
         'failed_logins' => ['title' => 'Failed sign-ins'],

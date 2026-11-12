@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use LogicException;
 
 /**
@@ -40,6 +42,30 @@ class AuditLog extends Model
             'new_values' => 'array',
             'meta' => 'array',
         ];
+    }
+
+    /**
+     * The translated label of an event key (lang/{locale}/audit.php, flat keys
+     * because event names contain dots). Keys
+     * without a translation are humanised: "payroll.run_created" becomes
+     * "Payroll › Run created".
+     */
+    public static function eventLabel(string $event): string
+    {
+        $labels = Lang::get('audit.events');
+
+        if (is_array($labels) && is_string($labels[$event] ?? null)) {
+            return $labels[$event];
+        }
+
+        return collect(explode('.', $event))
+            ->map(fn (string $part): string => Str::ucfirst(str_replace('_', ' ', $part)))
+            ->implode(' › ');
+    }
+
+    public function label(): string
+    {
+        return self::eventLabel((string) $this->event);
     }
 
     /**

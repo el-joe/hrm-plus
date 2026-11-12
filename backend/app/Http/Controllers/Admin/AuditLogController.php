@@ -32,7 +32,9 @@ class AuditLogController extends Controller
             'logs' => $logs,
             'filters' => $filters,
             'admins' => User::query()->admins()->orderBy('name')->get(['id', 'name']),
-            'events' => AuditLog::query()->distinct()->orderBy('event')->pluck('event'),
+            'events' => AuditLog::query()->distinct()->orderBy('event')->pluck('event')
+                ->mapWithKeys(fn (string $event): array => [$event => AuditLog::eventLabel($event)])
+                ->sort(),
             'types' => AuditLog::query()->whereNotNull('auditable_type')->distinct()->orderBy('auditable_type')->pluck('auditable_type'),
         ]);
     }

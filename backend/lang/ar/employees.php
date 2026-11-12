@@ -30,7 +30,7 @@ return [
         'contact_name' => 'اسم جهة الاتصال',
         'relationship' => 'صلة القرابة',
         'branch_id' => 'الفرع',
-        'department_id' => 'الإدارة',
+        'department_id' => 'القسم',
         'team_id' => 'الفريق',
         'position_id' => 'الوظيفة',
         'job_title_id' => 'المسمى الوظيفي',
@@ -95,7 +95,7 @@ return [
 
     'index' => [
         'title' => 'الموظفون',
-        'subtitle' => 'دليل موظفي الفروع والإدارات المسموح لك بالوصول إليها.',
+        'subtitle' => 'دليل موظفي الفروع والأقسام المسموح لك بالوصول إليها.',
         'create' => 'إضافة موظف',
         'import' => 'استيراد',
         'export' => 'تصدير',
@@ -136,12 +136,12 @@ return [
         'emergency_help' => 'حتى شخصين يُتصل بهما عند الطوارئ.',
         'contact_n' => 'جهة الاتصال :n',
         'employment' => 'بيانات التوظيف',
-        'employment_help' => 'مكان عمل الموظف. المسمى والدرجة ومركز التكلفة والمدير الفارغة تؤخذ من الوظيفة والإدارة.',
-        'employment_locked' => 'الفرع والإدارة والوظيفة والمدير والحالة تتغير عبر إدخالات مؤرخة في السجل (تغيير ← نقل، ترقية ...) وليس بالتعديل المباشر.',
+        'employment_help' => 'مكان عمل الموظف. المسمى والدرجة ومركز التكلفة والمدير الفارغة تؤخذ من الوظيفة والقسم.',
+        'employment_locked' => 'الفرع والقسم والوظيفة والمدير والحالة تتغير عبر إدخالات مؤرخة في السجل (تغيير ← نقل، ترقية ...) وليس بالتعديل المباشر.',
         'position_help' => 'المقاعد المشغولة / العدد المعتمد.',
         'no_position' => 'بدون وظيفة',
         'from_position' => 'الافتراضي: قيمة الوظيفة.',
-        'from_department' => 'الافتراضي: مركز تكلفة الإدارة.',
+        'from_department' => 'الافتراضي: مركز تكلفة القسم.',
         'use_default' => 'استخدام القيمة الافتراضية',
         'manager_help' => 'إذا تُرك فارغًا: شاغل الوظيفة التي تتبع لها هذه الوظيفة.',
         'manager_default' => 'حسب خط التبعية',
@@ -184,7 +184,7 @@ return [
         'contract_period' => 'العقد الحالي',
         'reporting' => 'خط التبعية',
         'manager_id' => 'المدير المباشر',
-        'department_head' => 'رئيس الإدارة',
+        'department_head' => 'رئيس القسم',
         'branch_manager' => 'مدير الفرع',
         'direct_reports' => 'المرؤوسون المباشرون',
         'people' => '{0} لا أحد|{1} شخص واحد|{2} شخصان|[3,10] :count أشخاص|[11,*] :count شخصًا',
@@ -247,7 +247,7 @@ return [
 
     'financial' => [
         'salary' => 'الراتب الأساسي',
-        'basic_salary_help' => 'الراتب الأساسي الساري اليوم وطريقة احتسابه. الهيكل والبدلات والخصومات والقروض في تبويب التعويضات.',
+        'basic_salary_help' => 'الراتب الأساسي الساري اليوم وطريقة احتسابه. الهيكل والبدلات والاستقطاعات والقروض في تبويب التعويضات.',
         'change_salary' => 'تغيير الراتب',
         'auto_type' => 'زيادة أو تخفيض (تلقائي)',
         'salary_history' => 'سجل الرواتب',
@@ -310,7 +310,7 @@ return [
         'skip_terminated' => 'منتهية خدمته',
         'actions' => [
             'activate' => 'تفعيل', 'deactivate' => 'إيقاف', 'assign_branch' => 'نقل إلى فرع',
-            'assign_department' => 'نقل إلى إدارة', 'assign_manager' => 'تعيين مدير',
+            'assign_department' => 'نقل إلى قسم', 'assign_manager' => 'تعيين مدير',
             'add_to_group' => 'إضافة إلى مجموعة', 'remove_from_group' => 'إزالة من مجموعة',
         ],
     ],
@@ -324,7 +324,7 @@ return [
         'dry_run' => 'فحص الملف (لن يُحفظ شيء)',
         'template' => 'تنزيل القالب',
         'columns' => 'الأعمدة',
-        'columns_help' => 'الرموز تشير إلى الفروع والإدارات والوظائف ... المطلوب: name_ar وname_en وhire_date وbranch_code وdepartment_code وemployment_type_code.',
+        'columns_help' => 'الرموز تشير إلى الفروع والأقسام والوظائف ... المطلوب: name_ar وname_en وhire_date وbranch_code وdepartment_code وemployment_type_code.',
         'report' => '2. نتيجة الفحص',
         'rows' => 'الصفوف',
         'valid_rows' => 'الصفوف السليمة',
@@ -349,7 +349,7 @@ return [
     'export' => [
         'columns' => [
             'employee_number' => 'الرقم الوظيفي', 'name_ar' => 'الاسم (عربي)', 'name_en' => 'الاسم (إنجليزي)', 'status' => 'الحالة',
-            'branch' => 'الفرع', 'department' => 'الإدارة', 'team' => 'الفريق', 'position' => 'الوظيفة', 'job_title' => 'المسمى الوظيفي',
+            'branch' => 'الفرع', 'department' => 'القسم', 'team' => 'الفريق', 'position' => 'الوظيفة', 'job_title' => 'المسمى الوظيفي',
             'job_grade' => 'الدرجة الوظيفية', 'employment_type' => 'نوع التوظيف', 'cost_center' => 'مركز التكلفة',
             'manager_number' => 'رقم المدير', 'manager_name' => 'المدير', 'hire_date' => 'تاريخ الالتحاق',
             'original_hire_date' => 'تاريخ الالتحاق الأول', 'probation_end_date' => 'نهاية التجربة', 'termination_date' => 'تاريخ إنهاء الخدمة',
@@ -361,7 +361,7 @@ return [
 
     'groups' => [
         'title' => 'مجموعات الموظفين',
-        'subtitle' => 'تجميعات عابرة للفروع والإدارات، مثلًا لقيود وصول المستخدمين الإداريين.',
+        'subtitle' => 'تجميعات عابرة للفروع والأقسام، مثلًا لقيود وصول المستخدمين الإداريين.',
         'create' => 'إضافة مجموعة',
         'edit' => 'تعديل المجموعة',
         'members' => 'الأعضاء',
@@ -427,9 +427,9 @@ return [
     ],
 
     'validation' => [
-        'department_not_in_branch' => 'هذه الإدارة تتبع فرعًا آخر.',
-        'team_not_in_department' => 'هذا الفريق يتبع إدارة أخرى.',
-        'position_not_in_department' => 'هذه الوظيفة تتبع إدارة أخرى.',
+        'department_not_in_branch' => 'هذا القسم يتبع فرعًا آخر.',
+        'team_not_in_department' => 'هذا الفريق يتبع قسمًا آخر.',
+        'position_not_in_department' => 'هذه الوظيفة تتبع قسمًا آخر.',
         'location_not_in_branch' => 'هذا الموقع يتبع فرعًا آخر.',
         'position_full' => 'الوظيفة :position مكتملة (العدد المعتمد :headcount).',
         'headcount_below_holders' => 'لا يمكن أن يقل العدد المعتمد عن :count موظفين يشغلون هذه الوظيفة.',

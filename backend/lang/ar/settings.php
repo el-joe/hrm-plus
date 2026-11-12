@@ -79,7 +79,7 @@ return [
         'disciplinary' => [
             'warning_validity_months' => 'مدة احتساب الإنذارات في التصعيد (أشهر)',
             'response_days' => 'أيام رد الموظف',
-            'deduction_component' => 'رمز بند الخصم للخصومات التأديبية',
+            'deduction_component' => 'رمز بند الاستقطاع للاستقطاعات التأديبية',
         ],
         'loans' => [
             'employee_requests_enabled' => 'يمكن للموظفين طلب القروض والسلف',

@@ -100,13 +100,13 @@ class HrRequestDefaultsSeeder extends Seeder
             'SALARY_CERTIFICATE' => [
                 'شهادة راتب',
                 'Salary certificate',
-                "إلى: {{addressee}}\n\nتشهد {{company_name}} بأن السيد/السيدة {{employee_name}}، الرقم الوظيفي {{employee_number}}، يعمل لديها بوظيفة {{job_title}} بإدارة {{department}} ({{branch}}) منذ {{hire_date}}، ولا يزال على رأس العمل حتى تاريخه.\n\nويتقاضى راتبًا أساسيًا شهريًا قدره {{basic_salary}} {{salary_currency}}.\n\nوقد أُعطيت له هذه الشهادة بناءً على طلبه دون أدنى مسؤولية على الشركة.",
+                "إلى: {{addressee}}\n\nتشهد {{company_name}} بأن السيد/السيدة {{employee_name}}، الرقم الوظيفي {{employee_number}}، يعمل لديها بوظيفة {{job_title}} بقسم {{department}} ({{branch}}) منذ {{hire_date}}، ولا يزال على رأس العمل حتى تاريخه.\n\nويتقاضى راتبًا أساسيًا شهريًا قدره {{basic_salary}} {{salary_currency}}.\n\nوقد أُعطيت له هذه الشهادة بناءً على طلبه دون أدنى مسؤولية على الشركة.",
                 "To: {{addressee}}\n\n{{company_name}} certifies that {{employee_name}}, employee number {{employee_number}}, has been employed as {{job_title}} in {{department}} ({{branch}}) since {{hire_date}} and remains in service to date.\n\nThe employee's monthly basic salary is {{basic_salary}} {{salary_currency}}.\n\nThis certificate is issued at the employee's request without any liability on the company.",
             ],
             'EMPLOYMENT_CERTIFICATE' => [
                 'شهادة تعريف بالعمل',
                 'Employment certificate',
-                "إلى: {{addressee}}\n\nتشهد {{company_name}} بأن السيد/السيدة {{employee_name}}، الرقم الوظيفي {{employee_number}}، يعمل لديها بوظيفة {{job_title}} بإدارة {{department}} منذ {{hire_date}}.\n\nوقد أُعطيت له هذه الشهادة بناءً على طلبه.",
+                "إلى: {{addressee}}\n\nتشهد {{company_name}} بأن السيد/السيدة {{employee_name}}، الرقم الوظيفي {{employee_number}}، يعمل لديها بوظيفة {{job_title}} بقسم {{department}} منذ {{hire_date}}.\n\nوقد أُعطيت له هذه الشهادة بناءً على طلبه.",
                 "To: {{addressee}}\n\n{{company_name}} certifies that {{employee_name}}, employee number {{employee_number}}, has been employed as {{job_title}} in {{department}} since {{hire_date}}.\n\nThis certificate is issued at the employee's request.",
             ],
             'EXPERIENCE_LETTER' => [

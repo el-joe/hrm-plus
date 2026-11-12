@@ -143,6 +143,7 @@ from `app.js` and guarded by a data-attribute check.
 | `lib/format.js` | `formatNumber`, `formatDate`, `formatDigits` | Mirrors `App\Support\Formatter` from `<html data-digits data-date-format>`. |
 | `pages/dashboard.js` | `form[data-dashboard-layout]` (admin/dashboard-customise) | Up / down buttons that move a widget row and renumber the position inputs. |
 | `pages/employee-bulk.js` | `[data-bulk-form]` (employee directory) | Selection count and the target field of the chosen bulk action. Row checkboxes belong to the form through `form="bulk-form"`, so it works without JS. |
+| `pages/check-in.js` | `[data-check-in]` (partial `employee/_check-in`, on the portal Home and at the top of My Attendance) | Web check-in / check-out: checks `window.isSecureContext` (HTTPS or localhost), reads the position with `navigator.geolocation` (high accuracy, 20 s timeout) and refuses before sending when the accuracy is worse than the policy limit, opens the camera dialog (`getUserMedia` → canvas → JPEG) when face verification is required or optional, then POSTs JSON with a `request_uuid` that is reused on a network retry (no double count). Shows success only on 201; 202 = sent for review, 422 = the server's reason. Updates the accuracy chip and reloads after a decision. Without JS the card shows `mobile.web.no_js`. |
 
 ## 6. Recipes
 

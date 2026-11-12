@@ -220,7 +220,7 @@
                     <ol class="flex flex-col divide-y divide-border-subtle">
                         @forelse ($history as $log)
                             <li class="flex flex-col gap-0.5 px-5 py-3">
-                                <span class="text-label-md text-text-primary">{{ __('payroll_runs.events.'.str_replace('payroll.', '', $log->event)) }}</span>
+                                <span class="text-label-md text-text-primary">{{ Lang::has('payroll_runs.events.'.str_replace('payroll.', '', $log->event)) ? __('payroll_runs.events.'.str_replace('payroll.', '', $log->event)) : $log->label() }}</span>
                                 <span class="text-caption-md text-text-tertiary">{{ $log->user?->name ?? __('payroll_runs.runs.system') }} · <span dir="ltr">{{ $log->created_at->format('Y-m-d H:i') }}</span></span>
                                 @if (! empty($log->meta['reason']))
                                     <span class="text-body-sm text-text-secondary">{{ $log->meta['reason'] }}</span>

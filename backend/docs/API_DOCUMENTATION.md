@@ -286,10 +286,10 @@ Other profile changes go through an HR request of the profile-change category (�
 
 | Method | Path | Summary |
 |---|---|---|
-| GET | `me/attendance/today` | Today's state, shifts, rules (`max_accuracy_meters`, …), allowed `locations` (lat / lng / radius), face policy and status. Call before every check-in |
+| GET | `me/attendance/today` | Today's state, shifts, allowed `locations` (lat / lng / `radius_meters` / `checkout_radius_meters`), face policy (`mode`, `max_attempts`, `remaining_attempts`, enrolment status) and `rules`: `mobile_checkin_enabled`, `web_checkin_enabled`, `web_checkin_requires_geofence`, `checkout_extra_meters`, `face_failure_action` (`reject` / `review`), `max_accuracy_meters`, `accuracy_tolerance_meters`, `max_time_drift_seconds`, `mock_location_action`, `outside_window_action`. Call before every check-in |
 | POST | `me/attendance/check-in` · `me/attendance/check-out` | `{request_uuid*, latitude*, longitude*, accuracy*, is_mock_location, device_time, device_id, platform, app_version, face: {token?, images?: [base64], liveness_passed?, liveness_score?}}` → 201 / 202 / 422 (§4.2). Re-sending the same `request_uuid` after a timeout is idempotent |
-| GET | `me/attendance/attempts` | The employee's mobile attempts with result and review status |
-| GET | `me/attendance` | `?month=YYYY-MM` — processed days with status, times, late / early / overtime minutes, source |
+| GET | `me/attendance/attempts` | The employee's check-in attempts with result and review status. Each attempt has `channel` (`mobile` = the app, `web` = the employee portal in a browser); `location.accuracy_meters` may be `null` (a web attempt whose policy only records the position, sent without one) |
+| GET | `me/attendance` | `?month=YYYY-MM` — processed days with status, times, late / early / overtime minutes, source (raw-event sources: `device`, `mobile_gps`, `web_portal` — a check-in from the employee portal —, `manual`, `import`) |
 | GET | `me/attendance/corrections` | Correction requests |
 | POST | `me/attendance/corrections` | `{work_date*, shift_id, check_in, check_out, attendance_status_id, reason*}` → 201 (goes through the attendance approval workflow) |
 | GET | `me/schedule` | `?from=&to=` (max 62 days) — resolved shifts, rest days, holidays |

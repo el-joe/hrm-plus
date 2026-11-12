@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\AuditLog;
+use App\Services\Employees\SensitiveDataAccessLog;
+use Symfony\Component\Finder\Finder;
 
 it('lists audit entries for an admin with the audit permission', function () {
     AuditLog::factory()->create(['event' => 'payroll.exported']);
@@ -57,4 +59,42 @@ it('shows the old and new values of one entry and escapes them', function () {
         ->assertSee('Old')
         ->assertSee('<script>alert(1)</script>')
         ->assertDontSee('<script>alert(1)</script>', false);
+});
+
+it('shows translated event labels and humanises unknown keys', function () {
+    AuditLog::factory()->create(['event' => 'sensitive_access.employee_financial']);
+    AuditLog::factory()->create(['event' => 'custom_module.thing_happened']);
+    $admin = adminWithPermissions('audit_logs.view');
+
+    $this->actingAs($admin, 'admin')->withSession(['locale' => 'en'])->get('/admin/audit-logs')
+        ->assertOk()
+        ->assertSee('Viewed employee financial data')
+        ->assertSee('Custom module › Thing happened');
+
+    app()->setLocale('en');
+    expect(AuditLog::eventLabel('sensitive_access.employee_financial'))->toBe('Viewed employee financial data');
+
+    app()->setLocale('ar');
+    expect(AuditLog::eventLabel('sensitive_access.employee_financial'))->toBe('عرض البيانات المالية لموظف')
+        ->and(AuditLog::eventLabel('custom_module.thing_happened'))->toBe('Custom module › Thing happened');
+});
+
+it('has an Arabic and English label for every audit event written in the code', function () {
+    $events = collect(Finder::create()->files()->in(app_path())->name('*.php'))
+        ->flatMap(function (SplFileInfo $file): array {
+            preg_match_all("/->log\\(\\s*(?:\\\$\\w+\\s*\\?\\s*)?'([a-z_]+(?:\\.[a-z_]+)?)'(?:\\s*:\\s*'([a-z_]+\\.[a-z_]+)')?/", (string) file_get_contents($file->getPathname()), $matches);
+
+            return array_filter([...$matches[1], ...$matches[2]]);
+        })
+        ->merge((new ReflectionClass(SensitiveDataAccessLog::class))->getConstants())
+        ->reject(fn (string $event): bool => str_ends_with($event, '.') || str_ends_with($event, '_'))
+        ->unique();
+
+    expect($events->count())->toBeGreaterThan(150);
+
+    foreach (['ar', 'en'] as $locale) {
+        $labels = Lang::get('audit.events', [], $locale, false);
+        $missing = $events->reject(fn (string $event): bool => isset($labels[$event]))->values()->all();
+        expect($missing)->toBe([], "Missing {$locale} audit labels");
+    }
 });

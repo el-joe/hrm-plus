@@ -8,6 +8,41 @@ versions follow semantic versioning. Phases refer to `PROJECT_PLAN.md`.
 First complete release: Laravel backend with admin dashboard, employee web portal and REST API; Flutter employee
 app; Arabic client documentation.
 
+### Final polish pass (after `44aa52a`)
+
+- **Arabic terminology unified** across the interface, seed data and the Arabic documents: departments
+  «الأقسام» / «القسم» (was mixed with «الإدارات» / «الإدارة»; «الإدارة» now only means the admin side), positions
+  «الوظائف» (job titles stay «المسميات الوظيفية»; «المناصب الوظيفية» removed), payroll deductions
+  «الاستقطاعات» (was mixed with «الخصومات»), «القضايا التأديبية», «الأحداث الأولية», review queue
+  «مراجعة تسجيلات الجوال والويب» (EN *Mobile and web check-in review*), dashboard widget
+  «مستخدمو الإدارة النشطون» (EN *Active admin users*).
+- **Audit log labels:** every audit event key has an Arabic and English label (`lang/*/audit.php`, 182 keys);
+  unknown keys are humanised (`AuditLog::eventLabel()`). Used on the dashboard «آخر النشاطات», the audit log list,
+  filter and detail page, and the payroll run history; a test fails when a new `->log('…')` event has no label.
+- **`.env.example`:** `REPORTS_QUEUE_THRESHOLD_XLSX|CSV|PDF`, `REPORTS_PDF_MAX_ROWS`, and commented
+  `APP_PREVIOUS_KEYS`, `LOG_DAILY_DAYS`, `SANCTUM_STATEFUL_DOMAINS`, `SANCTUM_TOKEN_PREFIX`, `SESSION_SAME_SITE`,
+  `SCRAMBLE_DEV_TOOLS`, `API_VERSION`.
+- **HR letters PDF** now rendered through the shared `App\Support\Pdf\ArabicPdf` (same output).
+- **Repository:** the mPDF font cache `storage/framework/mpdf/` is no longer tracked.
+- **Docs:** web portal check-in documented with the exact screen wording (user manual 25.1, role guide 12.1,
+  attendance integration §10, deployment §6 + troubleshooting, frontend guide, API documentation); manual PDF
+  regenerated.
+
+### Web portal check-in (`44aa52a`)
+
+- Employees can check in / out from the portal (card «تسجيل الحضور / الانصراف» on Home and at the top of
+  My Attendance; `resources/js/pages/check-in.js`): browser geolocation (accuracy checked before sending) and, when
+  the policy requires or offers it, a camera capture for face verification. The request goes through the same
+  `MobileCheckIn` service as the app — geofence, accuracy, shift window, clock drift, repeated attempts, face
+  off / optional / required with retries and HR-review fallback; browsers cannot report liveness or mock location.
+- Per policy version: «السماح بتسجيل الحضور من بوابة الويب» (default on; off where mobile check-in was off) and
+  «يجب أن يكون تسجيل الويب داخل النطاق الجغرافي» (default on; off = the position is only recorded).
+- Attempts carry a `channel` (`mobile` / `web`); accepted web attempts become raw events with source
+  `web_portal` («بوابة الويب (GPS)»); the review queue has a channel column and filter.
+- `GET /me/attendance/today` rules add `web_checkin_enabled`, `web_checkin_requires_geofence`,
+  `checkout_extra_meters`, `face_failure_action`; attempt resources add `channel`.
+- Requires HTTPS (or localhost); `Permissions-Policy` allows camera and geolocation on `/portal` only.
+
 ### Phase 11 — Final testing, hardening and documentation (`f0b607c` and later)
 
 - **Security:** private `local` disk no longer served over HTTP; security headers and nonce-based
@@ -26,9 +61,9 @@ app; Arabic client documentation.
   roles, workflows, notification templates and reference data only.
 - **Testing:** factories for every model (109 added); scenario 5 and an 11-role smoke test; backend suite
   1386 passed.
-- **Web-portal check-in (in progress):** migration `2026_11_23_100000_add_web_portal_check_in` adds a check-in
+- **Web-portal check-in (groundwork):** migration `2026_11_23_100000_add_web_portal_check_in` adds a check-in
   channel (mobile / web) to mobile attempts and per-policy switches for web check-in and its geofence
-  requirement.
+  requirement (feature completed in `44aa52a`, see above).
 - **Documentation (Arabic and English):** `USER_MANUAL_AR` (+ PDF), `ROLE_GUIDES_AR`, `ROLE_PERMISSION_MATRIX_AR`,
   `ATTENDANCE_INTEGRATION_AR`, `PAYROLL_GUIDE_AR`, `API_DOCUMENTATION`, `DATABASE_ARCHITECTURE` (Mermaid ERDs),
   `DEPLOYMENT_GUIDE_AR`, this changelog and `FINAL_IMPLEMENTATION_REPORT`.

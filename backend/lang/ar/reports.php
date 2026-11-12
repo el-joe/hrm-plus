@@ -23,14 +23,14 @@ return [
 
     'items' => [
         'employee_directory' => ['title' => 'دليل الموظفين', 'description' => 'التسكين وبيانات التواصل والحالة لكل موظف.'],
-        'employee_distribution' => ['title' => 'توزيع الموظفين', 'description' => 'الموظفون حسب الفرع والإدارة والنوع والجنس والجنسية وغير ذلك.'],
+        'employee_distribution' => ['title' => 'توزيع الموظفين', 'description' => 'الموظفون حسب الفرع والقسم والنوع والجنس والجنسية وغير ذلك.'],
         'new_hires' => ['title' => 'التعيينات الجديدة', 'description' => 'الموظفون المعيَّنون أو المعاد تعيينهم خلال الفترة.'],
         'terminated_employees' => ['title' => 'الموظفون المنتهية خدمتهم', 'description' => 'انتهاء الخدمة خلال الفترة مع النوع والسبب ومدة الخدمة.'],
         'employee_turnover' => ['title' => 'معدل دوران الموظفين', 'description' => 'عدد الموظفين والتعيينات وإنهاءات الخدمة ومعدل الدوران شهريًا.'],
         'employee_history' => ['title' => 'السجل الوظيفي', 'description' => 'النقل والترقيات وتغيير المدير والحالة السارية خلال الفترة.'],
         'contract_expiration' => ['title' => 'انتهاء العقود', 'description' => 'العقود الحالية التي تنتهي خلال الفترة (غير المجدَّدة).'],
         'employees_by_branch' => ['title' => 'الموظفون حسب الفرع', 'description' => 'النشطون وغير النشطين والتعيينات والإنهاءات لكل فرع.'],
-        'employees_by_department' => ['title' => 'الموظفون حسب الإدارة', 'description' => 'النشطون وغير النشطين والتعيينات والإنهاءات لكل إدارة.'],
+        'employees_by_department' => ['title' => 'الموظفون حسب القسم', 'description' => 'النشطون وغير النشطين والتعيينات والإنهاءات لكل قسم.'],
 
         'daily_attendance' => ['title' => 'الحضور اليومي', 'description' => 'كل يوم حضور معالَج مع البصمات والساعات والحالة.'],
         'monthly_attendance' => ['title' => 'الحضور الشهري', 'description' => 'إجماليات كل موظف خلال الفترة.'],
@@ -48,12 +48,12 @@ return [
         'leave_requests' => ['title' => 'طلبات الإجازة', 'description' => 'طلبات الإجازة المتداخلة مع الفترة بأي حالة.'],
         'approved_leaves' => ['title' => 'الإجازات المعتمدة', 'description' => 'الإجازات المعتمدة المتداخلة مع الفترة.'],
         'rejected_leaves' => ['title' => 'الإجازات المرفوضة', 'description' => 'طلبات الإجازة المرفوضة وسبب الرفض.'],
-        'leave_utilization' => ['title' => 'استخدام الإجازات', 'description' => 'أيام الإجازات المستخدمة لكل إدارة ونوع.'],
+        'leave_utilization' => ['title' => 'استخدام الإجازات', 'description' => 'أيام الإجازات المستخدمة لكل قسم ونوع.'],
         'employees_on_leave' => ['title' => 'الموظفون في إجازة حاليًا', 'description' => 'الموظفون في إجازة في تاريخ معيّن (اليوم افتراضيًا).'],
 
         'payroll_summary' => ['title' => 'ملخص الرواتب', 'description' => 'الإجمالي والاستقطاعات والصافي وتكلفة صاحب العمل لكل فترة معتمدة نهائيًا.'],
         'payroll_by_branch' => ['title' => 'الرواتب حسب الفرع', 'description' => 'الرواتب النهائية حسب فرع الموظف في نهاية الفترة.'],
-        'payroll_by_department' => ['title' => 'الرواتب حسب الإدارة', 'description' => 'الرواتب النهائية حسب إدارة الموظف في نهاية الفترة.'],
+        'payroll_by_department' => ['title' => 'الرواتب حسب القسم', 'description' => 'الرواتب النهائية حسب قسم الموظف في نهاية الفترة.'],
         'gross_salary' => ['title' => 'إجمالي الراتب', 'description' => 'الراتب الأساسي والإجمالي لكل موظف وفترة.'],
         'net_salary' => ['title' => 'صافي الراتب', 'description' => 'صافي الراتب لكل موظف وفترة مع حالة الصرف.'],
         'allowances' => ['title' => 'البدلات', 'description' => 'البدلات والمكافآت والعمولات المصروفة.'],
@@ -74,12 +74,12 @@ return [
 
         'performance_scores' => ['title' => 'درجات الأداء', 'description' => 'الدرجات النهائية وفئات التقييم للتقييمات المكتملة.'],
         'goals' => ['title' => 'الأهداف', 'description' => 'الأهداف ومؤشرات الأداء مع الوزن ونسبة الإنجاز والحالة.'],
-        'completed_reviews' => ['title' => 'التقييمات المكتملة', 'description' => 'نسبة اكتمال التقييمات لكل دورة وإدارة.'],
+        'completed_reviews' => ['title' => 'التقييمات المكتملة', 'description' => 'نسبة اكتمال التقييمات لكل دورة وقسم.'],
         'training_progress' => ['title' => 'تقدم التدريب', 'description' => 'التسجيلات مع الحضور والدرجات والإتمام.'],
 
         'hr_requests' => ['title' => 'طلبات الموارد البشرية', 'description' => 'الطلبات المفتوحة خلال الفترة مع مستوى الخدمة وزمن الاستجابة.'],
         'asset_register' => ['title' => 'سجل العهد', 'description' => 'العهد مع الحالة والمستلم والقيمة والضمان.'],
-        'disciplinary_cases' => ['title' => 'قضايا الجزاءات', 'description' => 'مقيَّد: القضايا والمخالفات والإجراءات. تُسجَّل كل مشاهدة.'],
+        'disciplinary_cases' => ['title' => 'القضايا التأديبية', 'description' => 'مقيَّد: القضايا والمخالفات والإجراءات. تُسجَّل كل مشاهدة.'],
     ],
 
     'columns' => [
@@ -92,7 +92,7 @@ return [
         'completion_rate' => 'نسبة الاكتمال', 'component' => 'البند', 'condition' => 'الحالة الفنية', 'contract_type' => 'نوع العقد',
         'cost' => 'التكلفة', 'course' => 'الدورة', 'created_at' => 'تاريخ الإنشاء', 'cycle' => 'الدورة', 'date' => 'التاريخ', 'days' => 'الأيام',
         'days_from_publish' => 'أيام من النشر', 'days_left' => 'الأيام المتبقية', 'days_to_hire' => 'أيام حتى التعيين', 'deadline' => 'آخر موعد',
-        'decided_at' => 'تاريخ القرار', 'decision' => 'القرار', 'deductions' => 'الاستقطاعات', 'department' => 'الإدارة', 'due_at' => 'الاستحقاق',
+        'decided_at' => 'تاريخ القرار', 'decision' => 'القرار', 'deductions' => 'الاستقطاعات', 'department' => 'القسم', 'due_at' => 'الاستحقاق',
         'due_date' => 'تاريخ الاستحقاق', 'early_leave' => 'الانصراف المبكر', 'early_minutes' => 'دقائق مبكرة', 'effective_date' => 'تاريخ السريان',
         'eligible_for_rehire' => 'إعادة التعيين', 'email' => 'البريد الإلكتروني', 'employed' => 'على رأس العمل', 'employee' => 'الموظف', 'employee_number' => 'رقم الموظف',
         'employees' => 'الموظفون', 'employer_cost' => 'تكلفة صاحب العمل', 'employment_type' => 'نوع التوظيف', 'end_date' => 'تاريخ الانتهاء',
@@ -119,7 +119,7 @@ return [
     ],
 
     'filters' => [
-        'from' => 'من', 'to' => 'إلى', 'period' => 'الفترة', 'date' => 'التاريخ', 'branch' => 'الفرع', 'department' => 'الإدارة', 'team' => 'الفريق',
+        'from' => 'من', 'to' => 'إلى', 'period' => 'الفترة', 'date' => 'التاريخ', 'branch' => 'الفرع', 'department' => 'القسم', 'team' => 'الفريق',
         'position' => 'الوظيفة', 'job_title' => 'المسمى الوظيفي', 'employee_group' => 'مجموعة الموظفين', 'employment_type' => 'نوع التوظيف',
         'employee_status' => 'حالة الموظف', 'manager' => 'المدير', 'employee' => 'الموظف', 'employee_placeholder' => 'الاسم أو الرقم',
         'group_by' => 'التجميع حسب', 'change_type' => 'التغيير', 'request_status' => 'الحالة', 'leave_type' => 'نوع الإجازة', 'leave_year' => 'سنة الإجازات',
@@ -129,7 +129,7 @@ return [
     ],
 
     'dimensions' => [
-        'branch' => 'الفرع', 'department' => 'الإدارة', 'team' => 'الفريق', 'position' => 'الوظيفة', 'job_title' => 'المسمى الوظيفي',
+        'branch' => 'الفرع', 'department' => 'القسم', 'team' => 'الفريق', 'position' => 'الوظيفة', 'job_title' => 'المسمى الوظيفي',
         'job_grade' => 'الدرجة الوظيفية', 'employment_type' => 'نوع التوظيف', 'gender' => 'الجنس', 'nationality' => 'الجنسية', 'status' => 'الحالة',
     ],
 

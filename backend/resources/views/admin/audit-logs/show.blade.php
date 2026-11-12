@@ -9,7 +9,7 @@
         <x-detail-list>
             <x-detail-item :label="__('app.common.date')">{{ $log->created_at?->format('Y-m-d H:i:s') }}</x-detail-item>
             <x-detail-item :label="__('app.audit.user')">{{ $log->user?->name ?? __('app.audit.system') }}</x-detail-item>
-            <x-detail-item :label="__('app.audit.event')"><code>{{ $log->event }}</code></x-detail-item>
+            <x-detail-item :label="__('app.audit.event')">{{ $log->label() }} <code class="text-caption-md text-text-tertiary" dir="ltr">{{ $log->event }}</code></x-detail-item>
             <x-detail-item :label="__('app.audit.record')">{{ $log->auditable_type ? class_basename($log->auditable_type).' #'.$log->auditable_id : __('app.common.none') }}</x-detail-item>
             <x-detail-item :label="__('app.common.ip_address')"><span dir="ltr">{{ $log->ip_address }}</span></x-detail-item>
             <x-detail-item :label="__('app.common.user_agent')">{{ $log->user_agent }}</x-detail-item>

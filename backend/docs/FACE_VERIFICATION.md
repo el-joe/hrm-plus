@@ -29,7 +29,7 @@ anti-spoofing / liveness check, on its servers or in a certified on-device SDK.
 |---|---|
 | Face verification: off / optional / required | Off: never asked. Optional: verified when the app sends a face; a failure is never accepted silently. Required: a face sample is needed for every check-in / check-out. |
 | Face attempts per day and direction | Failures (not matched, liveness failed, provider error) allowed before the fallback. |
-| When face verification fails for good | **Send to review** (manual fallback: HR approves or rejects in *Mobile check-in review*) or **Reject** (the employee must contact HR). Employees who are not enrolled follow the same rule. |
+| When face verification fails for good | **Send to review** (manual fallback: HR approves or rejects in *Mobile and web check-in review*) or **Reject** (the employee must contact HR). Employees who are not enrolled follow the same rule. |
 
 Policies are assigned per company, branch, department, group, employment type or employee, so
 the mode can differ per branch.

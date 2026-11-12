@@ -21,7 +21,7 @@ class DepartmentFactory extends Factory
 
         return [
             'code' => 'DEP-'.$number,
-            'name_ar' => 'إدارة '.$number,
+            'name_ar' => 'قسم '.$number,
             'name_en' => ucfirst(fake()->words(2, true)).' '.$number,
             'parent_id' => null,
             'branch_id' => null,

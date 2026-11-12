@@ -11,10 +11,10 @@
             @endforeach
         </x-form.select>
 
-        <x-form.select name="event" :label="__('app.audit.event')" class="md:w-44">
+        <x-form.select name="event" :label="__('app.audit.event')" class="md:w-56">
             <option value="">{{ __('app.common.all') }}</option>
-            @foreach ($events as $event)
-                <option value="{{ $event }}" @selected(($filters['event'] ?? '') === $event)>{{ $event }}</option>
+            @foreach ($events as $event => $eventLabel)
+                <option value="{{ $event }}" @selected(($filters['event'] ?? '') === $event)>{{ $eventLabel }}</option>
             @endforeach
         </x-form.select>
 
@@ -53,7 +53,10 @@
                         <span class="truncate">{{ $log->user?->name ?? __('app.audit.system') }}</span>
                     </div>
                 </x-table.td>
-                <x-table.td :label="__('app.audit.event')"><code class="rounded-xs bg-surface-muted px-1.5 py-0.5 text-caption-md">{{ $log->event }}</code></x-table.td>
+                <x-table.td :label="__('app.audit.event')">
+                    <span class="block">{{ $log->label() }}</span>
+                    <code class="text-caption-md text-text-tertiary" dir="ltr">{{ $log->event }}</code>
+                </x-table.td>
                 <x-table.td :label="__('app.audit.record')" class="text-text-secondary">{{ $log->auditable_type ? class_basename($log->auditable_type).' #'.$log->auditable_id : '—' }}</x-table.td>
                 <x-table.td :label="__('app.common.ip_address')" class="font-mono text-body-sm text-text-secondary" dir="ltr">{{ $log->ip_address }}</x-table.td>
                 <x-table.td class="text-end">

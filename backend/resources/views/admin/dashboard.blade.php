@@ -54,7 +54,7 @@
                                     <x-avatar :name="$log->user?->name ?? __('app.audit.system')" size="sm" />
                                     <div class="min-w-0 flex-1">
                                         <p class="truncate text-label-md text-text-primary">{{ $log->user?->name ?? __('app.audit.system') }}</p>
-                                        <p class="truncate text-caption-md text-text-tertiary"><code>{{ $log->event }}</code>
+                                        <p class="truncate text-caption-md text-text-tertiary"><span title="{{ $log->event }}">{{ $log->label() }}</span>
                                             @if ($log->auditable_type) · {{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }} @endif
                                         </p>
                                     </div>

@@ -44,7 +44,7 @@
                     <x-detail-item :label="__('hr_requests.fields.reference')"><span dir="ltr">{{ $hrRequest->reference }}</span></x-detail-item>
                     <x-detail-item :label="__('hr_requests.fields.category')">{{ $hrRequest->category->name }}</x-detail-item>
                     <x-detail-item :label="__('hr_requests.fields.priority')">{{ $hrRequest->priority->label() }}</x-detail-item>
-                    <x-detail-item :label="__('hr_requests.fields.submitted_at')"><span dir="ltr">{{ $hrRequest->created_at->timezone($tz)->format('Y-m-d H:i') }}</span></x-detail-item>
+                    <x-detail-item :label="__('hr_requests.fields.submitted_at')"><x-date :value="$hrRequest->created_at" format="datetime" :timezone="$tz" /></x-detail-item>
                     @if ($hrRequest->letter_language)
                         <x-detail-item :label="__('hr_requests.fields.letter_language')">{{ __('app.locales.'.$hrRequest->letter_language) }}</x-detail-item>
                     @endif
@@ -90,7 +90,7 @@
                         ])>
                             <p class="text-caption-md text-text-tertiary">
                                 <span class="text-label-sm text-text-primary">{{ $message->from_employee ? __('hr_requests.portal.you') : ($message->author?->name ?? __('hr_requests.portal.hr_team')) }}</span>
-                                · <span dir="ltr">{{ $message->created_at->timezone($tz)->format('Y-m-d H:i') }}</span>
+                                · <x-date :value="$message->created_at" format="datetime" :timezone="$tz" />
                             </p>
                             <p class="mt-1 whitespace-pre-line text-body-sm text-text-primary">{{ $message->body }}</p>
                         </li>
@@ -130,7 +130,7 @@
                     @foreach ($hrRequest->events as $event)
                         <li>
                             <p class="text-body-sm text-text-primary">{{ $event->description() }}</p>
-                            <p class="text-caption-md text-text-tertiary" dir="ltr">{{ $event->created_at?->timezone($tz)->format('Y-m-d H:i') }}</p>
+                            <p class="text-caption-md text-text-tertiary"><x-date :value="$event->created_at" format="datetime" :timezone="$tz" /></p>
                         </li>
                     @endforeach
                 </ol>

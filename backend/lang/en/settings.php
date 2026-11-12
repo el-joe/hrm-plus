@@ -28,6 +28,7 @@ return [
         'recruitment' => 'Recruitment',
         'lifecycle' => 'Onboarding & offboarding',
         'face_verification' => 'Face verification',
+        'mobile_app' => 'Mobile app',
     ],
     'keys' => [
         'mail' => [
@@ -168,6 +169,8 @@ return [
             'session_lifetime_minutes' => 'Sign out idle web sessions after (minutes)',
             'login_max_attempts' => 'Failed sign-ins before a lockout',
             'login_lockout_seconds' => 'Lockout duration (seconds)',
+            'password_reset_code_minutes' => 'Password reset code validity (minutes, mobile app)',
+            'password_reset_code_attempts' => 'Wrong codes before a reset code is burnt',
             'password_min_length' => 'Minimum password length',
         ],
         'approvals' => [
@@ -186,6 +189,12 @@ return [
         'lifecycle' => [
             'auto_start_onboarding' => 'Start onboarding automatically when a candidate is hired',
             'contract_expiry_case_days' => 'Open offboarding cases for contracts ending within (days)',
+        ],
+        'mobile_app' => [
+            'min_version' => 'Minimum app version (older apps must update)',
+            'latest_version' => 'Latest app version',
+            'android_store_url' => 'Android store link',
+            'ios_store_url' => 'iOS App Store link',
         ],
         'face_verification' => [
             'provider' => 'Face verification provider',

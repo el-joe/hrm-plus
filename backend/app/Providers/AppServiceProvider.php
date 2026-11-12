@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\AuthArea;
 use App\Models\AdminDataScope;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
@@ -157,6 +158,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -364,6 +366,18 @@ class AppServiceProvider extends ServiceProvider
         // such as "nobody deletes their own account" still apply to them.
         // {admin_user} only ever resolves Admin accounts; employee ids are a 404.
         Route::bind('admin_user', fn (string $value): User => User::query()->admins()->findOrFail($value));
+        // Portal {assignedInterview}: only interviews the signed-in user sits on; any other id is a 404 (Phase 9).
+        // Bindings run before the "portal" middleware picks the guard, so both portal guards are asked here.
+        Route::bind('assignedInterview', function (string $value): Interview {
+            $user = Auth::guard(AuthArea::Portal->guard())->user() ?? Auth::guard(AuthArea::Admin->guard())->user();
+            abort_unless($user instanceof User, 404);
+
+            return Interview::query()->assignedTo($user)->findOrFail($value);
+        });
+
+        // API documentation (/docs/api, /docs/api.json, dedoc/scramble): open in the local environment,
+        // elsewhere only to a Super Admin signed in to the admin area (Phase 10).
+        Gate::define('viewApiDocs', fn (?User $user = null): bool => $user !== null && $user->isAdmin() && $user->isSuperAdmin());
 
         // Developer component showcase (/admin/ui-kit). Not a catalogue permission:
         // it is not a business capability and must not be grantable to roles.
@@ -417,6 +431,16 @@ class AppServiceProvider extends ServiceProvider
             ->by('device|'.$request->route('serial').'|'.$request->ip()));
 
         RateLimiter::for('password-reset', fn (Request $request): Limit => Limit::perMinute(5)->by($request->ip()));
+
+        // Mobile app reset codes (Phase 10): sending is limited per address and per IP; checking a code
+        // (verify / reset) and changing the password per address (or account) and IP. Wrong codes are
+        // also counted on the code itself (App\Services\Auth\PasswordResetCodes).
+        RateLimiter::for('password-code', fn (Request $request): array => [
+            Limit::perMinute(3)->by('code-send|'.Str::lower((string) $request->input('email')).'|'.$request->ip()),
+            Limit::perHour(10)->by('code-send-ip|'.$request->ip()),
+        ]);
+        RateLimiter::for('password-code-check', fn (Request $request): Limit => Limit::perMinute(10)
+            ->by('code-check|'.($request->user('sanctum')?->getAuthIdentifier() ?: Str::lower((string) $request->input('email'))).'|'.$request->ip()));
 
         // Public career page applications, per IP (setting recruitment.career_applications_per_hour).
         RateLimiter::for('career-apply', fn (Request $request): Limit => Limit::perHour(max(1, (int) setting('recruitment.career_applications_per_hour')))

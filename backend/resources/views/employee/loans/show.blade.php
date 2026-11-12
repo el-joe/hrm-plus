@@ -8,9 +8,9 @@
     </div>
 
     <div class="grid gap-3 sm:grid-cols-3">
-        <x-stat-card :label="__('payroll.loans.fields.amount')" :value="App\Support\Money::format($loan->approved_amount ?? $loan->requested_amount)" icon="wallet" :hint="$currency" />
-        <x-stat-card :label="__('payroll.loans.fields.outstanding')" :value="App\Support\Money::format($loan->outstanding_amount)" icon="coins" :hint="$currency" />
-        <x-stat-card :label="__('payroll.loans.fields.instalments')" :value="($loan->instalment_count ?? $loan->requested_instalments)" icon="calendar" :hint="($loan->start_date ?? $loan->requested_start)->format('Y-m')" />
+        <x-stat-card :label="__('payroll.loans.fields.amount')" :value="App\Support\Formatter::money($loan->approved_amount ?? $loan->requested_amount)" icon="wallet" :hint="$currency" />
+        <x-stat-card :label="__('payroll.loans.fields.outstanding')" :value="App\Support\Formatter::money($loan->outstanding_amount)" icon="coins" :hint="$currency" />
+        <x-stat-card :label="__('payroll.loans.fields.instalments')" :value="($loan->instalment_count ?? $loan->requested_instalments)" icon="calendar" :hint="\App\Support\Formatter::digits(($loan->start_date ?? $loan->requested_start)->format('Y-m'))" />
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
@@ -33,7 +33,7 @@
             @forelse ($loan->instalments as $instalment)
                 <x-table.row>
                     <x-table.td :label="__('payroll.loans.fields.sequence')" class="tabular-nums">{{ $instalment->sequence }}</x-table.td>
-                    <x-table.td :label="__('payroll.loans.fields.due_date')"><span dir="ltr">{{ $instalment->due_date->toDateString() }}</span></x-table.td>
+                    <x-table.td :label="__('payroll.loans.fields.due_date')"><x-date :value="$instalment->due_date" /></x-table.td>
                     <x-table.td :label="__('payroll.loans.fields.amount')">@include('admin.payroll._money', ['amount' => $instalment->amount])</x-table.td>
                     <x-table.td :label="__('payroll.loans.fields.status')">{{ $instalment->status->label() }}</x-table.td>
                 </x-table.row>

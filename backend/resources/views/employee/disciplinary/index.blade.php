@@ -16,9 +16,9 @@
                         @endif
                     </div>
                     <p class="text-body-sm text-text-secondary">
-                        {{ $notice->disciplinaryCase->violationType->name }} · <span dir="ltr">{{ $notice->issued_at->toDateString() }}</span>
+                        {{ $notice->disciplinaryCase->violationType->name }} · <x-date :value="$notice->issued_at" />
                         @if (! $notice->hasResponded() && $notice->response_due_on)
-                            · {{ __('disciplinary.portal.response_due', ['date' => $notice->response_due_on->toDateString()]) }}
+                            · {{ __('disciplinary.portal.response_due', ['date' => \App\Support\Formatter::date($notice->response_due_on)]) }}
                         @endif
                     </p>
                 </li>

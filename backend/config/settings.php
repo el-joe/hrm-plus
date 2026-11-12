@@ -224,6 +224,18 @@ return [
         'session_lifetime_minutes' => ['type' => 'integer', 'default' => (int) env('SESSION_LIFETIME', 120), 'rules' => ['required', 'integer', 'between:5,1440']],
         'login_max_attempts' => ['type' => 'integer', 'default' => (int) env('AUTH_LOGIN_MAX_ATTEMPTS', 5), 'rules' => ['required', 'integer', 'between:3,20']],
         'login_lockout_seconds' => ['type' => 'integer', 'default' => (int) env('AUTH_LOGIN_DECAY_SECONDS', 60), 'rules' => ['required', 'integer', 'between:30,3600']],
+        // Phase 10: forgot password in the mobile app — a 6-digit code e-mailed to the account (hashed, short-lived).
+        'password_reset_code_minutes' => ['type' => 'integer', 'default' => 10, 'rules' => ['required', 'integer', 'between:3,60']],
+        'password_reset_code_attempts' => ['type' => 'integer', 'default' => 5, 'rules' => ['required', 'integer', 'between:3,10']],
+    ],
+
+    // Employee mobile app (Phase 10), served to the app by GET /api/v1/app/config. Versions are semantic
+    // (major.minor.patch): an app older than min_version must update before it may be used.
+    'mobile_app' => [
+        'min_version' => ['type' => 'string', 'default' => '1.0.0', 'rules' => ['required', 'string', 'max:20', 'regex:/^\d+\.\d+\.\d+$/']],
+        'latest_version' => ['type' => 'string', 'default' => '1.0.0', 'rules' => ['required', 'string', 'max:20', 'regex:/^\d+\.\d+\.\d+$/']],
+        'android_store_url' => ['type' => 'string', 'default' => '', 'rules' => ['nullable', 'url', 'max:255']],
+        'ios_store_url' => ['type' => 'string', 'default' => '', 'rules' => ['nullable', 'url', 'max:255']],
     ],
 
     'approvals' => [

@@ -10,7 +10,7 @@
                     <a href="{{ route('portal.interviews.show', $interview) }}" class="flex flex-col gap-1 px-5 py-4 hover:bg-surface-subtle sm:flex-row sm:items-center sm:gap-3">
                         <div class="min-w-0 flex-1">
                             <p class="text-label-md">{{ $interview->application->candidate->name }} — {{ $interview->type->label() }}</p>
-                            <p class="text-caption-md text-text-tertiary">{{ $interview->application->vacancy->title }} · <span dir="ltr">{{ $interview->localStart()->format('Y-m-d H:i') }} ({{ $interview->timezone }})</span></p>
+                            <p class="text-caption-md text-text-tertiary">{{ $interview->application->vacancy->title }} · <span dir="ltr">{{ \App\Support\Formatter::dateTime($interview->localStart(), $interview->timezone) }} ({{ $interview->timezone }})</span></p>
                         </div>
                         @include('admin.recruitment._badge', ['value' => $interview->status])
                         @if ($interview->scorecards->isNotEmpty())

@@ -230,6 +230,9 @@ return [
         ['key' => 'my_disciplinary', 'route' => 'portal.disciplinary', 'ability' => 'viewOwnDisciplinary', 'icon' => 'alert-triangle', 'active' => ['portal.disciplinary*'], 'more' => true],
         ['key' => 'my_onboarding', 'route' => 'portal.onboarding', 'ability' => 'viewOwnOnboarding', 'icon' => 'check-circle', 'active' => ['portal.onboarding'], 'more' => true],
         ['key' => 'my_interviews', 'route' => 'portal.interviews.index', 'ability' => 'viewOwnInterviews', 'icon' => 'calendar', 'active' => ['portal.interviews.*'], 'more' => true],
+        // Phase 9: one documents page and the account settings.
+        ['key' => 'my_documents', 'route' => 'portal.documents', 'ability' => null, 'icon' => 'file-text', 'active' => ['portal.documents*'], 'more' => true],
+        ['key' => 'account_settings', 'route' => 'portal.account', 'ability' => null, 'icon' => 'settings', 'active' => ['portal.account*'], 'more' => true],
         ['key' => 'notification_preferences', 'route' => 'portal.notification-preferences.edit', 'ability' => null, 'icon' => 'bell', 'active' => ['portal.notification-preferences.*', 'portal.notifications.*'], 'more' => true],
     ],
 

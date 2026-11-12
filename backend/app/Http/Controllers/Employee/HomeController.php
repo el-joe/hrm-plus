@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers\Employee;
 
-use App\Enums\LeaveRequestStatus;
 use App\Http\Controllers\Controller;
-use App\Models\LeaveRequest;
 use App\Services\Announcements\AnnouncementFeed;
+use App\Services\Employees\PortalHome;
 use App\Services\Employees\PortalProfile;
 use App\Services\HrRequests\PortalHrRequests;
-use App\Services\Leave\LeaveBalanceCalculator;
-use App\Services\Leave\LeaveEligibility;
 use App\Services\Notifications\NotificationInbox;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Employee Home (spec section 5): profile summary, today's attendance and shift, this month's
+ * attendance, leave balances, pending items, the latest payslip, upcoming shifts and holidays,
+ * tasks, announcements and notifications. Figures come from App\Services\Employees\PortalHome
+ * (shared with GET /api/v1/me/home).
+ */
 class HomeController extends Controller
 {
     public function __invoke(
         Request $request,
         PortalProfile $profile,
-        LeaveBalanceCalculator $balances,
-        LeaveEligibility $eligibility,
+        PortalHome $home,
         PortalHrRequests $requests,
         AnnouncementFeed $announcements,
         NotificationInbox $inbox,
@@ -30,16 +32,16 @@ class HomeController extends Controller
         return view('employee.home', [
             'user' => $request->user(),
             'employee' => $employee,
-            // Employee Home (spec section 5): remaining leave balance and pending requests.
-            'leaveBalances' => $employee ? $balances->all($employee, null, $eligibility->requestableTypes($employee))->filter->tracksBalance()->values() : collect(),
-            'pendingLeave' => $employee ? LeaveRequest::query()->withoutGlobalScopes()->where('employee_id', $employee->id)
-                ->inStatus([LeaveRequestStatus::Pending, LeaveRequestStatus::CancellationPending])->count() : 0,
-            // Phase 8b: open HR requests, latest announcements, latest notifications.
-            'openRequests' => $employee ? $requests->openCount($employee) : 0,
+            'today' => $employee ? $home->attendanceToday($employee) : null,
+            'month' => $employee ? $home->attendanceMonth($employee) : null,
+            'leaveBalances' => $employee ? collect($home->leaveBalances($employee)) : collect(),
+            'pending' => $employee ? $home->pending($employee) : null,
+            'latestPayslip' => $employee ? $home->latestPayslip($employee) : null,
+            'upcoming' => $employee ? $home->upcoming($employee) : null,
+            'tasks' => $employee ? $home->tasks($employee) : [],
             'recentRequests' => $employee ? $requests->forEmployee($employee)->limit(3)->get() : collect(),
             'announcements' => $employee ? $announcements->latest($employee, 3) : collect(),
             'unreadAnnouncements' => $employee ? $announcements->unreadCount($employee) : 0,
-            'pendingAcknowledgements' => $employee ? $announcements->pendingAcknowledgements($employee) : 0,
             'notifications' => $inbox->latest($request->user(), 4),
             'unreadNotifications' => $inbox->unreadCount($request->user()),
         ]);

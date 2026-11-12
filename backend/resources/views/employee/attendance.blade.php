@@ -96,7 +96,7 @@
                     @forelse ($corrections as $correction)
                         <li class="flex flex-col gap-1 px-5 py-3">
                             <div class="flex items-center justify-between gap-2">
-                                <span class="text-label-md" dir="ltr">{{ $correction->work_date->format('Y-m-d') }}</span>
+                                <x-date :value="$correction->work_date" class="text-label-md" />
                                 @include('admin.attendance.corrections._status')
                             </div>
                             @include('admin.attendance.corrections._requested', ['timezone' => app(\App\Services\Attendance\AttendanceClock::class)->timezoneForBranch($employee->branch_id)])

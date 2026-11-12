@@ -302,3 +302,19 @@ Excel / CSV, 400 for PDF — `config/reports.php`) are queued: run `php artisan 
 
 Phase 8c also gives the **HR Manager** role `employee_financials.update` (apply bank-detail change requests); run
 `php artisan permissions:sync` on an existing database.
+
+## Employee portal pass and mobile API extras (Phase 9 / backend Phase 10)
+
+No new seeder and no migration: every portal page and new endpoint works on the data above.
+
+| What | Where / how |
+|---|---|
+| Portal home cards | employee1@ shows today's shift and check-in hint, this month's totals, balances, pending leave / HR request / loan / correction counts, the October payslip, next shifts and holidays, and an asset to acknowledge. employee3@ (Alexandria) shows a rest day and pending acknowledgements. |
+| My documents (`/portal/documents`) | employee1@: a shared national-ID copy, a certificate, the salary-certificate **letter** issued on his HR request and his payslips. Contracts appear once HR uploads a signed copy on the employee's Contracts tab. |
+| Account settings (`/portal/account`) | Change password (signs out every other browser and app device), language, light / dark, link to notification settings, browsers and app devices signed in with **Sign out**, last 10 sign-ins. |
+| Forgot password in the app | `POST /api/v1/auth/password/forgot` with an employee e-mail → the 6-digit code is written to `storage/logs/laravel.log` by the **log** mailer (search for "password reset code"); then `verify-otp` and `reset`. Code life and wrong-attempt limit: Settings → Security. |
+| App configuration | `GET /api/v1/app/config` (no token). Versions and store links: Settings → **Mobile app** (`min_version`, `latest_version`, `android_store_url`, `ios_store_url`). |
+| API documentation | `/docs/api` (UI) and `/docs/api.json` — open without sign-in in the **local** environment; elsewhere only **super.admin@** signed in to `/admin`. Static copy: `backend/docs/openapi.json`. |
+
+Remember that passwords must contain letters and numbers (Settings → Security), so `password` cannot be chosen
+again through the reset / change forms — use e.g. `Passw0rd1` and set it back with tinker if needed.

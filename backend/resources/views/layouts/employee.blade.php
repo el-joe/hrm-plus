@@ -22,8 +22,8 @@
     <a href="#content" class="sr-only z-[70] rounded-md bg-surface-default px-4 py-2 focus:not-sr-only focus:fixed focus:start-4 focus:top-4">{{ __('app.ui.skip_to_content') }}</a>
 
     <header data-region="topbar" class="sticky top-0 z-30 border-b border-border-subtle bg-surface-default">
-        <div class="mx-auto flex h-14 max-w-312 items-center gap-6 px-4 md:h-18 md:px-8 2xl:px-0">
-            <a href="{{ route('portal.home') }}" class="rounded-md"><x-logo /></a>
+        <div class="mx-auto flex h-14 max-w-312 items-center gap-3 px-4 md:h-18 md:gap-6 md:px-8 2xl:px-0">
+            <a href="{{ route('portal.home') }}" class="min-w-0 rounded-md"><x-logo /></a>
 
             <nav data-region="navigation" aria-label="{{ __('app.nav.main') }}" class="hidden md:block">
                 <ul class="flex items-center gap-1">
@@ -56,7 +56,7 @@
                 </ul>
             </nav>
 
-            <div class="ms-auto flex items-center gap-2">
+            <div class="ms-auto flex shrink-0 items-center gap-1 sm:gap-2">
                 <div class="hidden sm:block">@include('partials.locale-switcher')</div>
                 @include('partials.theme-toggle')
                 @include('partials.notification-bell', ['area' => 'portal'])
@@ -117,15 +117,15 @@
     <nav aria-label="{{ __('app.nav.main') }}" class="fixed inset-x-0 bottom-0 z-30 h-18 border-t border-border-subtle bg-surface-default md:hidden">
         <ul class="flex h-full items-stretch justify-around">
             @foreach (array_slice($primaryNavigation, 0, 4) as $item)
-                <li class="flex-1">
+                <li class="min-w-0 flex-1">
                     <a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif
                         @class([
-                            'flex h-full flex-col items-center justify-center gap-1 text-caption-md',
+                            'flex h-full min-w-0 flex-col items-center justify-start gap-1 pt-3 text-caption-md',
                             'text-text-link' => $item['active'],
                             'text-text-tertiary' => ! $item['active'],
                         ])>
                         <x-icon :name="$item['icon']" />
-                        {{ $item['label'] }}
+                        <span class="line-clamp-2 max-w-full px-1 text-center leading-tight">{{ $item['label'] }}</span>
                     </a>
                 </li>
             @endforeach
@@ -135,7 +135,7 @@
                     <x-dropdown direction="up" :label="__('app.nav.more')" class="h-full" data-region="portal-more-mobile">
                         <x-slot:trigger>
                             <span @class([
-                                'flex h-18 flex-col items-center justify-center gap-1 text-caption-md',
+                                'flex h-18 flex-col items-center justify-start gap-1 pt-3 text-caption-md leading-tight',
                                 'text-text-link' => collect($overflow)->contains('active', true),
                                 'text-text-tertiary' => ! collect($overflow)->contains('active', true),
                             ])>

@@ -28,7 +28,7 @@
                         @include('admin.hr-requests._status', ['status' => $row->status])
                     </div>
                     <p class="text-body-sm text-text-secondary">
-                        {{ $row->category->name }} · <span dir="ltr">{{ $row->reference }}</span> · <span dir="ltr">{{ $row->created_at->timezone(setting('localisation.timezone'))->format('Y-m-d') }}</span>
+                        {{ $row->category->name }} · <span dir="ltr">{{ $row->reference }}</span> · <x-date :value="$row->created_at->timezone(setting('localisation.timezone'))" />
                     </p>
                     @if ($row->status === App\Enums\HrRequestStatus::AwaitingEmployee)
                         <p class="text-caption-md text-feedback-warning-text">{{ __('hr_requests.portal.waiting_for_you') }}</p>

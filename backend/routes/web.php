@@ -306,8 +306,22 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
         // My profile: always the signed-in user's own employee record.
         Route::get('profile/{tab?}', Employee\ProfileController::class)
             ->whereIn('tab', Employee\ProfileController::TABS)->name('profile');
+        Route::get('profile-photo', [Employee\DocumentController::class, 'photo'])->name('profile.photo');
         Route::get('documents/{document}/download', Employee\DocumentDownloadController::class)
             ->whereNumber('document')->name('documents.download');
+        // My documents (Phase 9): shared documents, contracts, certificates, letters, payslips on one page.
+        Route::get('documents', [Employee\DocumentController::class, 'index'])->name('documents');
+        Route::get('documents/contracts/{contract}/download', [Employee\DocumentController::class, 'contract'])
+            ->whereNumber('contract')->name('documents.contracts.download');
+
+        // Account settings (Phase 9): password, language, theme, sessions and app devices.
+        Route::get('account', [Employee\AccountController::class, 'edit'])->name('account');
+        Route::put('account/password', [Employee\AccountController::class, 'updatePassword'])
+            ->middleware('throttle:password-reset')->name('account.password');
+        Route::delete('account/sessions/{session}', [Employee\AccountController::class, 'destroySession'])
+            ->where('session', '[A-Za-z0-9]{20,128}')->name('account.sessions.destroy');
+        Route::delete('account/devices/{token}', [Employee\AccountController::class, 'destroyToken'])
+            ->whereNumber('token')->name('account.devices.destroy');
 
         // My onboarding checklist (own tasks only).
         Route::get('onboarding', [Employee\OnboardingController::class, 'index'])->name('onboarding');
@@ -349,8 +363,9 @@ Route::prefix('portal')->name('portal.')->group(function (): void {
 
         // Interviews the employee sits on as an interviewer (InterviewPolicy).
         Route::get('interviews', [Employee\InterviewController::class, 'index'])->name('interviews.index');
-        Route::get('interviews/{interview}', [Employee\InterviewController::class, 'show'])->name('interviews.show');
-        Route::post('interviews/{interview}/scorecard', [Employee\InterviewController::class, 'scorecard'])->name('interviews.scorecard');
-        Route::get('interviews/{interview}/cv', [Employee\InterviewController::class, 'cv'])->name('interviews.cv');
+        // {assignedInterview} resolves only among the interviews the user sits on (404 for any other id).
+        Route::get('interviews/{assignedInterview}', [Employee\InterviewController::class, 'show'])->whereNumber('assignedInterview')->name('interviews.show');
+        Route::post('interviews/{assignedInterview}/scorecard', [Employee\InterviewController::class, 'scorecard'])->whereNumber('assignedInterview')->name('interviews.scorecard');
+        Route::get('interviews/{assignedInterview}/cv', [Employee\InterviewController::class, 'cv'])->whereNumber('assignedInterview')->name('interviews.cv');
     });
 });

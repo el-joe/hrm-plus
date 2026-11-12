@@ -28,6 +28,7 @@ return [
         'recruitment' => 'التوظيف',
         'lifecycle' => 'الانضمام وإنهاء الخدمة',
         'face_verification' => 'التحقق بالوجه',
+        'mobile_app' => 'تطبيق الجوال',
     ],
     'keys' => [
         'mail' => [
@@ -168,6 +169,8 @@ return [
             'session_lifetime_minutes' => 'إنهاء جلسات الويب الخاملة بعد (دقيقة)',
             'login_max_attempts' => 'محاولات الدخول الفاشلة قبل الإيقاف المؤقت',
             'login_lockout_seconds' => 'مدة الإيقاف المؤقت (ثانية)',
+            'password_reset_code_minutes' => 'مدة صلاحية رمز استعادة كلمة المرور (دقائق، تطبيق الجوال)',
+            'password_reset_code_attempts' => 'عدد المحاولات الخاطئة قبل إلغاء الرمز',
             'password_min_length' => 'الحد الأدنى لطول كلمة المرور',
         ],
         'approvals' => [
@@ -186,6 +189,12 @@ return [
         'lifecycle' => [
             'auto_start_onboarding' => 'بدء إجراءات الانضمام تلقائيًا عند تعيين مرشح',
             'contract_expiry_case_days' => 'فتح ملفات إنهاء الخدمة للعقود المنتهية خلال (أيام)',
+        ],
+        'mobile_app' => [
+            'min_version' => 'أقل إصدار مسموح للتطبيق (الإصدارات الأقدم يجب تحديثها)',
+            'latest_version' => 'أحدث إصدار للتطبيق',
+            'android_store_url' => 'رابط متجر أندرويد',
+            'ios_store_url' => 'رابط متجر آبل',
         ],
         'face_verification' => [
             'provider' => 'مزوّد التحقق بالوجه',

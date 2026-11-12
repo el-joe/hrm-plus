@@ -1,5 +1,12 @@
 <?php
 
+// Local disks: files are shared with the web server's group (the storage tree is group www-data, setgid),
+// so files written by CLI jobs/seeders stay readable by PHP under Apache. "Other" never gets access.
+$groupReadable = [
+    'file' => ['public' => 0664, 'private' => 0640],
+    'dir' => ['public' => 0775, 'private' => 0750],
+];
+
 return [
 
     /*
@@ -32,6 +39,7 @@ return [
 
         'local' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private'),
             'serve' => true,
             'throw' => false,
@@ -43,6 +51,7 @@ return [
         // these files (and log each document download).
         'employee_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/employees'),
             'visibility' => 'private',
             'throw' => true,
@@ -52,6 +61,7 @@ return [
         // Candidate CVs and attachments (recruitment); never public.
         'recruitment_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/recruitment'),
             'visibility' => 'private',
             'throw' => true,
@@ -62,6 +72,7 @@ return [
         // with the application key before they are written; never public.
         'biometric_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/biometric'),
             'visibility' => 'private',
             'throw' => true,
@@ -71,6 +82,7 @@ return [
         // Training certificates (Phase 8a).
         'training_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/training'),
             'visibility' => 'private',
             'throw' => true,
@@ -80,6 +92,7 @@ return [
         // Disciplinary evidence (Phase 8a): restricted, streamed only after the policy check.
         'disciplinary_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/disciplinary'),
             'visibility' => 'private',
             'throw' => true,
@@ -89,6 +102,7 @@ return [
         // HR request attachments and issued letters (Phase 8b): streamed only after the policy / ownership check.
         'hr_request_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/hr-requests'),
             'visibility' => 'private',
             'throw' => true,
@@ -98,6 +112,7 @@ return [
         // Announcement attachments (Phase 8b): streamed to admins and to employees in the audience only.
         'announcement_files' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/private/announcements'),
             'visibility' => 'private',
             'throw' => true,
@@ -106,6 +121,7 @@ return [
 
         'public' => [
             'driver' => 'local',
+            'permissions' => $groupReadable,
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',

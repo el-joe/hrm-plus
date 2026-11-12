@@ -28,7 +28,7 @@
                     <x-detail-list>
                         <x-detail-item :label="__('employees.fields.name_ar')"><span lang="ar" dir="rtl">{{ $employee->name_ar }}</span></x-detail-item>
                         <x-detail-item :label="__('employees.fields.name_en')"><span lang="en" dir="ltr">{{ $employee->name_en }}</span></x-detail-item>
-                        <x-detail-item :label="__('employees.fields.date_of_birth')"><span dir="ltr">{{ $employee->date_of_birth?->toDateString() ?? $none }}</span></x-detail-item>
+                        <x-detail-item :label="__('employees.fields.date_of_birth')"><x-date :value="$employee->date_of_birth" :empty="$none" /></x-detail-item>
                         <x-detail-item :label="__('employees.fields.gender')">{{ $employee->gender?->label() ?? $none }}</x-detail-item>
                         <x-detail-item :label="__('employees.fields.marital_status')">{{ $employee->marital_status?->label() ?? $none }}</x-detail-item>
                         <x-detail-item :label="__('employees.fields.nationality')"><span dir="ltr">{{ $employee->nationality ?? $none }}</span></x-detail-item>
@@ -89,11 +89,11 @@
                         @if ($employee->manager?->email) <span class="block text-caption-md text-text-tertiary" dir="ltr">{{ $employee->manager->email }}</span> @endif
                     </x-detail-item>
                     <x-detail-item :label="__('employees.fields.work_location_id')">{{ $employee->workLocation?->name ?? $none }}</x-detail-item>
-                    <x-detail-item :label="__('employees.fields.hire_date')"><span dir="ltr">{{ $employee->hire_date?->toDateString() }}</span></x-detail-item>
-                    <x-detail-item :label="__('employees.fields.probation_end_date')"><span dir="ltr">{{ $employee->probation_end_date?->toDateString() ?? $none }}</span></x-detail-item>
+                    <x-detail-item :label="__('employees.fields.hire_date')"><x-date :value="$employee->hire_date" /></x-detail-item>
+                    <x-detail-item :label="__('employees.fields.probation_end_date')"><x-date :value="$employee->probation_end_date" :empty="$none" /></x-detail-item>
                     <x-detail-item :label="__('employees.profile.contract_period')">
                         @if ($contract)
-                            {{ $contract->contract_type->label() }} · <span dir="ltr">{{ $contract->start_date->toDateString() }} → {{ $contract->end_date?->toDateString() ?? __('employees.contracts.open_ended') }}</span>
+                            {{ $contract->contract_type->label() }} · <span dir="ltr">{{ \App\Support\Formatter::date($contract->start_date) }} → {{ $contract->end_date ? \App\Support\Formatter::date($contract->end_date) : __('employees.contracts.open_ended') }}</span>
                         @else
                             {{ $none }}
                         @endif
@@ -118,7 +118,7 @@
                             <x-table.td :label="__('employees.fields.title')" class="text-label-md">{{ $document->title }}</x-table.td>
                             <x-table.td :label="__('employees.fields.category')">{{ $document->category->label() }}</x-table.td>
                             <x-table.td :label="__('employees.fields.expiry_date')">
-                                <span dir="ltr">{{ $document->expiry_date?->toDateString() ?? '—' }}</span>
+                                <x-date :value="$document->expiry_date" :empty="'—'" />
                                 @if ($document->isExpired()) <x-badge tone="danger">{{ __('employees.documents.expired') }}</x-badge> @endif
                             </x-table.td>
                             <x-table.td class="text-end">
@@ -137,7 +137,7 @@
                 <ol class="flex flex-col gap-4 border-s border-border-default ps-5">
                     @forelse ($history as $row)
                         <li>
-                            <p class="text-caption-md text-text-tertiary" dir="ltr">{{ $row->effective_date->toDateString() }}</p>
+                            <p class="text-caption-md text-text-tertiary"><x-date :value="$row->effective_date" /></p>
                             <p class="text-label-md text-text-primary">{{ $row->change_type->label() }}</p>
                             <p class="text-body-sm text-text-secondary">{{ $row->jobTitle?->name }} · {{ $row->department?->name }} · {{ $row->branch?->name }}</p>
                         </li>

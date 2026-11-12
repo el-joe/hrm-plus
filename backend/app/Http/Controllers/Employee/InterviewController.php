@@ -30,32 +30,32 @@ class InterviewController extends Controller
         ]);
     }
 
-    public function show(Request $request, Interview $interview): View
+    public function show(Request $request, Interview $assignedInterview): View
     {
-        Gate::authorize('view', $interview);
+        Gate::authorize('view', $assignedInterview);
 
-        $interview->load(['application.candidate', 'application.vacancy', 'interviewers', 'evaluationForm.criteria']);
+        $assignedInterview->load(['application.candidate', 'application.vacancy', 'interviewers', 'evaluationForm.criteria']);
 
         return view('employee.interviews.show', [
-            'interview' => $interview,
-            'myScorecard' => $interview->scorecards()->with('scores')->where('user_id', $request->user()->id)->first(),
+            'interview' => $assignedInterview,
+            'myScorecard' => $assignedInterview->scorecards()->with('scores')->where('user_id', $request->user()->id)->first(),
         ]);
     }
 
-    public function scorecard(ScorecardRequest $request, Interview $interview, SubmitScorecard $submit): RedirectResponse
+    public function scorecard(ScorecardRequest $request, Interview $assignedInterview, SubmitScorecard $submit): RedirectResponse
     {
-        $submit->handle($interview, $request->user(), $request->validated());
+        $submit->handle($assignedInterview, $request->user(), $request->validated());
 
-        return redirect()->route('portal.interviews.show', $interview)->with('status', __('recruitment.messages.scorecard_saved'));
+        return redirect()->route('portal.interviews.show', $assignedInterview)->with('status', __('recruitment.messages.scorecard_saved'));
     }
 
-    public function cv(Request $request, Interview $interview, RecruitmentFileStore $files, SensitiveDataAccessLog $log): StreamedResponse
+    public function cv(Request $request, Interview $assignedInterview, RecruitmentFileStore $files, SensitiveDataAccessLog $log): StreamedResponse
     {
-        Gate::authorize('view', $interview);
-        $candidate = $interview->application->candidate;
+        Gate::authorize('view', $assignedInterview);
+        $candidate = $assignedInterview->application->candidate;
         abort_if($candidate->cv_path === null, 404);
 
-        $log->record(SensitiveDataAccessLog::CANDIDATE_FILE, $candidate, ['cv'], ['interview_id' => $interview->id, 'channel' => 'portal'], $request->user());
+        $log->record(SensitiveDataAccessLog::CANDIDATE_FILE, $candidate, ['cv'], ['interview_id' => $assignedInterview->id, 'channel' => 'portal'], $request->user());
 
         return $files->response($candidate->cv_path, $candidate->cv_name ?? 'cv', $candidate->cv_mime ?? 'application/octet-stream');
     }

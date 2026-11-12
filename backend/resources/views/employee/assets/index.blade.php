@@ -17,9 +17,9 @@
                         <p class="text-caption-md text-text-tertiary"><span dir="ltr">{{ $row->asset->asset_tag }}</span> · {{ $row->asset->category?->name }}
                             @if ($row->asset->serial_number) · <span dir="ltr">{{ $row->asset->serial_number }}</span>@endif</p>
                         <p class="mt-1 text-body-sm text-text-secondary">
-                            {{ __('assets.fields.assigned_on') }}: <span dir="ltr">{{ $row->assigned_on->toDateString() }}</span>
+                            {{ __('assets.fields.assigned_on') }}: <x-date :value="$row->assigned_on" />
                             · {{ __('assets.fields.condition_on_issue') }}: {{ $row->condition_on_issue->label() }}
-                            @if ($row->expected_return_on) · {{ __('assets.portal.return_by', ['date' => $row->expected_return_on->toDateString()]) }}@endif
+                            @if ($row->expected_return_on) · {{ __('assets.portal.return_by', ['date' => \App\Support\Formatter::date($row->expected_return_on)]) }}@endif
                         </p>
                         @if ($row->handover_notes)
                             <p class="mt-1 text-body-sm text-text-secondary">{{ $row->handover_notes }}</p>
@@ -27,7 +27,7 @@
                     </div>
                     <div class="shrink-0 md:w-72">
                         @if ($row->isAcknowledged())
-                            <x-badge tone="success">{{ __('assets.assignments.acknowledged_on', ['date' => $row->acknowledged_at->toDateString()]) }}</x-badge>
+                            <x-badge tone="success">{{ __('assets.assignments.acknowledged_on', ['date' => \App\Support\Formatter::date($row->acknowledged_at)]) }}</x-badge>
                         @else
                             <form method="POST" action="{{ route('portal.assets.acknowledge', $row->id) }}" class="flex flex-col gap-2" data-validate>
                                 @csrf
@@ -50,7 +50,7 @@
                 <li class="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
                     <div class="min-w-0">
                         <p class="text-label-md text-text-primary">{{ $row->asset->name }} <span class="text-caption-md text-text-tertiary" dir="ltr">{{ $row->asset->asset_tag }}</span></p>
-                        <p class="text-caption-md text-text-tertiary"><span dir="ltr">{{ $row->assigned_on->toDateString() }} → {{ $row->returned_on?->toDateString() ?? '—' }}</span>
+                        <p class="text-caption-md text-text-tertiary"><span dir="ltr">{{ \App\Support\Formatter::date($row->assigned_on) }} → {{ \App\Support\Formatter::date($row->returned_on) ?: '—' }}</span>
                             @if ($row->condition_on_return) · {{ $row->condition_on_return->label() }}@endif</p>
                     </div>
                     <x-badge :tone="$row->status->tone()">{{ $row->status->label() }}</x-badge>

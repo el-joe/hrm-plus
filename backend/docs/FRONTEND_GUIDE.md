@@ -288,9 +288,27 @@ leave reports are reused through `LegacyAttendanceReport` / `LegacyLeaveReport` 
 above `config/reports.php` thresholds the export is queued (`GenerateReportExport`, runs as the admin with their scope)
 and announced through the notification centre; *My exports* serves the file to its owner only.
 
+**Employee portal (Phase 9)** — every portal page reads the signed-in user's own employee record through the `Portal*`
+services (`PortalProfile`, `PortalHome`, `PortalDocuments`, `PortalLeave`, …); never look a record up by an id from the
+URL without the employee constraint (ids of others answer **404**; `tests/Feature/Portal/OwnershipTest.php` probes every
+portal and `me/*` route with an id automatically — register the parameter there when you add one). Pages:
+`employee/home` (cards from `App\Services\Employees\PortalHome`, shared with `GET /api/v1/me/home` — today, month
+totals via `x-stat-card`, balances, pending counts, latest payslip, upcoming shifts / holidays, tasks), `employee/documents/index`
+(shared documents, contracts, certificates, HR letters, payslips from `PortalDocuments`), `employee/account` (password,
+language, theme, browsers and app devices from `App\Services\Auth\AccountSessions`, recent sign-ins). New portal
+pages go in `config/navigation.php` as `more` items. Phone widths: check 375 **and 320** px — the top bar keeps
+`gap-3` below `md`, bottom-bar labels may wrap to two lines (`line-clamp-2`, icons top-aligned), long dates never wrap
+(`x-date` is `whitespace-nowrap`). Lists on phones are stacked `<li>` rows or `x-table` with `x-table.td :label`.
+
+**Display formatting in the portal (Phase 9)** — portal pages now use `x-date` / `x-number` / `Formatter::*` for dates,
+amounts and counts (the shared partials `admin/payroll/_money` and `admin/leave/_balance-cards` too, and `x-stat-card`
+digit-converts its hint). Times already converted to another zone (interviews) pass the zone:
+`Formatter::dateTime($local, $timezone)`. Machine values (`route()` parameters, `<input value>`, comparisons) keep
+`->format('Y-m-d')`.
+
 ## 7. Checks before you push
 
 - `npm run build` (Tailwind only generates classes it finds in `resources/views`, `resources/js`,
   `app/Support` and `config/navigation.php` — never build class names by string concatenation).
 - `php artisan test --compact`, `vendor/bin/pint --dirty`.
-- Look at the page in Arabic and English, light and dark, at 1440 and 390 wide.
+- Look at the page in Arabic and English, light and dark, at 1440, 375 and 320 wide.

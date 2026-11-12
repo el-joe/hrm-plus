@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–8 complete (6, 7 and 8: tests written, not run yet — user decision). Phase 8c (admin dashboard, reports centre, charts, display formatting) done; Phase 9 (employee portal pass) next**
+Last updated: 2026-11-12 · Status: **Phases 0–9 complete (6–9: tests written, not run yet — user decision). Phase 9 (employee portal pass) and the backend part of Phase 10 (remaining `/api/v1` endpoints, OpenAPI docs) done; Phase 10 Flutter app in progress**
 
 ---
 
@@ -17,7 +17,7 @@ Last updated: 2026-11-12 · Status: **Phases 0–8 complete (6, 7 and 8: tests w
 | Android | `flutter doctor` reports Android licences not accepted. | Blocks Android builds; one command to fix. |
 | Figma MCP | Connected and authenticated. Full seat on the Pro team "Youssef Magdy's team"; view-only seat on "Codefanz". | Phase 1 can proceed; the file will be created in the Pro team. |
 | Locale | `APP_LOCALE=en`. | Switch to `ar` with `en` fallback in Phase 2. |
-| Not installed yet | Sanctum, Spatie Permission, Excel/PDF libraries, OpenAPI generator, all Flutter packages. | Dependency list in section 4 needs approval (backend guidelines forbid adding dependencies without it). |
+| Not installed yet | Sanctum, Spatie Permission, Excel/PDF libraries, OpenAPI generator (installed in Phase 9/10: dedoc/scramble ^0.13), all Flutter packages. | Dependency list in section 4 needs approval (backend guidelines forbid adding dependencies without it). |
 
 ---
 
@@ -304,17 +304,28 @@ API endpoint was added in 8c. For the portal home and the app, reuse `App\Suppor
 $filters)` (plain arrays, permission-checked) behind a Sanctum admin guard.
 
 ### Phase 9 — Employee web portal · M
-- [ ] Home, profile with change requests, attendance with correction requests, leaves, payroll and payslips, HR requests, announcements, notifications, performance, training, assets, documents, account settings *(8b: home cards for requests / announcements / notifications, profile change requests, My requests, Announcements, Notifications + settings pages are done)*
-- [ ] Ownership enforcement on every route
-- [ ] Responsive pass on phone widths
-- [ ] Tests: an employee cannot read another employee's data anywhere
+- [x] Home, profile with change requests, attendance with correction requests, leaves, payroll and payslips, HR requests, announcements, notifications, performance, training, assets, documents, account settings *(8b: home cards for requests / announcements / notifications, profile change requests, My requests, Announcements, Notifications + settings pages; Phase 9: full home — today / shift / check-in hint, month totals, latest payslip, pending counts, upcoming shifts and holidays, tasks — "My documents", "Account settings")*
+- [x] Ownership enforcement on every route *(audit: every portal and `me/*` id route resolves through the employee; gap fixed: portal interviews used model binding + policy (403) → `{assignedInterview}` binding, 404 for others)*
+- [x] Responsive pass on phone widths *(375 and 320 px, ar/en, light/dark: no horizontal overflow on any portal page; top bar and bottom bar tightened)*
+- [x] Tests: an employee cannot read another employee's data anywhere *(`tests/Feature/Portal/OwnershipTest.php` builds the route list from the router; written, not run)*
+
+**Phase 9 delivered (employee portal pass + backend of Phase 10).** No migration (OTP codes live hashed in the cache;
+web sessions are read from the existing `sessions` table). New settings: Security → reset-code minutes / attempts,
+group **Mobile app** (min / latest version, store links). Services `App\Services\Employees\{PortalHome,PortalDocuments}`,
+`App\Services\Auth\{PasswordResetCodes,AccountSessions}`, `App\Services\Settings\MobileAppConfig`, action
+`App\Actions\Auth\ChangePassword`; portal pages `/portal/documents`, `/portal/account`; portal views converted to
+`x-date` / `x-number` / `Formatter`. OpenAPI: dedoc/scramble (Laravel 13 compatible), `config/scramble.php` (`api/v1`,
+bearer scheme via `MiddlewareAuthSecurityStrategy`, gate `viewApiDocs` = Super Admin outside local),
+`App\Support\OpenApi\ApiResponseTypeExtension` documents the `ApiResponse` envelope with resource schemas.
+Tests written, NOT run: `tests/Feature/Portal/{OwnershipTest,PortalPagesTest,AccountSettingsTest,DocumentsTest}.php`,
+`tests/Feature/Api/V1/{PasswordResetCodeTest,HomeSummaryTest,AppConfigTest}.php`, `tests/Feature/Api/ApiDocumentationTest.php`.
 
 ### Phase 10 — Flutter employee app · XL
 - [ ] Project setup: bundle id, feature-first structure, Riverpod, go_router, dio client, central error handling, secure token storage, Arabic and English localisation, theme from Figma
 - [ ] Screens (25): splash, login, forgot password, OTP, home, profile, attendance, check-in, check-out, GPS validation, face verification, attendance history, schedule, leave balance, new leave, leave history, payslips, salary breakdown, loans and advances, HR requests, request details, documents, announcements, notifications, settings and language
 - [ ] Check-in/out flow with every failure path: permission denied, camera error, GPS failure, outside geofence, poor accuracy, offline, verification failure; success shown only after server confirmation
 - [ ] Push notifications; Android and iOS permission and platform configuration, documented
-- [ ] Remaining `/api/v1` endpoints, API Resources, OpenAPI documentation
+- [x] Remaining `/api/v1` endpoints, API Resources, OpenAPI documentation *(Phase 9/10 backend pass: `app/config`, forgot password with e-mailed OTP, change password, sessions, `me/home`, `me/documents/all`, `me/contracts/{id}/download`, `PATCH me/profile` (locale), `me/profile/photo`; dedoc/scramble at `/docs/api` (local or Super Admin) + `backend/docs/openapi.json`; app-facing guide `backend/docs/API_FLUTTER_NOTES.md`; tests written, not run)*
 - [ ] Tests: authentication, API integration, attendance flows, location and camera permission handling, API errors, leave submission, payslip viewing, data loading
 - [ ] Complete scenarios 1 and 2 against the real backend
 

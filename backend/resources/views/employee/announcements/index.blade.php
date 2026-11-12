@@ -30,12 +30,12 @@
                     <div class="flex flex-wrap items-center gap-2 text-caption-md text-text-tertiary">
                         <x-badge :tone="$announcement->type->tone()">{{ $announcement->type->label() }}</x-badge>
                         @if ($announcement->requires_acknowledgement)
-                            <x-badge :tone="$read?->acknowledged_at ? 'success' : 'warning'">{{ $read?->acknowledged_at ? __('announcements.show.acknowledged_on', ['date' => $read->acknowledged_at->format('Y-m-d')]) : __('announcements.portal.requires_acknowledgement') }}</x-badge>
+                            <x-badge :tone="$read?->acknowledged_at ? 'success' : 'warning'">{{ $read?->acknowledged_at ? __('announcements.show.acknowledged_on', ['date' => \App\Support\Formatter::date($read->acknowledged_at)]) : __('announcements.portal.requires_acknowledgement') }}</x-badge>
                         @endif
                         @if ($announcement->attachments_count)
                             <span class="inline-flex items-center gap-1"><x-icon name="paperclip" size="sm" /> {{ $announcement->attachments_count }}</span>
                         @endif
-                        <span dir="ltr">{{ ($announcement->publish_at ?? $announcement->published_at)?->format('Y-m-d') }}</span>
+                        <x-date :value="$announcement->publish_at ?? $announcement->published_at" />
                     </div>
                 </li>
             @empty

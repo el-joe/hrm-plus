@@ -12,7 +12,7 @@
             <div class="flex flex-col gap-3 md:flex-row md:items-center">
                 <div>
                     <p class="text-h5">{{ __('onboarding.portal.welcome', ['name' => $employee->name]) }}</p>
-                    <p class="text-body-sm text-text-secondary">{{ __('onboarding.fields.start_date') }}: <span dir="ltr">{{ $onboarding->start_date->toDateString() }}</span> · {{ $onboarding->status->label() }}</p>
+                    <p class="text-body-sm text-text-secondary">{{ __('onboarding.fields.start_date') }}: <x-date :value="$onboarding->start_date" /> · {{ $onboarding->status->label() }}</p>
                 </div>
                 <div class="md:ms-auto md:w-72">@include('admin.lifecycle._progress', ['value' => $onboarding->progress(), 'label' => __('onboarding.onboarding.progress')])</div>
             </div>
@@ -29,7 +29,7 @@
                                 <p class="text-body-sm text-text-secondary">{{ $task->description }}</p>
                             @endif
                             @if ($task->due_date)
-                                <p class="text-caption-md text-text-tertiary">{{ __('onboarding.fields.due_date') }} <span dir="ltr">{{ $task->due_date->toDateString() }}</span></p>
+                                <p class="text-caption-md text-text-tertiary">{{ __('onboarding.fields.due_date') }} <x-date :value="$task->due_date" /></p>
                             @endif
                         </div>
                         @if ($task->isOverdue())

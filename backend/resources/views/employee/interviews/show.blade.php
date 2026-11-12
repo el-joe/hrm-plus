@@ -13,7 +13,7 @@
     <x-card :title="__('recruitment.interviews.details')">
         <x-detail-list>
             <x-detail-item :label="__('recruitment.fields.vacancy')">{{ $interview->application->vacancy->title }}</x-detail-item>
-            <x-detail-item :label="__('recruitment.fields.scheduled_at')"><span dir="ltr">{{ $interview->localStart()->format('Y-m-d H:i') }} – {{ $interview->localEnd()->format('H:i') }} ({{ $interview->timezone }})</span></x-detail-item>
+            <x-detail-item :label="__('recruitment.fields.scheduled_at')"><span dir="ltr">{{ \App\Support\Formatter::dateTime($interview->localStart(), $interview->timezone) }} – {{ \App\Support\Formatter::time($interview->localEnd(), $interview->timezone) }} ({{ $interview->timezone }})</span></x-detail-item>
             <x-detail-item :label="__('recruitment.fields.mode')">{{ $interview->mode->label() }}</x-detail-item>
             @if ($interview->location)
                 <x-detail-item :label="__('recruitment.fields.location')">{{ $interview->location }}</x-detail-item>
@@ -26,7 +26,7 @@
         </x-detail-list>
     </x-card>
 
-    <x-card :title="__('recruitment.scorecards.mine')" :subtitle="$myScorecard ? __('recruitment.scorecards.submitted_at', ['date' => $myScorecard->submitted_at->format('Y-m-d H:i')]) : null">
+    <x-card :title="__('recruitment.scorecards.mine')" :subtitle="$myScorecard ? __('recruitment.scorecards.submitted_at', ['date' => \App\Support\Formatter::dateTime($myScorecard->submitted_at)]) : null">
         @if (in_array($interview->status, [App\Enums\InterviewStatus::Cancelled, App\Enums\InterviewStatus::NoShow], true))
             <x-alert tone="info">{{ __('recruitment.validation.interview_cancelled') }}</x-alert>
         @else

@@ -28,6 +28,7 @@ class EmployeeProfileResource extends JsonResource
             'name' => $this->name,
             'name_translations' => ['ar' => $this->name_ar, 'en' => $this->name_en],
             'has_photo' => $this->photo_path !== null,
+            'photo_url' => $this->photo_path !== null ? route('api.v1.me.profile.photo') : null,
             'personal' => [
                 'date_of_birth' => $this->date_of_birth?->toDateString(),
                 'gender' => $this->gender?->value,

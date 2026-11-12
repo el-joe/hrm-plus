@@ -14,9 +14,9 @@
                         </div>
                         <p class="text-body-sm text-text-secondary">
                             @include('admin.payroll._money', ['amount' => $loan->approved_amount ?? $loan->requested_amount, 'currency' => $currency])
-                            · {{ $loan->instalment_count ?? $loan->requested_instalments }} × <span dir="ltr">{{ ($loan->start_date ?? $loan->requested_start)->format('Y-m') }}</span>
+                            · <x-number :value="$loan->instalment_count ?? $loan->requested_instalments" /> × <span dir="ltr">{{ \App\Support\Formatter::digits(($loan->start_date ?? $loan->requested_start)->format('Y-m')) }}</span>
                             @if ($loan->isActive())
-                                · {{ __('payroll.loans.portal.remaining', ['amount' => App\Support\Money::format($loan->outstanding_amount)]) }}
+                                · {{ __('payroll.loans.portal.remaining', ['amount' => App\Support\Formatter::money($loan->outstanding_amount)]) }}
                             @endif
                             @if ($loan->isPending() && $loan->latestApprovalRequest?->currentStep)
                                 · {{ __('payroll.common.at_step', ['step' => $loan->latestApprovalRequest->currentStep->name]) }}

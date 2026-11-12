@@ -1,7 +1,7 @@
 # HRM Plus — Test catalogue
 
 Generated 2026-11-12 by reading the Pest files in `backend/tests` (nothing was executed).
-**113 files, 1012 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
+**121 files, 1053 test cases.** Datasets (`->with(...)`) expand into more runs than listed here.
 
 Run the whole suite (from `backend/`; `php artisan test` hides fatal errors in this environment):
 
@@ -17,7 +17,8 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 |---|---:|---:|
 | Feature/Admin | 5 | 61 |
 | Feature/Announcements | 5 | 41 |
-| Feature/Api | 2 | 23 |
+| Feature/Api | 3 | 25 |
+| Feature/Api/V1 | 3 | 15 |
 | Feature/Approvals | 1 | 14 |
 | Feature/Assets | 4 | 35 |
 | Feature/Attendance | 8 | 87 |
@@ -35,6 +36,7 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 | Feature/Notifications | 5 | 48 |
 | Feature/Payroll | 13 | 145 |
 | Feature/Performance | 3 | 32 |
+| Feature/Portal | 4 | 24 |
 | Feature/Recruitment | 3 | 22 |
 | Feature/Reports | 3 | 34 |
 | Feature/Settings | 2 | 16 |
@@ -192,6 +194,11 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - error envelope › answers in JSON even when the client asks for HTML
 - error envelope › rate limits the API per client
 
+### `tests/Feature/Api/ApiDocumentationTest.php` (2)
+
+- refuses guests, employees and admins without the Super Admin role
+- serves the UI and the OpenAPI document of /api/v1 to a Super Admin with the bearer scheme and the envelope
+
 ### `tests/Feature/Api/AuthApiTest.php` (14)
 
 - login › issues an expiring token to an employee and records the login
@@ -208,6 +215,32 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - token lifecycle › revokes only the current token on logout
 - token lifecycle › revokes every token of the account on logout-all
 - token lifecycle › rotates the token on refresh
+
+## Feature/Api/V1
+
+### `tests/Feature/Api/V1/AppConfigTest.php` (3)
+
+- answers without a token with the company, languages, formats, features and versions
+- never exposes secrets
+- validates app versions on the settings screen
+
+### `tests/Feature/Api/V1/HomeSummaryTest.php` (3)
+
+- summarises today, this month, balances, pending items, upcoming days and tasks
+- includes the latest issued payslip of the employee only
+- answers 404 for an account without an employee profile
+
+### `tests/Feature/Api/V1/PasswordResetCodeTest.php` (9)
+
+- e-mails a six-digit code and answers with its lifetime
+- answers the same way for unknown addresses and admin accounts without sending anything
+- never stores the code in clear
+- verifies a code without consuming it and rejects a wrong one
+- resets the password once with a valid code and revokes every token
+- expires a code after the configured minutes
+- burns the code after too many wrong attempts
+- rate limits code requests per address
+- validates the payloads
 
 ## Feature/Approvals
 
@@ -1184,6 +1217,44 @@ Run one area: append the folder, e.g. `tests/Feature/Attendance`.
 - the review workflow › records KPI progress from the actual value with history
 - the review workflow › completes the cycle goals when the cycle closes
 - the review workflow › reminds the employee to acknowledge every N days after approval
+
+## Feature/Portal
+
+### `tests/Feature/Portal/AccountSettingsTest.php` (9)
+
+- portal › shows the password form, preferences, browsers, app devices and recent sign-ins
+- portal › changes the password and signs every other device out
+- portal › refuses a wrong current password, a weak or unconfirmed new one
+- portal › signs out one of its own browser sessions or app devices, never someone else's
+- portal › forgets the push registrations of a revoked app device
+- api › changes the password, keeps the current token and revokes the others
+- api › answers a wrong current password with the validation envelope
+- api › lists the account's app devices, flags the current one and revokes only its own
+- api › saves the language preference and answers in it
+
+### `tests/Feature/Portal/DocumentsTest.php` (5)
+
+- lists every kind of own document on one portal page
+- returns the consolidated list with download URLs through the API
+- keeps the existing paginated me/documents answer unchanged (backward compatible)
+- serves the own contract copy and logs the access, but 404s another employee's contract
+- shows an empty state when there is nothing yet
+
+### `tests/Feature/Portal/OwnershipTest.php` (5)
+
+- knows how to build another employee's record for every id parameter of the portal and me/* routes
+- answers 404 for another employee's record on every portal and me/* route with an id
+- still serves the employee's own records on the same routes (the 404s are not blanket)
+- never lets an admin open an employee record through the portal by id
+- refuses admin accounts on the employee API
+
+### `tests/Feature/Portal/PortalPagesTest.php` (5)
+
+- renders every portal page for an employee
+- shows the home cards with the employee's own figures
+- lists the new pages in the portal navigation
+- applies the display settings (date format and Arabic-Indic digits) to portal pages
+- tells a user without an employee profile instead of failing
 
 ## Feature/Recruitment
 

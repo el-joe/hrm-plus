@@ -13,31 +13,31 @@
                 @endunless
             </div>
             @if ($balance->tracksBalance())
-                <p class="text-numeric-lg text-text-primary tabular-nums" dir="ltr">{{ $balance->available }}</p>
+                <p class="text-numeric-lg text-text-primary tabular-nums" dir="ltr">{{ \App\Support\Formatter::digits($balance->available) }}</p>
                 <p class="text-caption-md text-text-secondary">{{ __('leave.balances.available_days') }}</p>
                 @unless ($compact ?? false)
                     <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-caption-md">
-                        <dt class="text-text-tertiary">{{ __('leave.balances.entitlement') }}</dt><dd class="text-end tabular-nums">{{ $balance->entitlement }}</dd>
-                        <dt class="text-text-tertiary">{{ __('leave.balances.carried_in') }}</dt><dd class="text-end tabular-nums">{{ $balance->carriedIn }}</dd>
-                        <dt class="text-text-tertiary">{{ __('leave.balances.accrued') }}</dt><dd class="text-end tabular-nums">{{ $balance->accrued }}</dd>
-                        <dt class="text-text-tertiary">{{ __('leave.balances.adjusted') }}</dt><dd class="text-end tabular-nums">{{ $balance->adjusted }}</dd>
-                        <dt class="text-text-tertiary">{{ __('leave.balances.used') }}</dt><dd class="text-end tabular-nums">{{ $balance->used }}</dd>
-                        <dt class="text-text-tertiary">{{ __('leave.balances.pending') }}</dt><dd class="text-end tabular-nums">{{ $balance->pending }}</dd>
+                        <dt class="text-text-tertiary">{{ __('leave.balances.entitlement') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->entitlement) }}</dd>
+                        <dt class="text-text-tertiary">{{ __('leave.balances.carried_in') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->carriedIn) }}</dd>
+                        <dt class="text-text-tertiary">{{ __('leave.balances.accrued') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->accrued) }}</dd>
+                        <dt class="text-text-tertiary">{{ __('leave.balances.adjusted') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->adjusted) }}</dd>
+                        <dt class="text-text-tertiary">{{ __('leave.balances.used') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->used) }}</dd>
+                        <dt class="text-text-tertiary">{{ __('leave.balances.pending') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->pending) }}</dd>
                         @if (bccomp($balance->expired, '0', 2) !== 0)
-                            <dt class="text-text-tertiary">{{ __('leave.balances.expired') }}</dt><dd class="text-end tabular-nums">{{ $balance->expired }}</dd>
+                            <dt class="text-text-tertiary">{{ __('leave.balances.expired') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->expired) }}</dd>
                         @endif
                         @if (bccomp($balance->encashed, '0', 2) !== 0)
-                            <dt class="text-text-tertiary">{{ __('leave.balances.encashed') }}</dt><dd class="text-end tabular-nums">{{ $balance->encashed }}</dd>
+                            <dt class="text-text-tertiary">{{ __('leave.balances.encashed') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->encashed) }}</dd>
                         @endif
                         @if (bccomp($balance->carriedOut, '0', 2) !== 0)
-                            <dt class="text-text-tertiary">{{ __('leave.balances.carried_out') }}</dt><dd class="text-end tabular-nums">{{ $balance->carriedOut }}</dd>
+                            <dt class="text-text-tertiary">{{ __('leave.balances.carried_out') }}</dt><dd class="text-end tabular-nums">{{ \App\Support\Formatter::digits($balance->carriedOut) }}</dd>
                         @endif
                     </dl>
                 @else
-                    <p class="text-caption-md text-text-tertiary">{{ __('leave.balances.used_pending', ['used' => $balance->used, 'pending' => $balance->pending]) }}</p>
+                    <p class="text-caption-md text-text-tertiary">{{ __('leave.balances.used_pending', ['used' => \App\Support\Formatter::digits($balance->used), 'pending' => \App\Support\Formatter::digits($balance->pending)]) }}</p>
                 @endunless
             @else
-                <p class="text-numeric-lg text-text-primary tabular-nums" dir="ltr">{{ $balance->taken }}</p>
+                <p class="text-numeric-lg text-text-primary tabular-nums" dir="ltr">{{ \App\Support\Formatter::digits($balance->taken) }}</p>
                 <p class="text-caption-md text-text-secondary">{{ __('leave.balances.taken_no_balance') }}</p>
             @endif
         </div>

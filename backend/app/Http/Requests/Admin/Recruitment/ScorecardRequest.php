@@ -15,7 +15,7 @@ class ScorecardRequest extends FormRequest
 {
     public function interview(): Interview
     {
-        return $this->route('interview');
+        return $this->route('interview') ?? $this->route('assignedInterview');
     }
 
     public function authorize(): bool

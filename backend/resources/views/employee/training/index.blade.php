@@ -56,7 +56,7 @@
                             <div class="min-w-0">
                                 <p class="text-label-md text-text-primary">{{ $certificate->name }}</p>
                                 <p class="text-caption-md text-text-tertiary">{{ $certificate->type->label() }}@if ($certificate->issuer) · {{ $certificate->issuer }}@endif
-                                    @if ($certificate->expires_on) · {{ __('training.portal.expires', ['date' => $certificate->expires_on->toDateString()]) }}@endif</p>
+                                    @if ($certificate->expires_on) · {{ __('training.portal.expires', ['date' => \App\Support\Formatter::date($certificate->expires_on)]) }}@endif</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 @include('admin.training._validity', ['reminderDays' => $reminderDays])

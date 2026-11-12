@@ -17,5 +17,5 @@
 @if ($text === '')
     <span {{ $attributes }}>{{ $empty }}</span>
 @else
-    <time datetime="{{ $machine }}" dir="ltr" {{ $attributes->class('tabular-nums') }}>{{ $text }}</time>
+    <time datetime="{{ $machine }}" dir="ltr" {{ $attributes->class('tabular-nums whitespace-nowrap') }}>{{ $text }}</time>
 @endif

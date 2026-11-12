@@ -12,7 +12,7 @@
 
     @foreach ($reviews->where('status', App\Enums\PerformanceReviewStatus::SelfAssessment) as $review)
         <x-alert tone="info" :title="__('performance.portal.self_open_title', ['cycle' => $review->cycle->name])">
-            {{ $review->cycle->self_assessment_due ? __('performance.portal.self_open_due', ['date' => $review->cycle->self_assessment_due->toDateString()]) : __('performance.portal.self_open') }}
+            {{ $review->cycle->self_assessment_due ? __('performance.portal.self_open_due', ['date' => \App\Support\Formatter::date($review->cycle->self_assessment_due)]) : __('performance.portal.self_open') }}
             <a class="ms-1 text-text-link hover:underline" href="{{ route('portal.performance.reviews.show', $review->id) }}">{{ __('performance.portal.start_self') }}</a>
         </x-alert>
     @endforeach
@@ -35,7 +35,7 @@
                                     <p class="text-caption-md text-text-tertiary">
                                         {{ $goal->type->label() }}@if ($goal->cycle) · {{ $goal->cycle->name }}@endif
                                         · {{ __('performance.common.weight_pct', ['weight' => rtrim(rtrim((string) $goal->weight, '0'), '.')]) }}
-                                        @if ($goal->due_date) · {{ __('performance.portal.due', ['date' => $goal->due_date->toDateString()]) }}@endif
+                                        @if ($goal->due_date) · {{ __('performance.portal.due', ['date' => \App\Support\Formatter::date($goal->due_date)]) }}@endif
                                     </p>
                                     @if ($goal->isKpi() && $goal->target_value !== null)
                                         <p class="text-body-sm text-text-secondary">{{ __('performance.goals.kpi_line', ['current' => $goal->current_value ?? '0', 'target' => $goal->target_value, 'unit' => $goal->unit]) }}</p>
@@ -79,7 +79,7 @@
                                 <a href="{{ route('portal.performance.reviews.show', $review->id) }}" class="text-label-md text-text-link hover:underline">{{ $review->cycle->name }}</a>
                                 @include('admin.performance._review-status', ['status' => $review->status])
                             </div>
-                            <p class="text-caption-md text-text-tertiary">{{ $review->cycle->type->label() }} · <span dir="ltr">{{ $review->cycle->period_start->toDateString() }} → {{ $review->cycle->period_end->toDateString() }}</span></p>
+                            <p class="text-caption-md text-text-tertiary">{{ $review->cycle->type->label() }} · <span dir="ltr">{{ \App\Support\Formatter::date($review->cycle->period_start) }} → {{ \App\Support\Formatter::date($review->cycle->period_end) }}</span></p>
                             @if ($review->status->isFinal())
                                 <div class="text-body-sm">@include('admin.performance._rating', ['level' => $review->finalRating])</div>
                             @endif

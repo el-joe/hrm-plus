@@ -34,7 +34,7 @@
                 </span>
             @endif
             @if ($hint)
-                <span class="text-caption-md text-text-tertiary">{{ $hint }}</span>
+                <span class="text-caption-md text-text-tertiary">{{ \App\Support\Formatter::digits($hint) }}</span>
             @endif
         </div>
     @endif

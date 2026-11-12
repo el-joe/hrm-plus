@@ -62,7 +62,7 @@
             </x-slot:footer>
         </x-card>
 
-        <x-card :title="__('leave.portal.new_request')" :subtitle="__('leave.portal.new_request_help')" data-region="leave-request-form">
+        <x-card :title="__('leave.portal.new_request')" :subtitle="__('leave.portal.new_request_help')" id="new-leave" class="scroll-mt-24" data-region="leave-request-form">
             @if ($types->isEmpty())
                 <p class="text-body-sm text-text-tertiary">{{ __('leave.portal.no_types') }}</p>
             @else

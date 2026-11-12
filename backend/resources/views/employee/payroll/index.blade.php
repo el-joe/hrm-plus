@@ -4,10 +4,10 @@
 
 @section('content')
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card :label="__('payroll_runs.portal.year_net', ['year' => $year])" :value="App\Support\Money::format($summary['net'])" icon="wallet" :hint="$currency" />
-        <x-stat-card :label="__('payroll_runs.portal.year_gross', ['year' => $year])" :value="App\Support\Money::format($summary['gross'])" icon="trend-up" :hint="$currency" />
-        <x-stat-card :label="__('payroll_runs.portal.year_deductions', ['year' => $year])" :value="App\Support\Money::format($summary['deductions'])" icon="minus-circle" :hint="$currency" />
-        <x-stat-card :label="__('payroll_runs.portal.loan_balance')" :value="App\Support\Money::format($loanBalance)" icon="coins" :hint="$currency" :href="route('portal.loans')" />
+        <x-stat-card :label="__('payroll_runs.portal.year_net', ['year' => $year])" :value="App\Support\Formatter::money($summary['net'])" icon="wallet" :hint="$currency" />
+        <x-stat-card :label="__('payroll_runs.portal.year_gross', ['year' => $year])" :value="App\Support\Formatter::money($summary['gross'])" icon="trend-up" :hint="$currency" />
+        <x-stat-card :label="__('payroll_runs.portal.year_deductions', ['year' => $year])" :value="App\Support\Formatter::money($summary['deductions'])" icon="minus-circle" :hint="$currency" />
+        <x-stat-card :label="__('payroll_runs.portal.loan_balance')" :value="App\Support\Formatter::money($loanBalance)" icon="coins" :hint="$currency" :href="route('portal.loans')" />
     </div>
 
     <div class="grid gap-4 lg:grid-cols-3 lg:gap-6">

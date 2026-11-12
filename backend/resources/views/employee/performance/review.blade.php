@@ -1,4 +1,4 @@
-@extends('layouts.employee', ['subtitle' => $review->cycle->type->label().' · '.$review->cycle->period_start->toDateString().' → '.$review->cycle->period_end->toDateString()])
+@extends('layouts.employee', ['subtitle' => $review->cycle->type->label().' · '.\App\Support\Formatter::date($review->cycle->period_start).' → '.\App\Support\Formatter::date($review->cycle->period_end)])
 
 @section('title', $review->cycle->name)
 
@@ -145,7 +145,7 @@
                     <x-detail-item :label="__('performance.fields.employee_comment')"><span class="whitespace-pre-line">{{ $review->employee_comment }}</span></x-detail-item>
                 @endif
                 @if ($review->acknowledged_at)
-                    <x-detail-item :label="__('performance.fields.acknowledged_at')"><span dir="ltr">{{ $review->acknowledged_at->format('Y-m-d H:i') }}</span></x-detail-item>
+                    <x-detail-item :label="__('performance.fields.acknowledged_at')"><x-date :value="$review->acknowledged_at" format="datetime" /></x-detail-item>
                 @endif
             </x-detail-list>
         </x-card>

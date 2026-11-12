@@ -24,6 +24,15 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
     Route::post('auth/login', [V1\AuthController::class, 'login'])
         ->middleware('throttle:api-login')->name('auth.login');
 
+    // Public (Phase 10): app configuration for the splash screen, forgot password with an e-mailed code.
+    Route::get('app/config', [V1\AppConfigController::class, 'show'])->name('app.config');
+    Route::post('auth/password/forgot', [V1\PasswordController::class, 'forgot'])
+        ->middleware('throttle:password-code')->name('auth.password.forgot');
+    Route::post('auth/password/verify-otp', [V1\PasswordController::class, 'verify'])
+        ->middleware('throttle:password-code-check')->name('auth.password.verify-otp');
+    Route::post('auth/password/reset', [V1\PasswordController::class, 'reset'])
+        ->middleware('throttle:password-code-check')->name('auth.password.reset');
+
     Route::middleware(['auth:sanctum', 'api.employee'])->group(function (): void {
         Route::prefix('auth')->name('auth.')->group(function (): void {
             Route::get('me', [V1\AuthController::class, 'me'])->name('me');
@@ -31,10 +40,20 @@ Route::prefix('v1')->name('api.v1.')->middleware('throttle:api')->group(function
             Route::post('logout', [V1\AuthController::class, 'logout'])->name('logout');
             Route::post('logout-all', [V1\AuthController::class, 'logoutAll'])->name('logout-all');
             Route::get('login-history', [V1\LoginHistoryController::class, 'index'])->name('login-history');
+            // Phase 10: change password, devices signed in with this account.
+            Route::put('password', [V1\PasswordController::class, 'change'])->middleware('throttle:password-code-check')->name('password.change');
+            Route::get('sessions', [V1\SessionController::class, 'index'])->name('sessions.index');
+            Route::delete('sessions/{session}', [V1\SessionController::class, 'destroy'])->whereNumber('session')->name('sessions.destroy');
         });
 
         Route::prefix('me')->name('me.')->group(function (): void {
+            // Phase 10: home summary, language preference, photo, consolidated documents, contract copies.
+            Route::get('home', V1\HomeController::class)->name('home');
             Route::get('profile', [V1\MeController::class, 'profile'])->name('profile');
+            Route::patch('profile', [V1\MeController::class, 'updateProfile'])->name('profile.update');
+            Route::get('profile/photo', [V1\MeController::class, 'photo'])->name('profile.photo');
+            Route::get('documents/all', [V1\MeController::class, 'allDocuments'])->name('documents.all');
+            Route::get('contracts/{contract}/download', [V1\MeController::class, 'contract'])->whereNumber('contract')->name('contracts.download');
             Route::get('documents', [V1\MeController::class, 'documents'])->name('documents.index');
             Route::get('documents/{document}', [V1\MeController::class, 'document'])->whereNumber('document')->name('documents.show');
             Route::get('documents/{document}/download', [V1\MeController::class, 'download'])->whereNumber('document')->name('documents.download');

@@ -14,7 +14,7 @@
         <div class="mb-4 flex flex-wrap items-center gap-2 text-caption-md text-text-tertiary">
             <x-badge :tone="$announcement->type->tone()">{{ $announcement->type->label() }}</x-badge>
             @if ($announcement->is_pinned) <x-badge tone="primary">{{ __('announcements.portal.pinned') }}</x-badge> @endif
-            <span dir="ltr">{{ ($announcement->publish_at ?? $announcement->published_at)?->format('Y-m-d H:i') }}</span>
+            <x-date :value="$announcement->publish_at ?? $announcement->published_at" format="datetime" />
         </div>
         @include('admin.announcements._body', ['html' => $announcement->body($locale), 'direction' => config('app.supported_locales.'.$locale, 'rtl'), 'locale' => $locale])
 
@@ -34,7 +34,7 @@
             <x-slot:footer>
                 @if ($read->acknowledged_at)
                     <p class="flex items-center gap-2 text-body-sm text-feedback-success-text" data-notice="acknowledged">
-                        <x-icon name="check-circle" size="sm" /> {{ __('announcements.portal.acknowledged_on', ['date' => $read->acknowledged_at->format('Y-m-d H:i')]) }}
+                        <x-icon name="check-circle" size="sm" /> {{ __('announcements.portal.acknowledged_on', ['date' => \App\Support\Formatter::dateTime($read->acknowledged_at)]) }}
                     </p>
                 @else
                     <form method="POST" action="{{ route('portal.announcements.acknowledge', $announcement->id) }}" class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

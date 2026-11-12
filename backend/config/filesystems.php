@@ -1,10 +1,11 @@
 <?php
 
 // Local disks: files are shared with the web server's group (the storage tree is group www-data, setgid),
-// so files written by CLI jobs/seeders stay readable by PHP under Apache. "Other" never gets access.
+// so files and folders written by Apache, CLI jobs, queue workers and seeders stay readable AND writable
+// by each other (they share the group). "Other" never gets access to private files.
 $groupReadable = [
-    'file' => ['public' => 0664, 'private' => 0640],
-    'dir' => ['public' => 0775, 'private' => 0750],
+    'file' => ['public' => 0664, 'private' => 0660],
+    'dir' => ['public' => 0775, 'private' => 0770],
 ];
 
 return [

@@ -2,7 +2,7 @@
 
 Source of requirements: [doc.md](doc.md). This file is the single progress tracker required by rule 28 of that spec. Tick boxes as work lands; do not mark an item done until its exit criteria are met.
 
-Last updated: 2026-11-12 · Status: **Phases 0–9 complete (6–9: tests written, not run yet — user decision). Phase 9 (employee portal pass) and the backend part of Phase 10 (remaining `/api/v1` endpoints, OpenAPI docs) done; Phase 10 Flutter app in progress**
+Last updated: 2026-11-12 · Status: **Phases 0–9 complete (6–9: tests written, not run yet — user decision). Phase 9 (employee portal pass) and the backend part of Phase 10 (remaining `/api/v1` endpoints, OpenAPI docs) done; Phase 10 Flutter app built (flutter analyze clean, web build compiles; Flutter tests written, not run)**
 
 ---
 
@@ -321,13 +321,13 @@ Tests written, NOT run: `tests/Feature/Portal/{OwnershipTest,PortalPagesTest,Acc
 `tests/Feature/Api/V1/{PasswordResetCodeTest,HomeSummaryTest,AppConfigTest}.php`, `tests/Feature/Api/ApiDocumentationTest.php`.
 
 ### Phase 10 — Flutter employee app · XL
-- [ ] Project setup: bundle id, feature-first structure, Riverpod, go_router, dio client, central error handling, secure token storage, Arabic and English localisation, theme from Figma
-- [ ] Screens (25): splash, login, forgot password, OTP, home, profile, attendance, check-in, check-out, GPS validation, face verification, attendance history, schedule, leave balance, new leave, leave history, payslips, salary breakdown, loans and advances, HR requests, request details, documents, announcements, notifications, settings and language
-- [ ] Check-in/out flow with every failure path: permission denied, camera error, GPS failure, outside geofence, poor accuracy, offline, verification failure; success shown only after server confirmation
-- [ ] Push notifications; Android and iOS permission and platform configuration, documented
+- [x] Project setup: bundle id, feature-first structure, Riverpod, go_router, dio client, central error handling, secure token storage, Arabic and English localisation, theme from Figma
+- [x] Screens (25): splash, login, forgot password, OTP, home, profile, attendance, check-in, check-out, GPS validation, face verification, attendance history, schedule, leave balance, new leave, leave history, payslips, salary breakdown, loans and advances, HR requests, request details, documents, announcements, notifications, settings and language
+- [x] Check-in/out flow with every failure path: permission denied, camera error, GPS failure, outside geofence, poor accuracy, offline, verification failure; success shown only after server confirmation
+- [x] Push notifications *(wired; delivery untested until Firebase/APNs credentials — B5)*; Android and iOS permission and platform configuration, documented
 - [x] Remaining `/api/v1` endpoints, API Resources, OpenAPI documentation *(Phase 9/10 backend pass: `app/config`, forgot password with e-mailed OTP, change password, sessions, `me/home`, `me/documents/all`, `me/contracts/{id}/download`, `PATCH me/profile` (locale), `me/profile/photo`; dedoc/scramble at `/docs/api` (local or Super Admin) + `backend/docs/openapi.json`; app-facing guide `backend/docs/API_FLUTTER_NOTES.md`; tests written, not run)*
-- [ ] Tests: authentication, API integration, attendance flows, location and camera permission handling, API errors, leave submission, payslip viewing, data loading
-- [ ] Complete scenarios 1 and 2 against the real backend
+- [x] *(written, not run)* Tests: authentication, API integration, attendance flows, location and camera permission handling, API errors, leave submission, payslip viewing, data loading
+- [x] *(API contracts verified with curl; live-API test written)* Complete scenarios 1 and 2 against the real backend
 
 ### Phase 11 — Final testing and documentation · L
 - [ ] Fresh migrate and seed with realistic development data, factories for every model

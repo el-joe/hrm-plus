@@ -1,0 +1,656 @@
+{
+  "@@locale": "en",
+  "appName": "HRM Plus",
+  "appTagline": "Your workday, in one place",
+  "loading": "Loading…",
+  "retry": "Try again",
+  "refresh": "Refresh",
+  "cancel": "Cancel",
+  "close": "Close",
+  "done": "Done",
+  "save": "Save",
+  "send": "Send",
+  "next": "Next",
+  "previous": "Previous",
+  "continueLabel": "Continue",
+  "tryAgain": "Try again",
+  "emptyGeneric": "Nothing here yet",
+  "selectDate": "Select a date",
+  "switchLanguage": "English",
+  "updateRequiredTitle": "Update required",
+  "updateRequiredMessage": "This version is no longer supported. Please install the latest version of HRM Plus.",
+  "errorTitle": "Something went wrong",
+  "errorOfflineTitle": "You are offline",
+  "errorOffline": "No internet connection. Check your connection and try again.",
+  "errorTimeout": "The server took too long to respond. Try again.",
+  "errorSessionExpired": "Your session has ended. Please sign in again.",
+  "errorForbidden": "You do not have access to this.",
+  "errorNotFound": "This item was not found.",
+  "errorValidation": "Please check the highlighted fields.",
+  "errorRateLimited": "Too many attempts. Please wait a moment and try again.",
+  "errorServer": "The server could not complete the request. Try again later.",
+  "errorUnexpected": "An unexpected error occurred.",
+  "cannotOpenFile": "The file could not be opened on this device.",
+  "downloading": "Downloading…",
+  "validationRequired": "This field is required.",
+  "validationEmail": "Enter a valid e-mail address.",
+  "validationPasswordMatch": "The passwords do not match.",
+  "validationStartDate": "Choose the start date.",
+  "validationAmount": "Enter an amount greater than zero.",
+  "validationMaxAmount": "The amount is above your limit.",
+  "loginTitle": "Sign in",
+  "loginSubtitle": "Use your work e-mail and password.",
+  "loginFailed": "Sign-in failed.",
+  "email": "E-mail",
+  "password": "Password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "forgotPassword": "Forgot password?",
+  "signIn": "Sign in",
+  "forgotPasswordTitle": "Forgot password",
+  "forgotPasswordSubtitle": "Enter your work e-mail and we will send you a verification code.",
+  "sendCode": "Send code",
+  "backToLogin": "Back to sign in",
+  "otpTitle": "Verification code",
+  "otpCode": "Code",
+  "verify": "Verify",
+  "otpResend": "Resend code",
+  "otpResent": "A new code has been sent.",
+  "newPasswordTitle": "New password",
+  "newPasswordSubtitle": "Choose a new password for your account.",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm password",
+  "resetPassword": "Reset password",
+  "passwordResetDone": "Your password has been changed. Sign in with the new password.",
+  "logout": "Sign out",
+  "logoutConfirm": "Sign out of HRM Plus on this device?",
+  "navHome": "Home",
+  "navAttendance": "Attendance",
+  "navLeave": "Leave",
+  "navPayslips": "Payslips",
+  "navAccount": "My account",
+  "goodMorning": "Good morning",
+  "goodEvening": "Good evening",
+  "restDay": "Rest day",
+  "noShiftToday": "No shift today",
+  "attendanceStatusUnavailable": "Attendance status could not be loaded.",
+  "checkInTime": "Check-in",
+  "checkOutTime": "Check-out",
+  "workedHours": "Worked hours",
+  "leaveBalance": "Leave balance",
+  "lastNetSalary": "Last net salary",
+  "pendingItems": "Waiting for you",
+  "pendingLeaveRequests": "Leave requests pending",
+  "pendingHrRequests": "HR requests open",
+  "pendingLoanRequests": "Loan requests pending",
+  "pendingCorrections": "Attendance corrections pending",
+  "pendingAcknowledgements": "Announcements to acknowledge",
+  "attendanceTitle": "Attendance",
+  "checkIn": "Check in",
+  "checkOut": "Check out",
+  "mobileAttendanceDisabled": "Mobile attendance is off",
+  "stateCheckedIn": "Checked in",
+  "stateCheckedOut": "Checked out",
+  "stateNotCheckedIn": "Not checked in",
+  "assignedShift": "Assigned shift",
+  "shift": "Shift",
+  "holiday": "Holiday",
+  "allowedLocations": "Allowed locations",
+  "locationAnywhere": "Any location",
+  "outsideShiftWindowHint": "You are outside the check-in window of your shift. An attempt now may be sent for review.",
+  "todayPunches": "Today's punches",
+  "noPunchesYet": "No punches recorded today.",
+  "attendanceHistoryTitle": "Attendance history",
+  "scheduleTitle": "Work schedule",
+  "gpsTitle": "GPS location",
+  "faceTitle": "Face verification",
+  "faceVerification": "Face verification",
+  "noLocationConfigured": "No allowed location is set for you",
+  "gpsChecking": "Checking GPS…",
+  "gpsOff": "Location services off",
+  "gpsPermissionNeeded": "Location permission needed",
+  "gpsUnavailable": "GPS unavailable",
+  "gpsReady": "GPS ready",
+  "faceOff": "Face check not used",
+  "faceRequiredReady": "Face check required · enrolled",
+  "faceOptionalReady": "Face check · enrolled",
+  "faceNotEnrolled": "Face not enrolled",
+  "stepLocation": "Location",
+  "stepFace": "Face",
+  "stepSubmit": "Submit",
+  "preparing": "Preparing…",
+  "locating": "Getting your location…",
+  "submitting": "Sending to the server… Do not close the app.",
+  "locationRationaleTitle": "Location access",
+  "locationRationaleBody": "HRM Plus checks your location only when you check in or out, to confirm you are at an allowed work location. Your location is not tracked in the background.",
+  "faceStepTitle": "Verify your face",
+  "cameraRationale": "The front camera takes one photo to confirm it is you. The photo is sent to the verification service and not kept on the phone.",
+  "faceSimulatedNotice": "Face verification runs in simulated mode (development). No real biometric check is performed.",
+  "openCamera": "Open camera",
+  "continueWithoutFace": "Continue without face verification",
+  "faceCaptureHint": "Place your face inside the frame, in good light, and tap Capture.",
+  "capture": "Capture",
+  "issueOfflineTitle": "No connection",
+  "issueOfflineBody": "You are offline. Attendance can only be recorded when the server confirms it — connect to the internet and try again.",
+  "contactHr": "Please contact HR.",
+  "issueLocationOffTitle": "Location services are off",
+  "issueLocationOffBody": "Turn on location services to check in or out.",
+  "issueLocationDeniedTitle": "Location permission denied",
+  "issueLocationDeniedBody": "HRM Plus needs your location to confirm you are at an allowed work location.",
+  "issueLocationBlockedBody": "Location access is blocked. Allow it for HRM Plus in the system settings.",
+  "issueGpsTimeoutTitle": "Could not get a GPS fix",
+  "issueGpsTimeoutBody": "Move to an open area or near a window and try again.",
+  "issueGpsFailedTitle": "Location unavailable",
+  "issueGpsFailedBody": "Your location could not be read. Try again.",
+  "issuePoorAccuracyTitle": "GPS accuracy is too low",
+  "issueOutsideTitle": "Outside the allowed location",
+  "issueCameraDeniedTitle": "Camera permission denied",
+  "issueCameraDeniedBody": "Face verification needs the camera. Allow camera access to continue.",
+  "issueCameraBlockedBody": "Camera access is blocked. Allow it for HRM Plus in the system settings.",
+  "issueCameraErrorTitle": "Camera error",
+  "issueCameraErrorBody": "The camera could not be started. Close other camera apps and try again.",
+  "issueNoCameraBody": "No camera was found on this device.",
+  "issueFaceNotEnrolledBody": "Your policy requires face verification. Enrol your face first.",
+  "issueSubmitFailedTitle": "Not sent",
+  "retrySafeNote": "Retrying is safe: the same request is not recorded twice.",
+  "notRecordedNote": "Nothing has been recorded.",
+  "openLocationSettings": "Open location settings",
+  "openAppSettings": "Open app settings",
+  "enrolFace": "Enrol my face",
+  "checkInRecorded": "Check-in recorded",
+  "checkOutRecorded": "Check-out recorded",
+  "sentForReviewTitle": "Sent for review",
+  "sentForReviewBody": "Your attempt was received but is NOT recorded yet. HR will review it and you will be notified.",
+  "rejectedTitle": "Not recorded",
+  "rejectedBody": "The server did not accept this attempt.",
+  "distance": "Distance",
+  "allowedRadius": "Allowed radius",
+  "faceAttemptsLeft": "Face attempts left",
+  "accuracy": "Accuracy",
+  "maxAccuracy": "Required accuracy",
+  "nearestLocation": "Nearest location",
+  "mockLocationDetected": "A mock location was detected. The attempt may be sent for review.",
+  "reasonNotEmployed": "You are not employed on this date",
+  "reasonMobileDisabled": "Mobile attendance is not enabled for you",
+  "reasonPoorAccuracy": "GPS accuracy was too low",
+  "reasonNoLocation": "No allowed location is configured for you",
+  "reasonOutsideGeofence": "You are outside the allowed location",
+  "reasonFaceRequired": "Face verification is required",
+  "reasonFaceRetry": "Face not recognised — try again",
+  "reasonMockLocation": "A mock location was detected",
+  "reasonOutsideShiftWindow": "Outside your shift's check-in window",
+  "reasonFaceFailed": "Face verification failed",
+  "reasonFaceNotEnrolled": "Your face is not enrolled",
+  "reasonTimeDrift": "Your phone clock differs from the server time",
+  "reasonRepeatedAttempts": "Too many attempts in a short time",
+  "gpsExplanation": "This screen shows what the server will check: your GPS accuracy and the distance to your allowed work locations. The server validates again when you check in.",
+  "gpsStatus": "GPS status",
+  "coordinates": "Coordinates",
+  "poorAccuracyHint": "Accuracy is above the limit. Move to an open area and refresh.",
+  "allowLocation": "Allow location",
+  "inside": "Inside",
+  "faceStatus": "Status",
+  "facePolicy": "Your policy",
+  "faceModeRequired": "Required",
+  "faceModeOptional": "Optional",
+  "faceModeOff": "Not used",
+  "faceConsent": "Consent",
+  "faceEnrolment": "Enrolment",
+  "given": "Given",
+  "notGiven": "Not given",
+  "notEnrolled": "Not enrolled",
+  "expires": "Expires",
+  "faceConsentTitle": "Consent to face verification",
+  "faceGiveConsent": "I agree",
+  "faceConsentSaved": "Consent recorded.",
+  "faceEnrolled": "Your face has been enrolled.",
+  "faceReEnrol": "Enrol again",
+  "faceWithdraw": "Withdraw consent",
+  "faceWithdrawConfirm": "Withdrawing consent deletes your biometric data immediately. If your policy requires face verification you will not be able to check in from the app.",
+  "faceWithdrawn": "Consent withdrawn and data deleted.",
+  "tabDays": "Days",
+  "tabAttempts": "Mobile attempts",
+  "tabCorrections": "Corrections",
+  "noAttendanceDays": "No attendance records for this month.",
+  "presentDays": "Present",
+  "lateDays": "Late",
+  "absentDays": "Absent",
+  "leaveDays": "Leave",
+  "overtime": "Overtime",
+  "noAttempts": "No mobile attempts yet.",
+  "outcomeAccepted": "Recorded",
+  "outcomeFlagged": "In review",
+  "outcomeRejected": "Rejected",
+  "outcomeReviewApproved": "Approved after review",
+  "outcomeReviewRejected": "Rejected after review",
+  "noCorrections": "No correction requests.",
+  "noSchedule": "No schedule for these dates.",
+  "noShift": "No shift",
+  "workingDay": "Working day",
+  "leaveHistoryTitle": "Leave history",
+  "newLeaveRequest": "New leave request",
+  "noLeaveTypes": "No leave types are available to you.",
+  "notTracked": "No balance",
+  "entitlement": "Entitled",
+  "carriedIn": "Carried over",
+  "used": "Used",
+  "pending": "Pending",
+  "leaveType": "Leave type",
+  "dayPartFull": "Full day",
+  "dayPartFirstHalf": "First half",
+  "dayPartSecondHalf": "Second half",
+  "dayPartHours": "Hours",
+  "startDate": "From",
+  "endDate": "To",
+  "date": "Date",
+  "hours": "Hours",
+  "reasonOptional": "Reason (optional)",
+  "attachments": "Attachments",
+  "addAttachment": "Add file",
+  "attachmentRequiredHint": "This leave type needs a supporting document.",
+  "attachmentRequired": "A supporting document is required.",
+  "previewDays": "Calculate days",
+  "previewTitle": "Preview",
+  "daysCounted": "Days counted",
+  "daysNotCounted": "Days not counted",
+  "submitRequest": "Submit request",
+  "leaveSubmitted": "Your leave request was sent for approval.",
+  "noLeaveRequests": "You have no leave requests.",
+  "leaveRequestTitle": "Leave request",
+  "duration": "Duration",
+  "currentStep": "Current step",
+  "reason": "Reason",
+  "rejectionReason": "Rejection reason",
+  "submittedOn": "Submitted",
+  "dayBreakdown": "Days",
+  "notCounted": "Not counted",
+  "approvalTrail": "Approval trail",
+  "noAttachments": "No attachments.",
+  "attachmentsUploaded": "Files uploaded.",
+  "cancelRequest": "Cancel request",
+  "requestCancellation": "Request cancellation",
+  "cancelLeaveConfirm": "Cancel this leave request?",
+  "requestCancelled": "Request cancelled.",
+  "payslipsTitle": "Payslips",
+  "noPayslips": "No payslips for this year.",
+  "noPayslipsHint": "Payslips appear here once payroll is issued.",
+  "gross": "Gross",
+  "deductions": "Deductions",
+  "loanBalance": "Loan balance",
+  "salaryBreakdown": "Salary breakdown",
+  "downloadPdf": "Download PDF",
+  "earnings": "Earnings",
+  "statutory": "Statutory deductions",
+  "loanRepayments": "Loan repayments",
+  "totals": "Totals",
+  "totalDeductions": "Total deductions",
+  "netPay": "Net pay",
+  "payDate": "Pay date",
+  "demoStatutoryNotice": "Statutory amounts use demo rules and are for illustration only.",
+  "loansTitle": "Loans and advances",
+  "newLoanRequest": "New request",
+  "yourLimits": "Your limits",
+  "loansDisabled": "Loan requests are currently closed.",
+  "noLoans": "You have no loans or advances.",
+  "requestedAmount": "Requested",
+  "approvedAmount": "Approved",
+  "instalments": "Instalments",
+  "outstanding": "Outstanding",
+  "amount": "Amount",
+  "startMonth": "First deduction month",
+  "loanSubmitted": "Your request was sent for approval.",
+  "cancelLoanConfirm": "Cancel this loan request?",
+  "hrRequestsTitle": "HR requests",
+  "newRequest": "New request",
+  "tabOpen": "Open",
+  "tabClosed": "Closed",
+  "noOpenRequests": "No open requests.",
+  "noClosedRequests": "No closed requests.",
+  "requestsDisabled": "HR requests are not available.",
+  "category": "Category",
+  "subjectOptional": "Subject (optional)",
+  "letterLanguage": "Letter language",
+  "arabic": "العربية",
+  "english": "English",
+  "bothLanguages": "Both",
+  "description": "Description",
+  "notesOptional": "Notes (optional)",
+  "profileChangeHint": "Fill in only the fields you want to change. HR reviews the request before anything is updated.",
+  "profileChangeEmpty": "Enter at least one new value.",
+  "requestSubmitted": "Your request was submitted.",
+  "requestDetailsTitle": "Request details",
+  "reference": "Reference",
+  "priority": "Priority",
+  "resolution": "Resolution",
+  "conversation": "Conversation",
+  "noMessages": "No messages yet.",
+  "you": "You",
+  "writeReply": "Write a reply…",
+  "replySent": "Reply sent.",
+  "history": "History",
+  "cancelRequestConfirm": "Cancel this request?",
+  "documentsTitle": "Documents",
+  "noDocuments": "No documents shared with you yet.",
+  "docsShared": "My documents",
+  "docsContracts": "Contracts",
+  "docsCertificates": "Certificates",
+  "docsLetters": "Letters",
+  "expired": "Expired",
+  "announcementsTitle": "Announcements",
+  "noAnnouncements": "No announcements.",
+  "needsAcknowledgement": "Acknowledge",
+  "unread": "New",
+  "acknowledge": "I have read and understood",
+  "acknowledged": "Acknowledged.",
+  "notificationsTitle": "Notifications",
+  "noNotifications": "You have no notifications.",
+  "markAllRead": "Mark all as read",
+  "profileTitle": "Profile",
+  "employment": "Employment",
+  "status": "Status",
+  "hireDate": "Hire date",
+  "branch": "Branch",
+  "department": "Department",
+  "position": "Position",
+  "jobGrade": "Grade",
+  "employmentType": "Employment type",
+  "workLocation": "Work location",
+  "manager": "Manager",
+  "contact": "Contact",
+  "workEmail": "Work e-mail",
+  "personalEmail": "Personal e-mail",
+  "phone": "Phone",
+  "address": "Address",
+  "city": "City",
+  "personal": "Personal",
+  "dateOfBirth": "Date of birth",
+  "nationalId": "National ID",
+  "nationality": "Nationality",
+  "emergencyContacts": "Emergency contacts",
+  "requestProfileChange": "Request a change",
+  "settingsTitle": "Settings",
+  "language": "Language",
+  "theme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "digits": "Digits",
+  "digitsWestern": "0123",
+  "digitsArabicIndic": "٠١٢٣",
+  "notificationPreferences": "Notification preferences",
+  "preferencesSaved": "Preferences saved.",
+  "mandatoryNotification": "Always sent",
+  "pushDisabled": "Push notifications are not configured on this build. You will still see notifications inside the app.",
+  "acknowledgedOn": "Acknowledged on {date}",
+  "@acknowledgedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceAfter": "Balance after ({year})",
+  "@balanceAfter": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "currentValue": "Current: {value}",
+  "@currentValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "daysValue": "{days} days",
+  "@daysValue": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceFromLocation": "{meters} m from {location}",
+  "@distanceFromLocation": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "enrolledOn": "Enrolled on {date}",
+  "@enrolledOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "faceConsentBody": "Face verification compares a photo taken at check-in with your enrolled face to confirm it is you. Biometric data is stored encrypted, used only for attendance, and deleted when you withdraw consent or leave the company. Consent text version {version}.",
+  "@faceConsentBody": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "gpsAccuracy": "GPS ±{meters} m",
+  "@gpsAccuracy": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingName": "{greeting}, {name}",
+  "@greetingName": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayToday": "Holiday: {name}",
+  "@holidayToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "insideLocation": "Inside {location}",
+  "@insideLocation": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "issueOutsideBody": "You are {distance} m from {location}; the allowed radius is {radius} m. Move closer and try again.",
+  "@issueOutsideBody": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      },
+      "radius": {
+        "type": "String"
+      }
+    }
+  },
+  "issuePoorAccuracyBody": "Current accuracy is ±{accuracy} m; at most {max} m is required. Move to an open area and try again.",
+  "@issuePoorAccuracyBody": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "lateBy": "Late {minutes} min",
+  "@lateBy": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "loanLimitValue": "Up to {amount} · {count} instalments",
+  "@loanLimitValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "maxAmount": "Maximum {amount}",
+  "@maxAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxInstalments": "Up to {count}",
+  "@maxInstalments": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "metersAway": "{meters} m away",
+  "@metersAway": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "metersShort": "{meters} m",
+  "@metersShort": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "netThisYear": "Net pay {year}",
+  "@netThisYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeDays": "Request at least {days} days in advance.",
+  "@noticeDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "otpResendIn": "Resend code in {seconds} s",
+  "@otpResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "otpSubtitle": "Enter the code we sent to {email}.",
+  "@otpSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "radiusValue": "Radius {meters} m",
+  "@radiusValue": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "recordedAt": "Recorded by the server at {time}.",
+  "@recordedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "shiftRange": "{name} {start} – {end}",
+  "@shiftRange": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "validationInstalments": "Enter 1 to {max} instalments.",
+  "@validationInstalments": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "pendingReviews": "{count, plural, =1{1 attendance attempt is waiting for review} other{{count} attendance attempts are waiting for review}}",
+  "@pendingReviews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "validationPasswordLength": "{min, plural, other{Use at least {min} characters.}}",
+  "@validationPasswordLength": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "otpInvalidLength": "{length, plural, other{Enter the {length}-digit code.}}",
+  "@otpInvalidLength": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  }
+}

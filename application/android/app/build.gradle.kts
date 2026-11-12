@@ -5,18 +5,20 @@ plugins {
 }
 
 android {
-    namespace = "com.example.application"
+    namespace = "com.hrmplus.employee"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications needs java.time on older Android versions.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.application"
+        // Placeholder id until the client supplies the real one (PROJECT_PLAN blocker B8).
+        applicationId = "com.hrmplus.employee"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -46,4 +48,14 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
+
+// Firebase (push) is optional: the plugin is applied only when the project's
+// google-services.json is present (see README "Push notifications").
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }
